@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 13, 92, 54;
+  --background-end-rgb: 26, 124, 78;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--background-start-rgb)),
+    rgb(var(--background-end-rgb))
+  );
+  min-height: 100vh;
+}
+
+/* Poker Table Felt Texture */
+.felt-texture {
+  background: radial-gradient(
+    ellipse at center,
+    #1a7c4e 0%,
+    #0d5c36 70%,
+    #094528 100%
+  );
+}
+
+/* Glass effect for cards and panels */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Active player glow */
+.active-glow {
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.8),
+              0 0 40px rgba(255, 215, 0, 0.4);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Chip stack styling */
+.chip {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px dashed rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+/* Button styling */
+.btn-action {
+  @apply px-6 py-3 rounded-xl font-bold text-lg transition-all duration-200;
+  @apply hover:scale-105 active:scale-95;
+}
+
+.btn-fold {
+  @apply bg-red-600 hover:bg-red-500 text-white;
+}
+
+.btn-check {
+  @apply bg-blue-600 hover:bg-blue-500 text-white;
+}
+
+.btn-call {
+  @apply bg-green-600 hover:bg-green-500 text-white;
+}
+
+.btn-raise {
+  @apply bg-yellow-500 hover:bg-yellow-400 text-black;
+}
+
+/* Numpad styling */
+.numpad-btn {
+  @apply w-16 h-16 rounded-xl bg-gray-800 hover:bg-gray-700;
+  @apply text-white text-2xl font-bold;
+  @apply transition-all duration-150;
+  @apply active:scale-95;
+}
+
+/* Player card */
+.player-card {
+  @apply rounded-2xl p-4 transition-all duration-300;
+}
+
+.player-card.active {
+  @apply scale-110 z-10;
+}
+
+.player-card.folded {
+  @apply opacity-40 grayscale;
+}
+
+/* Position badge */
+.position-badge {
+  @apply absolute -top-2 -right-2 w-8 h-8 rounded-full;
+  @apply flex items-center justify-center text-xs font-bold;
+}
+
+.badge-dealer {
+  @apply bg-white text-black;
+}
+
+.badge-sb {
+  @apply bg-blue-500 text-white;
+}
+
+.badge-bb {
+  @apply bg-yellow-500 text-black;
+}
