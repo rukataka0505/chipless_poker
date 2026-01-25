@@ -18,7 +18,6 @@ export function TableView() {
         phase,
         currentPlayerIndex,
         pots,
-        getTotalPot,
         updatePlayerStack,
         addPlayer,
     } = useGameStore();
@@ -82,7 +81,7 @@ export function TableView() {
             {/* Central Area: Community Cards & Pot */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] z-10 flex flex-col items-center gap-8">
                 <div className="translate-y-[10px]">
-                    <PotDisplay pot={getTotalPot()} stage={phase} />
+                    <PotDisplay pots={pots} stage={phase} />
                 </div>
 
                 <div className="flex items-center gap-3">

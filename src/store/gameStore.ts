@@ -356,6 +356,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         }
 
+        // 【重要】次のハンドに進む前に、プレイ継続可能なプレイヤー数をチェック
+        // スタック > 0 のプレイヤーが2人未満の場合はゲーム終了
+        const playersWithStack = state.players.filter(p => p.stack > 0);
+        if (playersWithStack.length < 2) {
+            // ゲーム終了 - プレイヤー不足
+            set({
+                phase: 'SETUP',
+                selectedWinners: new Map(),
+                undoStack: [],
+                handHistories: newHandHistories,
+                isShowdownResolved: false,
+            });
+            return;
+        }
+
         // 次のハンドの準備（ディーラー移動など）
         const nextHandState = nextHand(state, Array.from(selectedWinners.keys()).map(String));
 
