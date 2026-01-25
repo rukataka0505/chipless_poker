@@ -44,7 +44,7 @@ export function ShowdownPanel() {
                 }
             }
         });
-    }, [phase, pots, players, isShowdownResolved, autoWinner]);
+    }, [phase, pots, players, isShowdownResolved, autoWinner, selectedWinners, selectWinners]);
 
     if (phase !== 'SHOWDOWN') {
         return null;

@@ -1,5 +1,4 @@
 import React from 'react';
-import { User, Trophy, EyeOff } from 'lucide-react';
 import { Player } from '@/lib/poker/types';
 import { Card } from './ui/Card';
 
@@ -13,24 +12,55 @@ interface PlayerCardProps {
 export function PlayerCard({ player, isActive, isDealer, position }: PlayerCardProps) {
     const isFolded = player.folded;
     const isAllIn = player.allIn;
+    const hasBet = player.currentBet > 0;
 
     return (
-        <div className={`relative transition-all duration-500 ease-out ${isActive ? 'scale-125 z-40' : 'scale-100 z-10'} ${isFolded ? 'opacity-50 grayscale' : 'opacity-100'}`}>
+        <div className={`
+            relative transition-all duration-500 ease-out 
+            ${isActive ? 'scale-125 z-50' : 'scale-100 z-10'} 
+            ${isFolded ? 'opacity-40 grayscale blur-[1px]' : 'opacity-100'}
+        `}>
+            {/* --- VARIANT B: Floating Satellite Pill for Bets --- */}
+            {/* Absolute positioned above the card so it doesn't shift the card's center */}
+            <div className={`
+                absolute -top-14 left-1/2 -translate-x-1/2 z-40
+                transition-all duration-500 ease-out
+                ${hasBet ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-90 pointer-events-none'}
+            `}>
+                <div className="relative">
+                    {/* Chip-like Pill */}
+                    <div className="bg-gradient-to-b from-yellow-400 to-yellow-600 border-2 border-yellow-200 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
+                        {/* Chip Icon / Illustration */}
+                        <div className="w-5 h-5 rounded-full border-2 border-yellow-800/50 bg-yellow-500 flex items-center justify-center shadow-inner">
+                            <div className="w-3 h-3 rounded-full border border-dashed border-yellow-800/60" />
+                        </div>
+
+                        <span className="font-display font-bold text-xl text-black drop-shadow-sm tabular-nums">
+                            {player.currentBet.toLocaleString()}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+
             {/* Active Glow Background - Stronger */}
             {isActive && (
-                <div className="absolute inset-0 bg-electric/20 rounded-3xl blur-xl animate-pulse-slow" />
+                <>
+                    <div className="absolute inset-0 bg-electric/40 rounded-3xl blur-2xl animate-pulse-slow pointer-events-none" />
+                    <div className="absolute -inset-4 bg-electric/10 rounded-full blur-3xl animate-pulse-slow pointer-events-none" style={{ animationDelay: '0.5s' }} />
+                </>
             )}
 
             {/* Dealer Button */}
             {isDealer && (
-                <div className="absolute -top-3 -right-2 z-20 w-6 h-6 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-lg border border-gray-300">
+                <div className="absolute -top-4 -right-3 z-30 w-7 h-7 rounded-full bg-white text-black font-bold text-sm flex items-center justify-center shadow-[0_0_10px_rgba(255,255,255,0.5)] border-2 border-gray-200">
                     D
                 </div>
             )}
 
             {/* Position Badges */}
             {position && (
-                <div className="absolute -top-3 -left-2 z-20 px-2 h-5 rounded-full bg-gold text-black font-bold text-[10px] flex items-center justify-center shadow-lg uppercase tracking-wider">
+                <div className="absolute -top-4 -left-3 z-30 px-2.5 h-6 rounded-full bg-gold text-black font-bold text-xs flex items-center justify-center shadow-[0_0_10px_rgba(255,215,0,0.5)] uppercase tracking-wider border border-white/20">
                     {position}
                 </div>
             )}
@@ -38,44 +68,37 @@ export function PlayerCard({ player, isActive, isDealer, position }: PlayerCardP
             <Card
                 variant={isActive ? 'highlight' : 'default'}
                 className={`
-                    w-32 sm:w-40 p-3 flex flex-col items-center gap-2
-                    ${isActive ? 'ring-[3px] ring-electric shadow-[0_0_50px_rgba(0,240,255,0.4)] bg-black/60' : ''}
-                    ${isFolded ? 'bg-black/40 border-white/5' : ''}
+                    w-36 sm:w-44 transition-all duration-300 overflow-visible
+                    ${isActive ? 'ring-2 ring-electric shadow-[0_0_40px_rgba(0,240,255,0.5)] bg-black/80' : 'bg-black/40'}
+                    ${isFolded ? 'bg-black/20 border-white/5' : ''}
                 `}
             >
-                {/* Avatar */}
-                <div className={`
-                    relative w-12 h-12 rounded-full flex items-center justify-center border-2
-                    ${isActive ? 'border-electric bg-electric/10' : isFolded ? 'border-gray-700 bg-gray-800' : 'border-gold/30 bg-gold/5'}
-                    transition-colors duration-300
-                `}>
-                    {isFolded ? (
-                        <EyeOff className="w-5 h-5 text-gray-500" />
-                    ) : isAllIn ? (
-                        <Trophy className="w-5 h-5 text-gold animate-pulse" />
-                    ) : (
-                        <User className={`w-6 h-6 ${isActive ? 'text-electric' : 'text-gold/70'}`} />
-                    )}
-                </div>
-
-                {/* Info */}
-                <div className="text-center w-full">
-                    <div className="text-xs font-bold truncate text-white/90 mb-0.5">
+                <div className="p-4 flex flex-col items-center gap-1">
+                    {/* Name */}
+                    <div className={`font-bold truncate w-full text-center ${isActive ? 'text-white text-lg' : 'text-gray-300 text-sm'}`}>
                         {player.name}
                     </div>
+
+                    {/* Stack */}
                     <div className={`
-                        font-display font-bold text-sm tracking-wide
-                        ${isAllIn ? 'text-gold glow-text-gold' : 'text-white'}
+                        font-display font-bold tracking-wide transition-all
+                        ${isActive ? 'text-2xl text-electric glow-text-electric' : 'text-xl text-white'}
+                        ${isAllIn ? 'text-gold glow-text-gold animate-pulse' : ''}
                     `}>
                         {player.stack.toLocaleString()}
                     </div>
+
+                    {/* All In Label */}
+                    {isAllIn && (
+                        <span className="text-[10px] font-bold text-gold uppercase tracking-[0.2em] border border-gold/30 px-2 py-0.5 rounded-full mt-1">
+                            ALL IN
+                        </span>
+                    )}
                 </div>
 
-
-
                 {isFolded && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px] rounded-3xl">
-                        <span className="text-red-500 font-bold uppercase tracking-widest text-xs border border-red-500/50 px-2 py-1 rounded">Fold</span>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[1px] rounded-3xl">
+                        <span className="text-red-500/80 font-bold uppercase tracking-[0.3em] text-sm border-y border-red-500/30 py-1">Fold</span>
                     </div>
                 )}
             </Card>

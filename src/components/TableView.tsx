@@ -141,23 +141,7 @@ export function TableView() {
                             isDealer={false} // Dealer logic needs to be passed or derived
                             position="" // Position logic needs to be derived
                         />
-                        {/* Bet Bubble - REFINED */}
-                        <AnimatePresence>
-                            {player.currentBet > 0 && (
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.5 }}
-                                    className="absolute -top-14 left-1/2 -translate-x-1/2 z-30"
-                                >
-                                    <div className="bg-black/80 backdrop-blur-md border border-gold/50 px-4 py-1 rounded-full shadow-[0_0_20px_rgba(255,215,0,0.3)]">
-                                        <span className="text-xl font-display font-bold text-gold glow-text-gold">
-                                            {player.currentBet.toLocaleString()}
-                                        </span>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+
                     </div>
                 );
             })}
