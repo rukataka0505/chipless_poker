@@ -21,7 +21,7 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick }: Pl
             className={`
             relative transition-all duration-500 ease-out flex flex-col items-center cursor-pointer
             ${isActive ? 'scale-125 z-50' : 'scale-100 z-10'} 
-            ${isFolded ? 'opacity-40 grayscale blur-[1px]' : 'opacity-100'}
+            ${isFolded ? 'opacity-80' : 'opacity-100'}
         `}>
             {/* --- VARIANT B: Floating Satellite Pill for Bets --- */}
             <div className={`
@@ -62,9 +62,29 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick }: Pl
                     ${isFolded ? 'bg-black/20 border-white/5' : ''}
                 `}
             >
-                <div className="p-4 flex flex-col items-center gap-1">
+                {/* --- Position Badges (Inside Top Right) --- */}
+                <div className="absolute top-2 right-2 flex flex-col gap-1 z-50 pointer-events-none">
+                    {/* Dealer Button */}
+                    {isDealer && (
+                        <div className="w-6 h-6 rounded-full bg-white text-black font-bold text-[10px] flex items-center justify-center shadow-lg border border-gray-300">
+                            BTN
+                        </div>
+                    )}
+
+                    {/* SB / BB Badge */}
+                    {position && (
+                        <div className={`
+                            w-6 h-6 rounded-full font-bold text-[10px] flex items-center justify-center shadow-lg border border-white/20
+                            ${position === 'SB' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'}
+                        `}>
+                            {position}
+                        </div>
+                    )}
+                </div>
+
+                <div className="p-4 flex flex-col items-center gap-1 mt-2">
                     {/* Name */}
-                    <div className={`font-bold truncate w-full text-center ${isActive ? 'text-white text-lg' : 'text-gray-300 text-sm'}`}>
+                    <div className={`font-bold truncate w-full text-center ${isActive ? 'text-white text-lg' : 'text-gray-300 text-sm'} ${isFolded ? 'opacity-50' : ''}`}>
                         {player.name}
                     </div>
 
@@ -73,6 +93,7 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick }: Pl
                         font-display font-bold tracking-wide transition-all
                         ${isActive ? 'text-2xl text-red-500 glow-text-red' : 'text-xl text-white'}
                         ${isAllIn ? 'text-gold glow-text-gold animate-pulse' : ''}
+                        ${isFolded ? 'opacity-50' : ''}
                     `}>
                         {player.stack.toLocaleString()}
                     </div>
@@ -86,30 +107,10 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick }: Pl
                 </div>
 
                 {isFolded && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[1px] rounded-3xl">
-                        <span className="text-red-500/80 font-bold uppercase tracking-[0.3em] text-sm border-y border-red-500/30 py-1">Fold</span>
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span className="text-red-500/80 font-bold uppercase tracking-[0.3em] text-sm border-y border-red-500/30 py-1 bg-black/40 backdrop-blur-[1px] px-4 rounded-full z-40">Fold</span>
                     </div>
                 )}
-
-                {/* --- Position Badges (Bottom Left) --- */}
-                <div className="absolute -bottom-3 -left-3 flex flex-col-reverse gap-1 z-30">
-                    {/* Dealer Button */}
-                    {isDealer && (
-                        <div className="w-8 h-8 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-lg border-2 border-gray-300">
-                            BTN
-                        </div>
-                    )}
-
-                    {/* SB / BB Badge */}
-                    {position && (
-                        <div className={`
-                            w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center shadow-lg border border-white/20
-                            ${position === 'SB' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'}
-                        `}>
-                            {position}
-                        </div>
-                    )}
-                </div>
 
             </Card>
         </div>

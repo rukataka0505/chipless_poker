@@ -132,6 +132,22 @@ export function TableView() {
                 const playerIndex = index - 1; // Adjust for ADD_BUTTON at index 0
                 const isActive = playerIndex === currentPlayerIndex;
 
+                // Determine visuals for Position Badges
+                let isDealer = player.position === 'D';
+                let positionLabel = '';
+
+                if (player.position === 'SB') positionLabel = 'SB';
+                if (player.position === 'BB') positionLabel = 'BB';
+
+                // Special Case: Heads Up (2 Players)
+                // In Heads Up, the Button (Dealer) is also the Small Blind.
+                // The other player is Big Blind.
+                // Our gameState sets Dealer as 'D' and other as 'BB'.
+                // So if we see 'D' and there are only 2 players, we should also show 'SB'.
+                if (players.length === 2 && player.position === 'D') {
+                    positionLabel = 'SB';
+                }
+
                 return (
                     <div
                         key={player.id}
@@ -141,8 +157,8 @@ export function TableView() {
                         <PlayerCard
                             player={player}
                             isActive={isActive}
-                            isDealer={false} // Dealer logic needs to be passed or derived
-                            position="" // Position logic needs to be derived
+                            isDealer={isDealer}
+                            position={positionLabel}
                             onClick={() => handlePlayerClick(player)}
                         />
 
