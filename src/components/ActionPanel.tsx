@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, Check, ArrowUp, Minus, Plus } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
+import { ConfirmationModal } from './ConfirmationModal';
 import { PlayerAction } from '@/lib/poker/types';
 
 export function ActionPanel() {
@@ -18,6 +19,7 @@ export function ActionPanel() {
     const [betAmount, setBetAmount] = useState<string>('');
     const [showInput, setShowInput] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showFoldConfirmation, setShowFoldConfirmation] = useState(false);
 
     const currentPlayer = getCurrentPlayer();
     const availableActions = getAvailableActionsForCurrentPlayer();
@@ -48,7 +50,7 @@ export function ActionPanel() {
     // スライダーの最大値が最小値を下回る場合のガード（オールイン対応等）
     const effectiveSliderMax = Math.max(minAmount, maxAmount);
 
-    const handleAction = (action: PlayerAction, amount?: number) => {
+    const executeAction = (action: PlayerAction, amount?: number) => {
         setError(null);
         const result = doAction(action, amount);
         if (!result.success) {
@@ -57,6 +59,14 @@ export function ActionPanel() {
             setBetAmount('');
             setShowInput(false);
         }
+    };
+
+    const handleAction = (action: PlayerAction, amount?: number) => {
+        if (action === 'FOLD' && availableActions.canCheck) {
+            setShowFoldConfirmation(true);
+            return;
+        }
+        executeAction(action, amount);
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -304,6 +314,20 @@ export function ActionPanel() {
                     </div>
                 </div>
             )}
+
+
+            <ConfirmationModal
+                isOpen={showFoldConfirmation}
+                title="確認"
+                message="チェックが可能ですがフォールドしますか？"
+                confirmText="フォールドする"
+                cancelText="キャンセル"
+                onConfirm={() => {
+                    setShowFoldConfirmation(false);
+                    executeAction('FOLD');
+                }}
+                onCancel={() => setShowFoldConfirmation(false)}
+            />
         </div>
     );
 }

@@ -50,6 +50,7 @@ export function createInitialState(playerNames: string[]): GameState {
         communityCardCount: 0,
         handNumber: 0,
         actionHistory: [],
+        showPhaseNotifications: true,
     };
 }
 
@@ -84,9 +85,9 @@ export function startHand(state: GameState): GameState {
         ...p,
         currentBet: 0,
         totalBetThisRound: 0,
-        folded: false,
+        folded: p.stack === 0, // Stack 0 means they are busted/folded
         allIn: false,
-        hasActedThisRound: false,
+        hasActedThisRound: p.stack === 0, // Busted players don't act
     }));
 
     // ブラインドを徴収
@@ -99,25 +100,31 @@ export function startHand(state: GameState): GameState {
 
     // SB徴収
     const sbPlayer = newState.players[sbIndex];
-    const sbAmount = Math.min(GAME_CONSTANTS.SMALL_BLIND, sbPlayer.stack);
-    newState.players[sbIndex] = {
-        ...sbPlayer,
-        stack: sbPlayer.stack - sbAmount,
-        currentBet: sbAmount,
-        totalBetThisRound: sbAmount,
-        allIn: sbPlayer.stack - sbAmount === 0,
-    };
+    let sbAmount = 0;
+    if (sbPlayer.stack > 0) {
+        sbAmount = Math.min(GAME_CONSTANTS.SMALL_BLIND, sbPlayer.stack);
+        newState.players[sbIndex] = {
+            ...sbPlayer,
+            stack: sbPlayer.stack - sbAmount,
+            currentBet: sbAmount,
+            totalBetThisRound: sbAmount,
+            allIn: sbPlayer.stack - sbAmount === 0,
+        };
+    }
 
     // BB徴収
     const bbPlayer = newState.players[bbIndex];
-    const bbAmount = Math.min(GAME_CONSTANTS.BIG_BLIND, bbPlayer.stack);
-    newState.players[bbIndex] = {
-        ...bbPlayer,
-        stack: bbPlayer.stack - bbAmount,
-        currentBet: bbAmount,
-        totalBetThisRound: bbAmount,
-        allIn: bbPlayer.stack - bbAmount === 0,
-    };
+    let bbAmount = 0;
+    if (bbPlayer.stack > 0) {
+        bbAmount = Math.min(GAME_CONSTANTS.BIG_BLIND, bbPlayer.stack);
+        newState.players[bbIndex] = {
+            ...bbPlayer,
+            stack: bbPlayer.stack - bbAmount,
+            currentBet: bbAmount,
+            totalBetThisRound: bbAmount,
+            allIn: bbPlayer.stack - bbAmount === 0,
+        };
+    }
 
     // プリフロップ開始、UTGから
     const utgIndex = (bbIndex + 1) % numPlayers;

@@ -45,8 +45,9 @@ export function PlayerCard({ player, isActive, onClick }: PlayerCardProps) {
             {/* プレイヤー名 */}
             <p className={`font-bold mb-0.5 transition-all duration-300 break-words leading-tight ${isActive ? 'text-xs' : 'text-[10px]'}`}>
                 {name}
+                {!allIn && stack === 0 && <span className="text-red-600 font-extrabold ml-1">BUST</span>}
                 {allIn && <span className="text-red-400 ml-1">ALL IN</span>}
-                {folded && <span className="text-gray-500 ml-1">FOLD</span>}
+                {folded && stack > 0 && <span className="text-gray-500 ml-1">FOLD</span>}
             </p>
 
             {/* スタック */}
