@@ -142,6 +142,7 @@ export function TableView() {
                             isActive={isActive}
                             isDealer={false} // Dealer logic needs to be passed or derived
                             position="" // Position logic needs to be derived
+                            onClick={() => handlePlayerClick(player)}
                         />
 
                     </div>

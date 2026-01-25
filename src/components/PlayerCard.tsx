@@ -7,16 +7,19 @@ interface PlayerCardProps {
     isActive: boolean;
     isDealer: boolean;
     position: string; // "SB", "BB", or ""
+    onClick?: () => void;
 }
 
-export function PlayerCard({ player, isActive, isDealer, position }: PlayerCardProps) {
+export function PlayerCard({ player, isActive, isDealer, position, onClick }: PlayerCardProps) {
     const isFolded = player.folded;
     const isAllIn = player.allIn;
     const hasBet = player.currentBet > 0;
 
     return (
-        <div className={`
-            relative transition-all duration-500 ease-out flex flex-col items-center
+        <div
+            onClick={onClick}
+            className={`
+            relative transition-all duration-500 ease-out flex flex-col items-center cursor-pointer
             ${isActive ? 'scale-125 z-50' : 'scale-100 z-10'} 
             ${isFolded ? 'opacity-40 grayscale blur-[1px]' : 'opacity-100'}
         `}>
