@@ -20,8 +20,8 @@ export function ConfirmationModal({
     isOpen,
     title,
     message,
-    confirmText = 'Yes',
-    cancelText = 'Cancel',
+    confirmText = 'はい',
+    cancelText = 'キャンセル',
     onConfirm,
     onCancel
 }: ConfirmationModalProps) {

@@ -100,24 +100,24 @@ export function ShowdownPanel() {
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
                             <Trophy className="w-6 h-6 text-gold" />
-                            Showdown
+                            ショーダウン
                         </h2>
                         <button
                             onClick={() => undo()}
                             disabled={!canUndo()}
                             className={`text-xs flex items-center gap-1 transition-colors ${canUndo() ? 'text-gray-400 hover:text-white' : 'text-gray-700 cursor-not-allowed'}`}
+                            title="元に戻す"
                         >
                             <Undo2 size={16} />
-                            Undo
                         </button>
                     </div>
 
                     {isAutoWinnerMode ? (
                         <div className="space-y-6 animate-in slide-in-from-bottom-5">
                             <div className="text-center p-6 bg-gold/5 rounded-2xl border border-gold/10">
-                                <p className="text-text-secondary text-sm uppercase tracking-widest mb-2">Everyone else folded</p>
+                                <p className="text-text-secondary text-sm uppercase tracking-widest mb-2">全員がフォールドしました</p>
                                 <div className="text-3xl font-display font-bold text-gold glow-text-gold">{autoWinner.name}</div>
-                                <p className="text-white mt-1">Wins the pot!</p>
+                                <p className="text-white mt-1">ポットを獲得！</p>
                             </div>
                             <Button
                                 variant="gold"
@@ -129,7 +129,7 @@ export function ShowdownPanel() {
                                 className="w-full"
                                 icon={<ArrowRight className="w-5 h-5" />}
                             >
-                                Collect & Next Hand
+                                チップを回収して次のハンドへ
                             </Button>
                         </div>
                     ) : (
@@ -145,7 +145,7 @@ export function ShowdownPanel() {
                                                 <div key={potIndex} className="bg-white/5 rounded-xl p-4 border border-white/5">
                                                     <div className="flex items-center justify-between mb-3">
                                                         <span className="text-sm text-text-secondary uppercase tracking-wider">
-                                                            {pots.length > 1 ? (potIndex === 0 ? 'Main Pot' : `Side Pot ${potIndex}`) : 'Pot'}
+                                                            {pots.length > 1 ? (potIndex === 0 ? 'メインポット' : `サイドポット ${potIndex}`) : 'ポット'}
                                                         </span>
                                                         <span className="text-gold font-bold font-display">{pot.amount.toLocaleString()}</span>
                                                     </div>
@@ -183,7 +183,7 @@ export function ShowdownPanel() {
                                         className="w-full"
                                         icon={<Check className="w-5 h-5" />}
                                     >
-                                        Confirm Winner(s)
+                                        勝者を確定する
                                     </Button>
                                 </div>
                             ) : (
@@ -191,7 +191,7 @@ export function ShowdownPanel() {
                                     <div className="text-center p-8 bg-gold/5 rounded-2xl border border-gold/20 relative overflow-hidden">
                                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
 
-                                        <p className="text-gold/80 text-sm uppercase tracking-[0.2em] mb-4">Winner</p>
+                                        <p className="text-gold/80 text-sm uppercase tracking-[0.2em] mb-4">勝者</p>
                                         <div className="flex flex-col gap-3">
                                             {winners.map(winner => (
                                                 <div key={winner.id} className="text-4xl font-display font-bold text-white glow-text-gold">
@@ -207,7 +207,7 @@ export function ShowdownPanel() {
                                         className="w-full"
                                         icon={<ArrowRight className="w-5 h-5" />}
                                     >
-                                        Next Hand
+                                        次のハンドへ
                                     </Button>
                                 </div>
                             )}

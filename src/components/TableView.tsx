@@ -43,7 +43,7 @@ export function TableView() {
         if (isAddingPlayer) {
             addPlayer(name, stack);
         } else if (editingPlayer) {
-            const confirmMessage = `Update chip count for "${editingPlayer.name}"?\n${editingPlayer.stack} -> ${stack}`;
+            const confirmMessage = `「${editingPlayer.name}」のチップ数を変更しますか？\n${editingPlayer.stack} -> ${stack}`;
             if (window.confirm(confirmMessage)) {
                 updatePlayerStack(editingPlayer.id, stack);
             }
@@ -129,7 +129,8 @@ export function TableView() {
                 }
 
                 const player = item as Player;
-                const isActive = index === currentPlayerIndex;
+                const playerIndex = index - 1; // Adjust for ADD_BUTTON at index 0
+                const isActive = playerIndex === currentPlayerIndex;
 
                 return (
                     <div

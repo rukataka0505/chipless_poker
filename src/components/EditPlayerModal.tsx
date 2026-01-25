@@ -58,26 +58,26 @@ export function EditPlayerModal({ isOpen, onClose, onSave, player, isAdding = fa
                             </button>
 
                             <h2 className="text-xl font-display font-bold text-white mb-6 tracking-wide">
-                                {isAdding ? 'Add Player' : 'Edit Player'}
+                                {isAdding ? 'プレイヤー追加' : 'プレイヤー編集'}
                             </h2>
 
                             <div className="space-y-6">
                                 <div>
                                     <label className="block text-xs uppercase tracking-wider text-text-secondary mb-2 font-bold">
-                                        Player Name
+                                        プレイヤー名
                                     </label>
                                     <input
                                         type="text"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        placeholder="Enter name"
+                                        placeholder="名前を入力"
                                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-gold/50 transition-colors font-medium"
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-xs uppercase tracking-wider text-text-secondary mb-2 font-bold">
-                                        Chips Stack
+                                        スタック
                                     </label>
                                     <div className="flex items-center gap-4">
                                         <button
@@ -123,7 +123,7 @@ export function EditPlayerModal({ isOpen, onClose, onSave, player, isAdding = fa
                                     className="w-full mt-2"
                                     icon={<Check size={20} />}
                                 >
-                                    {isAdding ? 'Add Player' : 'Save Changes'}
+                                    {isAdding ? 'プレイヤー追加' : '変更を保存'}
                                 </Button>
                             </div>
                         </Card>

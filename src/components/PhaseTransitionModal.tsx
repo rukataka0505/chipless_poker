@@ -9,10 +9,10 @@ import { Button } from './ui/Button';
 
 const PHASE_MESSAGES: Record<GamePhase, string> = {
     SETUP: '',
-    PREFLOP: 'Please deal 2 cards to each player.',
-    FLOP: 'Please deal 3 community cards (Flop).',
-    TURN: 'Please deal the 4th community card (Turn).',
-    RIVER: 'Please deal the 5th community card (River).',
+    PREFLOP: '各プレイヤーに2枚ずつ配ってください',
+    FLOP: '1枚バーンして3枚のフロップを開いてください',
+    TURN: '1枚バーンしてターンを1枚開いてください',
+    RIVER: '1枚バーンしてリバーを1枚開いてください',
     SHOWDOWN: '',
 };
 
@@ -64,7 +64,7 @@ export function PhaseTransitionModal() {
                     onClick={confirmPhaseTransition}
                     icon={<Check className="w-5 h-5" />}
                 >
-                    Confirm & Proceed
+                    確認して進む
                 </Button>
             </Card>
         </div>

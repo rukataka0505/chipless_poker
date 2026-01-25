@@ -139,14 +139,14 @@ export function ActionPanel() {
                                 <span className="text-electric font-bold text-lg">{currentPlayer.name.charAt(0)}</span>
                             </div>
                             <div>
-                                <div className="text-xs text-text-secondary uppercase tracking-wider">Current Action</div>
+                                <div className="text-xs text-text-secondary uppercase tracking-wider">現在の手番</div>
                                 <div className="font-bold text-white">{currentPlayer.name}</div>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-4">
                             <div className="text-right">
-                                <div className="text-xs text-text-secondary uppercase tracking-wider">Stack</div>
+                                <div className="text-xs text-text-secondary uppercase tracking-wider">スタック</div>
                                 <div className="font-display font-bold text-gold glow-text-gold">{currentPlayer.stack.toLocaleString()}</div>
                             </div>
                             <div className="w-px h-8 bg-white/10" />
@@ -154,9 +154,9 @@ export function ActionPanel() {
                                 onClick={() => undo()}
                                 disabled={!canUndo()}
                                 className={`text-xs flex items-center gap-1 transition-colors ${canUndo() ? 'text-gray-400 hover:text-white' : 'text-gray-700 cursor-not-allowed'}`}
+                                title="元に戻す"
                             >
                                 <Undo2 size={16} />
-                                UNDO
                             </button>
                         </div>
                     </div>
@@ -222,8 +222,8 @@ export function ActionPanel() {
                         /* Bet/Raise Input UI */
                         <div className="space-y-4 animate-in slide-in-from-bottom-5 fade-in duration-300">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-text-secondary uppercase tracking-wider">{currentBet === 0 ? 'Bet Amount' : 'Raise Amount'}</span>
-                                <button onClick={handleAllInClick} className="text-xs font-bold text-gold hover:text-white transition-colors">MAX (ALL IN)</button>
+                                <span className="text-sm text-text-secondary uppercase tracking-wider">{currentBet === 0 ? 'ベット額' : 'レイズ額'}</span>
+                                <button onClick={handleAllInClick} className="text-xs font-bold text-gold hover:text-white transition-colors">ALL IN</button>
                             </div>
 
                             <div className="relative">
@@ -265,10 +265,10 @@ export function ActionPanel() {
 
                             <div className="grid grid-cols-2 gap-3 pt-2">
                                 <Button variant="ghost" onClick={() => { setShowInput(false); setBetAmount(''); setError(null); }}>
-                                    Cancel
+                                    キャンセル
                                 </Button>
                                 <Button variant="gold" onClick={handleBetConfirm}>
-                                    Confirm
+                                    {currentBet === 0 ? 'Bet' : 'Raise'}
                                 </Button>
                             </div>
                         </div>
@@ -278,10 +278,10 @@ export function ActionPanel() {
 
             <ConfirmationModal
                 isOpen={showFoldConfirmation}
-                title="Confirm Fold"
-                message="You can check for free. Are you sure you want to fold?"
+                title="Fold確認"
+                message="無料でチェックできます。本当にフォールドしますか？"
                 confirmText="Fold"
-                cancelText="Cancel"
+                cancelText="キャンセル"
                 onConfirm={() => {
                     setShowFoldConfirmation(false);
                     executeAction('FOLD');
