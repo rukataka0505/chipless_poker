@@ -81,7 +81,9 @@ export function TableView() {
 
             {/* Central Area: Community Cards & Pot */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] z-10 flex flex-col items-center gap-8">
-                <PotDisplay pot={getTotalPot()} stage={phase} />
+                <div className="translate-y-[10px]">
+                    <PotDisplay pot={getTotalPot()} stage={phase} />
+                </div>
 
                 <div className="flex items-center gap-3">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -106,7 +108,7 @@ export function TableView() {
             </div>
 
             {/* Players */}
-            {[...players, 'ADD_BUTTON'].map((item, index) => {
+            {['ADD_BUTTON', ...players].map((item, index) => {
                 const totalItems = players.length + 1;
                 const pos = getPlayerPosition(index, totalItems);
 

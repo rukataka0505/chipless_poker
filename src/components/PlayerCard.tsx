@@ -16,60 +16,46 @@ export function PlayerCard({ player, isActive, isDealer, position }: PlayerCardP
 
     return (
         <div className={`
-            relative transition-all duration-500 ease-out 
+            relative transition-all duration-500 ease-out flex flex-col items-center
             ${isActive ? 'scale-125 z-50' : 'scale-100 z-10'} 
             ${isFolded ? 'opacity-40 grayscale blur-[1px]' : 'opacity-100'}
         `}>
             {/* --- VARIANT B: Floating Satellite Pill for Bets --- */}
-            {/* Absolute positioned above the card so it doesn't shift the card's center */}
             <div className={`
                 absolute -top-14 left-1/2 -translate-x-1/2 z-40
                 transition-all duration-500 ease-out
                 ${hasBet ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-90 pointer-events-none'}
             `}>
                 <div className="relative">
-                    {/* Chip-like Pill */}
+                    {/* Chip-like Pill - SHARP & CLEAN */}
                     <div className="bg-gradient-to-b from-yellow-400 to-yellow-600 border-2 border-yellow-200 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
-                        {/* Chip Icon / Illustration */}
+                        {/* Chip Icon */}
                         <div className="w-5 h-5 rounded-full border-2 border-yellow-800/50 bg-yellow-500 flex items-center justify-center shadow-inner">
                             <div className="w-3 h-3 rounded-full border border-dashed border-yellow-800/60" />
                         </div>
 
-                        <span className="font-display font-bold text-xl text-black drop-shadow-sm tabular-nums">
+                        {/* Bet Amount */}
+                        <span className="font-display font-bold text-xl text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)] tabular-nums tracking-wider text-shadow-outline">
                             {player.currentBet.toLocaleString()}
                         </span>
                     </div>
                 </div>
             </div>
 
-
-            {/* Active Glow Background - Stronger */}
+            {/* Active Square Border Overlay - MOVED OUTSIDE CARD */}
+            {/* Matches Card's rounded-[2rem] exactly */}
             {isActive && (
-                <>
-                    <div className="absolute inset-0 bg-electric/40 rounded-3xl blur-2xl animate-pulse-slow pointer-events-none" />
-                    <div className="absolute -inset-4 bg-electric/10 rounded-full blur-3xl animate-pulse-slow pointer-events-none" style={{ animationDelay: '0.5s' }} />
-                </>
-            )}
-
-            {/* Dealer Button */}
-            {isDealer && (
-                <div className="absolute -top-4 -right-3 z-30 w-7 h-7 rounded-full bg-white text-black font-bold text-sm flex items-center justify-center shadow-[0_0_10px_rgba(255,255,255,0.5)] border-2 border-gray-200">
-                    D
-                </div>
-            )}
-
-            {/* Position Badges */}
-            {position && (
-                <div className="absolute -top-4 -left-3 z-30 px-2.5 h-6 rounded-full bg-gold text-black font-bold text-xs flex items-center justify-center shadow-[0_0_10px_rgba(255,215,0,0.5)] uppercase tracking-wider border border-white/20">
-                    {position}
-                </div>
+                <div className="absolute -inset-[3px] z-20 pointer-events-none border-[4px] border-red-600 animate-pulse rounded-[2rem] box-border shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
             )}
 
             <Card
                 variant={isActive ? 'highlight' : 'default'}
                 className={`
-                    w-36 sm:w-44 transition-all duration-300 overflow-visible
-                    ${isActive ? 'ring-2 ring-electric shadow-[0_0_40px_rgba(0,240,255,0.5)] bg-black/80' : 'bg-black/40'}
+                    w-36 sm:w-44 transition-all duration-300 overflow-visible relative z-10
+                    ${isActive
+                        ? 'bg-black/90'
+                        : 'bg-black/40'
+                    }
                     ${isFolded ? 'bg-black/20 border-white/5' : ''}
                 `}
             >
@@ -82,7 +68,7 @@ export function PlayerCard({ player, isActive, isDealer, position }: PlayerCardP
                     {/* Stack */}
                     <div className={`
                         font-display font-bold tracking-wide transition-all
-                        ${isActive ? 'text-2xl text-electric glow-text-electric' : 'text-xl text-white'}
+                        ${isActive ? 'text-2xl text-red-500 glow-text-red' : 'text-xl text-white'}
                         ${isAllIn ? 'text-gold glow-text-gold animate-pulse' : ''}
                     `}>
                         {player.stack.toLocaleString()}
@@ -101,6 +87,27 @@ export function PlayerCard({ player, isActive, isDealer, position }: PlayerCardP
                         <span className="text-red-500/80 font-bold uppercase tracking-[0.3em] text-sm border-y border-red-500/30 py-1">Fold</span>
                     </div>
                 )}
+
+                {/* --- Position Badges (Bottom Left) --- */}
+                <div className="absolute -bottom-3 -left-3 flex flex-col-reverse gap-1 z-30">
+                    {/* Dealer Button */}
+                    {isDealer && (
+                        <div className="w-8 h-8 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-lg border-2 border-gray-300">
+                            BTN
+                        </div>
+                    )}
+
+                    {/* SB / BB Badge */}
+                    {position && (
+                        <div className={`
+                            w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center shadow-lg border border-white/20
+                            ${position === 'SB' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'}
+                        `}>
+                            {position}
+                        </div>
+                    )}
+                </div>
+
             </Card>
         </div>
     );

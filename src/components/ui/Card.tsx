@@ -11,7 +11,7 @@ export function Card({
     children,
     ...props
 }: CardProps) {
-    const baseStyles = "rounded-3xl transition-all duration-300 relative overflow-hidden";
+    const baseStyles = "rounded-[2rem] transition-all duration-300 relative overflow-hidden";
 
     const variants = {
         default: "glass-panel border border-white/5",
