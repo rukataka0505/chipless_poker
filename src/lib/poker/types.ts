@@ -48,6 +48,7 @@ export interface GameState {
     communityCardCount: number; // コミュニティカードの枚数
     handNumber: number;         // ハンド番号
     actionHistory: ActionRecord[];
+    showPhaseNotifications: boolean; // フェーズ遷移通知を表示するかどうか
 }
 
 export interface ActionRecord {

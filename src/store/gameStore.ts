@@ -36,8 +36,10 @@ interface GameStore extends GameState {
     doAction: (action: PlayerAction, amount?: number) => { success: boolean; error?: string };
 
     // Showdown
+    // Showdown
     selectWinners: (potIndex: number, winnerIds: string[]) => void;
-    confirmShowdown: () => void;
+    resolveShowdown: () => void;
+    proceedToNextHand: () => void;
 
     // Phase transition modal
     pendingPhase: GamePhase | null;
@@ -55,6 +57,10 @@ interface GameStore extends GameState {
 
     // Internal state
     selectedWinners: Map<number, string[]>;
+
+    // Settings
+    showPhaseNotifications: boolean;
+    togglePhaseNotifications: () => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -72,6 +78,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     actionHistory: [],
     selectedWinners: new Map(),
     pendingPhase: null,
+    showPhaseNotifications: true,
 
     // Setup actions
     initializeGame: (playerNames: string[]) => {
@@ -87,6 +94,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const newState = startHand(state);
         set({
             ...newState,
+            // プリフロップ通知の設定
+            pendingPhase: state.showPhaseNotifications ? 'PREFLOP' : null,
             selectedWinners: new Map(),
         });
     },
@@ -211,7 +220,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         set({ selectedWinners });
     },
 
-    confirmShowdown: () => {
+    resolveShowdown: () => {
         const state = get();
         const { pots, players, selectedWinners } = state;
 
@@ -226,14 +235,32 @@ export const useGameStore = create<GameStore>((set, get) => ({
             };
         });
 
-        // 次のハンドへ
-        const newState = nextHand({
-            ...state,
-            players: newPlayers,
-        }, Array.from(distribution.keys()));
-
+        // 状態更新（フェーズはSHOWDOWNのまま）
         set({
-            ...newState,
+            players: newPlayers,
+            pots: state.pots.map(p => ({ ...p, amount: 0 })), // ポットを空にする表示用
+        });
+    },
+
+    proceedToNextHand: () => {
+        const state = get();
+        const { selectedWinners } = state;
+
+        // 次のハンドの準備（ディーラー移動など）
+        const nextHandState = nextHand(state, Array.from(selectedWinners.keys()).map(String)); // Map key is pot index, we don't need winners for nextHand currently
+
+        if (nextHandState.phase === 'SETUP') {
+            // ゲーム終了（プレイヤー不足など）
+            set({ ...nextHandState, selectedWinners: new Map() });
+            return;
+        }
+
+        // 新しいハンドを開始
+        const startedState = startHand(nextHandState);
+        set({
+            ...startedState,
+            // プリフロップ通知の設定
+            pendingPhase: state.showPhaseNotifications ? 'PREFLOP' : null,
             selectedWinners: new Map(),
         });
     },
@@ -292,11 +319,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (!pendingPhase) return;
 
         // Actually advance to the pending phase
-        const advancedState = advancePhase(state);
-        set({
-            ...advancedState,
-            phase: pendingPhase,
-            pendingPhase: null,
-        } as GameStore);
+        // Actually advance to the pending phase
+        if (state.phase === pendingPhase) {
+            // Just clear, no advance needed (e.g. Preflop notification)
+            set({ pendingPhase: null });
+        } else {
+            const advancedState = advancePhase(state);
+            set({
+                ...advancedState,
+                phase: pendingPhase,
+                pendingPhase: null,
+            } as GameStore);
+        }
+    },
+
+    togglePhaseNotifications: () => {
+        set(state => ({ showPhaseNotifications: !state.showPhaseNotifications }));
     },
 }));

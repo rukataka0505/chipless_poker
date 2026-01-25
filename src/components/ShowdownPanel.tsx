@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { Trophy, Users, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Trophy, Users, Check, ArrowRight } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 
 export function ShowdownPanel() {
@@ -11,9 +11,11 @@ export function ShowdownPanel() {
         players,
         selectedWinners,
         selectWinners,
-        confirmShowdown,
-        startNewHand,
+        resolveShowdown,
+        proceedToNextHand,
     } = useGameStore();
+
+    const [isResolved, setIsResolved] = useState(false);
 
     if (phase !== 'SHOWDOWN') {
         return null;
@@ -45,16 +47,75 @@ export function ShowdownPanel() {
         });
     };
 
-    const handleConfirm = () => {
+    const handleConfirmSelection = () => {
         if (autoWinner) {
-            // 自動勝者の場合、全ポットをその人に
+            // 自動勝者の場合、全ポットをその人にセット（念のため）
             pots.forEach((_, i) => {
                 selectWinners(i, [autoWinner.id]);
             });
         }
-        confirmShowdown();
-        startNewHand();
+
+        // チップ配分を実行
+        resolveShowdown();
+        setIsResolved(true);
     };
+
+    const handleNextHand = () => {
+        setIsResolved(false);
+        proceedToNextHand();
+    };
+
+    // AutoWinnerの場合、最初から解決済みとして扱わず、ボタンで解決させるか？
+    // ユーザー要望の「ワンクッション」に従い、
+    // AutoWinnerでも「決定」->「結果（スタック増）」->「次へ」とするか、
+    // あるいはAutoWinnerは「次へ」だけで済ませるか。
+    // ここではAutoWinnerは「決定（自動）」扱いで、最初から選択画面をスキップして結果画面を表示するが、
+    // まだresolveされていない状態（スタック増もまだ）とする。
+    // -> AutoWinnerの場合も isResolved フラグで管理する。
+
+    // UI表示ロジック
+    // 1. AutoWinnerあり -> 最初から「勝者：○○」表示。ボタンは「決定（賞金受取）」→「次へ」
+    // 2. AutoWinnerなし -> 「勝者選択」 -> 「決定」 -> 「勝者：○○」 -> 「次へ」
+
+    // 簡略化のため、AutoWinnerがいる場合は「決定」ステップをスキップして、
+    // いきなり「結果表示＆チップ配分済み」にしたいが、
+    // resolveShowdownを呼ばないとチップが増えない。
+    // なので、AutoWinnerの場合も「結果表示（未解決）」-> ボタン「確定」->「結果表示（解決済）」->「次へ」
+    // だと手間が多い。
+
+    // 修正方針：
+    // AutoWinnerの場合：
+    //   UI: 「勝者：○○」
+    //   ボタン: 「次のゲームに進む」
+    //   クリック動作: resolveShowdown() して proceedToNextHand() を一気に行う（既存通り）
+
+    // 通常の場合：
+    //   UI(isResolved=false): 勝者選択
+    //   ボタン: 「決定」
+    //   クリック動作: resolveShowdown() し、isResolved=true に
+    //
+    //   UI(isResolved=true): 「勝者：○○」
+    //   ボタン: 「次のゲームに進む」
+    //   クリック動作: proceedToNextHand()
+
+    const isAutoWinnerMode = !!autoWinner;
+    const showResultScreen = isResolved || isAutoWinnerMode;
+
+    // AutoWinnerの場合、ワンクッション置くなら「既存の画面」でOK。
+    // 「次へ」ボタンで一括処理。
+
+    // 通常時のResult画面用のデータ準備
+    const getWinnersList = () => {
+        // 全ポットの勝者を集約
+        const allWinnerIds = new Set<string>();
+        pots.forEach((_, i) => {
+            const ids = selectedWinners.get(i);
+            ids?.forEach(id => allWinnerIds.add(id));
+        });
+        return players.filter(p => allWinnerIds.has(p.id));
+    };
+
+    const winners = getWinnersList();
 
     return (
         <div className="glass-panel rounded-2xl p-4 mt-4 animate-slide-up">
@@ -63,76 +124,119 @@ export function ShowdownPanel() {
                 <h2 className="text-xl font-bold">ショーダウン</h2>
             </div>
 
-            {autoWinner ? (
-                /* 自動勝者表示 */
-                <div className="text-center mb-6">
-                    <p className="text-gray-400 mb-2">他プレイヤー全員フォールド</p>
-                    <div className="bg-yellow-500/20 rounded-xl p-4">
-                        <p className="text-2xl font-bold text-yellow-400">{autoWinner.name}</p>
-                        <p className="text-gray-300">が勝利しました！</p>
-                    </div>
-                </div>
-            ) : (
-                /* ポット別勝者選択 */
-                <div className="space-y-4 mb-6">
-                    {pots.map((pot, potIndex) => (
-                        <div key={potIndex} className="bg-white/5 rounded-xl p-3">
-                            <div className="flex items-center justify-between mb-3">
-                                <span className="text-sm text-gray-400">
-                                    {pots.length > 1 ? (potIndex === 0 ? 'メインポット' : `サイドポット ${potIndex}`) : 'ポット'}
-                                </span>
-                                <span className="text-yellow-400 font-bold">{pot.amount}</span>
-                            </div>
-
-                            <p className="text-xs text-gray-400 mb-2">
-                                <Users className="w-3 h-3 inline mr-1" />
-                                勝者を選択（複数可：チョップ）
-                            </p>
-
-                            <div className="flex flex-wrap gap-2">
-                                {pot.eligiblePlayerIds.map(playerId => {
-                                    const player = players.find(p => p.id === playerId);
-                                    if (!player || player.folded) return null;
-
-                                    const isSelected = selectedWinners.get(potIndex)?.includes(playerId);
-
-                                    return (
-                                        <button
-                                            key={playerId}
-                                            onClick={() => handlePlayerSelect(potIndex, playerId)}
-                                            className={`
-                        px-4 py-2 rounded-lg font-medium transition-all
-                        ${isSelected
-                                                    ? 'bg-yellow-500 text-black'
-                                                    : 'bg-gray-700 text-white hover:bg-gray-600'
-                                                }
-                      `}
-                                        >
-                                            {isSelected && <Check className="w-4 h-4 inline mr-1" />}
-                                            {player.name}
-                                        </button>
-                                    );
-                                })}
-                            </div>
+            {/* 自動勝者（AutoWinner）の場合は既存通りの表示で、ボタンで一括処理 */}
+            {isAutoWinnerMode ? (
+                <>
+                    <div className="text-center mb-6">
+                        <p className="text-gray-400 mb-2">他プレイヤー全員フォールド</p>
+                        <div className="bg-yellow-500/20 rounded-xl p-4">
+                            <p className="text-2xl font-bold text-yellow-400">{autoWinner.name}</p>
+                            <p className="text-gray-300">が勝利しました！</p>
                         </div>
-                    ))}
-                </div>
-            )}
+                    </div>
+                    <button
+                        onClick={() => {
+                            // AutoWinnerの一括処理
+                            pots.forEach((_, i) => selectWinners(i, [autoWinner.id]));
+                            resolveShowdown();
+                            handleNextHand();
+                        }}
+                        className="w-full py-4 rounded-xl font-bold text-lg bg-green-600 hover:bg-green-500 text-white transition-all"
+                    >
+                        次のゲームに進む
+                    </button>
+                </>
+            ) : (
+                /* 通常ショーダウン */
+                <>
+                    {!isResolved ? (
+                        /* 勝者選択画面 */
+                        <>
+                            <div className="space-y-4 mb-6">
+                                {pots.map((pot, potIndex) => (
+                                    <div key={potIndex} className="bg-white/5 rounded-xl p-3">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-sm text-gray-400">
+                                                {pots.length > 1 ? (potIndex === 0 ? 'メインポット' : `サイドポット ${potIndex}`) : 'ポット'}
+                                            </span>
+                                            <span className="text-yellow-400 font-bold">{pot.amount}</span>
+                                        </div>
 
-            {/* 確定ボタン */}
-            <button
-                onClick={handleConfirm}
-                disabled={!canConfirm()}
-                className={`
-          w-full py-4 rounded-xl font-bold text-lg transition-all
-          ${canConfirm()
-                        ? 'bg-green-600 hover:bg-green-500 text-white'
-                        : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                    }
-        `}
-            >
-                次のゲームに進む
-            </button>
+                                        <p className="text-xs text-gray-400 mb-2">
+                                            <Users className="w-3 h-3 inline mr-1" />
+                                            勝者を選択（複数可：チョップ）
+                                        </p>
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {pot.eligiblePlayerIds.map(playerId => {
+                                                const player = players.find(p => p.id === playerId);
+                                                if (!player || player.folded) return null;
+
+                                                const isSelected = selectedWinners.get(potIndex)?.includes(playerId);
+
+                                                return (
+                                                    <button
+                                                        key={playerId}
+                                                        onClick={() => handlePlayerSelect(potIndex, playerId)}
+                                                        className={`
+                                                            px-4 py-2 rounded-lg font-medium transition-all
+                                                            ${isSelected
+                                                                ? 'bg-yellow-500 text-black'
+                                                                : 'bg-gray-700 text-white hover:bg-gray-600'
+                                                            }
+                                                        `}
+                                                    >
+                                                        {isSelected && <Check className="w-4 h-4 inline mr-1" />}
+                                                        {player.name}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={handleConfirmSelection}
+                                disabled={!canConfirm()}
+                                className={`
+                                    w-full py-4 rounded-xl font-bold text-lg transition-all
+                                    ${canConfirm()
+                                        ? 'bg-blue-600 hover:bg-blue-500 text-white'
+                                        : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                    }
+                                `}
+                            >
+                                決定
+                            </button>
+                        </>
+                    ) : (
+                        /* 勝者結果画面（Result Screen） */
+                        <div className="animate-fade-in">
+                            <div className="text-center mb-6">
+                                <div className="bg-yellow-500/20 rounded-xl p-6">
+                                    <p className="text-gray-300 mb-4">WINNER</p>
+                                    <div className="flex flex-col gap-2">
+                                        {winners.map(winner => (
+                                            <div key={winner.id} className="text-2xl font-bold text-yellow-400">
+                                                {winner.name}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handleNextHand}
+                                className="w-full py-4 rounded-xl font-bold text-lg bg-green-600 hover:bg-green-500 text-white transition-all flex items-center justify-center gap-2"
+                            >
+                                次のゲームに進む
+                                <ArrowRight className="w-5 h-5" />
+                            </button>
+                        </div>
+                    )}
+                </>
+            )}
         </div>
     );
 }

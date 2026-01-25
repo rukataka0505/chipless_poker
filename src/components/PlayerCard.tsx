@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { User, Coins } from 'lucide-react';
+import { Coins } from 'lucide-react';
 import { Player } from '@/lib/poker/types';
 
 interface PlayerCardProps {
@@ -35,14 +35,7 @@ export function PlayerCard({ player, isActive }: PlayerCardProps) {
                 </div>
             )}
 
-            {/* プレイヤーアイコン */}
-            <div className={`
-        rounded-full mx-auto mb-1 flex items-center justify-center transition-all duration-300
-        ${isActive ? 'w-10 h-10 bg-yellow-500' : 'w-7 h-7 bg-gray-600'}
-        ${folded ? 'bg-gray-800' : ''}
-      `}>
-                <User className={`${isActive ? 'w-6 h-6 text-black' : 'w-4 h-4 text-white'}`} />
-            </div>
+
 
             {/* プレイヤー名 */}
             <p className={`font-bold mb-0.5 transition-all duration-300 break-words leading-tight ${isActive ? 'text-xs' : 'text-[10px]'}`}>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Bell, BellOff } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 import { PlayerCard } from './PlayerCard';
 
@@ -12,7 +13,15 @@ import { BetDisplay } from './BetDisplay';
 import { PhaseTransitionModal } from './PhaseTransitionModal';
 
 export function TableView() {
-    const { players, phase, currentPlayerIndex, pots, getTotalPot } = useGameStore();
+    const {
+        players,
+        phase,
+        currentPlayerIndex,
+        pots,
+        getTotalPot,
+        showPhaseNotifications,
+        togglePhaseNotifications
+    } = useGameStore();
 
     // 円形配置の角度計算
     const getPlayerPosition = (index: number, total: number) => {
@@ -37,6 +46,15 @@ export function TableView() {
         <div className="relative w-full aspect-[4/3] max-w-lg mx-auto">
             {/* テーブル背景 */}
             <div className="absolute inset-4 rounded-[50%] felt-texture border-8 border-amber-900 shadow-2xl">
+                {/* Settings Toggle */}
+                <button
+                    onClick={togglePhaseNotifications}
+                    className="absolute top-4 right-8 z-50 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white/70 hover:text-white transition-all"
+                    title={showPhaseNotifications ? 'ガイド表示: ON' : 'ガイド表示: OFF'}
+                >
+                    {showPhaseNotifications ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
+                </button>
+
                 {/* Community Cards - Center with Pot above */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div className="flex flex-col items-center gap-2 z-10">
