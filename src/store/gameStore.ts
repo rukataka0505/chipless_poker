@@ -187,9 +187,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 ...newState,
             });
 
-            // FLOP, TURN, RIVERへの遷移はモーダルで確認
+            // FLOP, TURN, RIVERへの遷移はモーダルで確認（設定ONの場合のみ）
             const nextPhase = advancedState.phase;
-            if (nextPhase === 'FLOP' || nextPhase === 'TURN' || nextPhase === 'RIVER') {
+            const shouldShowNotification = state.showPhaseNotifications &&
+                (nextPhase === 'FLOP' || nextPhase === 'TURN' || nextPhase === 'RIVER');
+
+            if (shouldShowNotification) {
                 // ポットに集約だけ行い、フェーズは保留
                 newState = {
                     ...newState,
@@ -197,7 +200,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     pendingPhase: nextPhase,
                 } as Partial<GameStore>;
             } else {
-                // SHOWDOWN等はそのまま進行
+                // SHOWDOWN等はそのまま進行、または通知設定OFFなら即時遷移
                 newState = advancedState;
             }
         } else {
