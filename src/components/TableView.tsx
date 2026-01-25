@@ -80,7 +80,7 @@ export function TableView() {
             </div>
 
             {/* Central Area: Community Cards & Pot */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-8">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] z-10 flex flex-col items-center gap-8">
                 <PotDisplay pot={getTotalPot()} stage={phase} />
 
                 <div className="flex items-center gap-3">
@@ -91,8 +91,8 @@ export function TableView() {
                                 w-14 h-20 rounded-lg border flex items-center justify-center
                                 transition-all duration-700 ease-out transform
                                 ${i < targetCardCount
-                                    ? 'bg-white border-white shadow-[0_0_20px_rgba(255,255,255,0.3)] translate-y-0 opacity-100 rotate-0'
-                                    : 'bg-white/5 border-white/10 translate-y-4 opacity-30 rotate-3'
+                                    ? 'bg-white border-white shadow-[0_0_20px_rgba(255,255,255,0.3)] opacity-100'
+                                    : 'bg-white/5 border-white/10 opacity-30'
                                 }
                             `}
                         >

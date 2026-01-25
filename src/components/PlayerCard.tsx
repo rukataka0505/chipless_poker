@@ -71,12 +71,7 @@ export function PlayerCard({ player, isActive, isDealer, position }: PlayerCardP
                     </div>
                 </div>
 
-                {/* Status or Bet */}
-                {player.currentBet > 0 && (
-                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur border border-gold/30 text-gold px-3 py-0.5 rounded-full text-xs font-bold whitespace-nowrap shadow-lg">
-                        {player.currentBet.toLocaleString()}
-                    </div>
-                )}
+
 
                 {isFolded && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px] rounded-3xl">
