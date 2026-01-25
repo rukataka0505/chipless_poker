@@ -80,7 +80,7 @@ export function TableView() {
             </div>
 
             {/* Central Area: Community Cards & Pot */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-6 transform -translate-y-4">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-8">
                 <PotDisplay pot={getTotalPot()} stage={phase} />
 
                 <div className="flex items-center gap-3">
@@ -141,16 +141,20 @@ export function TableView() {
                             isDealer={false} // Dealer logic needs to be passed or derived
                             position="" // Position logic needs to be derived
                         />
-                        {/* Bet Bubble */}
+                        {/* Bet Bubble - REFINED */}
                         <AnimatePresence>
                             {player.currentBet > 0 && (
                                 <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0 }}
-                                    className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black/60 border border-gold/30 text-gold px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"
+                                    initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.5 }}
+                                    className="absolute -top-14 left-1/2 -translate-x-1/2 z-30"
                                 >
-                                    ${player.currentBet.toLocaleString()}
+                                    <div className="bg-black/80 backdrop-blur-md border border-gold/50 px-4 py-1 rounded-full shadow-[0_0_20px_rgba(255,215,0,0.3)]">
+                                        <span className="text-xl font-display font-bold text-gold glow-text-gold">
+                                            {player.currentBet.toLocaleString()}
+                                        </span>
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>

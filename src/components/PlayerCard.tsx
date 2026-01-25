@@ -15,7 +15,12 @@ export function PlayerCard({ player, isActive, isDealer, position }: PlayerCardP
     const isAllIn = player.allIn;
 
     return (
-        <div className={`relative transition-all duration-300 ${isActive ? 'scale-110 z-10' : 'scale-100 z-0'} ${isFolded ? 'opacity-50 grayscale' : 'opacity-100'}`}>
+        <div className={`relative transition-all duration-500 ease-out ${isActive ? 'scale-125 z-40' : 'scale-100 z-10'} ${isFolded ? 'opacity-50 grayscale' : 'opacity-100'}`}>
+            {/* Active Glow Background - Stronger */}
+            {isActive && (
+                <div className="absolute inset-0 bg-electric/20 rounded-3xl blur-xl animate-pulse-slow" />
+            )}
+
             {/* Dealer Button */}
             {isDealer && (
                 <div className="absolute -top-3 -right-2 z-20 w-6 h-6 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-lg border border-gray-300">
@@ -34,13 +39,13 @@ export function PlayerCard({ player, isActive, isDealer, position }: PlayerCardP
                 variant={isActive ? 'highlight' : 'default'}
                 className={`
                     w-32 sm:w-40 p-3 flex flex-col items-center gap-2
-                    ${isActive ? 'ring-2 ring-electric/50 shadow-[0_0_30px_rgba(0,240,255,0.2)]' : ''}
+                    ${isActive ? 'ring-[3px] ring-electric shadow-[0_0_50px_rgba(0,240,255,0.4)] bg-black/60' : ''}
                     ${isFolded ? 'bg-black/40 border-white/5' : ''}
                 `}
             >
                 {/* Avatar */}
                 <div className={`
-                    relative w-12 h-12 rounded-full flex items-center justify-center border-2 
+                    relative w-12 h-12 rounded-full flex items-center justify-center border-2
                     ${isActive ? 'border-electric bg-electric/10' : isFolded ? 'border-gray-700 bg-gray-800' : 'border-gold/30 bg-gold/5'}
                     transition-colors duration-300
                 `}>
