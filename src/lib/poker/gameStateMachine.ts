@@ -51,6 +51,7 @@ export function createInitialState(playerNames: string[]): GameState {
         handNumber: 0,
         actionHistory: [],
         showPhaseNotifications: true,
+        isShowdownResolved: false,
     };
 }
 
@@ -127,7 +128,18 @@ export function startHand(state: GameState): GameState {
     }
 
     // プリフロップ開始、UTGから
-    const utgIndex = (bbIndex + 1) % numPlayers;
+    let utgIndex = (bbIndex + 1) % numPlayers;
+
+    // フォールドまたはオールインでないプレイヤーを探す
+    let attempts = 0;
+    while (attempts < numPlayers) {
+        const player = newState.players[utgIndex];
+        if (!player.folded && !player.allIn) {
+            break;
+        }
+        utgIndex = (utgIndex + 1) % numPlayers;
+        attempts++;
+    }
 
     newState.phase = 'PREFLOP';
     newState.currentBet = GAME_CONSTANTS.BIG_BLIND;
@@ -138,6 +150,7 @@ export function startHand(state: GameState): GameState {
     newState.handNumber += 1;
     newState.pots = [{ amount: sbAmount + bbAmount, eligiblePlayerIds: newState.players.map(p => p.id) }];
     newState.actionHistory = [];
+    newState.isShowdownResolved = false;  // 新ハンド開始時にリセット
 
     return newState;
 }
@@ -199,9 +212,15 @@ export function advancePhase(state: GameState): GameState {
     // ディーラーの次のプレイヤーから開始（ポストフロップ）
     if (newState.phase !== 'SHOWDOWN') {
         let startIndex = (newState.dealerIndex + 1) % newState.players.length;
-        // フォールドしていないプレイヤーを探す
-        while (newState.players[startIndex].folded) {
+        // フォールドまたはオールインでないプレイヤーを探す
+        let searchAttempts = 0;
+        while (searchAttempts < newState.players.length) {
+            const player = newState.players[startIndex];
+            if (!player.folded && !player.allIn) {
+                break;
+            }
             startIndex = (startIndex + 1) % newState.players.length;
+            searchAttempts++;
         }
         newState.currentPlayerIndex = startIndex;
 

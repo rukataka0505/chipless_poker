@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Trophy, Users, Check, ArrowRight } from 'lucide-react';
+import { Trophy, Users, Check, ArrowRight, Undo2 } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 
 export function ShowdownPanel() {
@@ -13,9 +13,12 @@ export function ShowdownPanel() {
         selectWinners,
         resolveShowdown,
         proceedToNextHand,
+        undo,
+        canUndo,
+        isShowdownResolved,
     } = useGameStore();
 
-    const [isResolved, setIsResolved] = useState(false);
+    // const [isResolved, setIsResolved] = useState(false);
 
     if (phase !== 'SHOWDOWN') {
         return null;
@@ -57,11 +60,11 @@ export function ShowdownPanel() {
 
         // チップ配分を実行
         resolveShowdown();
-        setIsResolved(true);
+        // setIsResolved(true); // ストア側で更新されるため不要
     };
 
     const handleNextHand = () => {
-        setIsResolved(false);
+        // setIsResolved(false); // 次のハンドでリセットされるため不要
         proceedToNextHand();
     };
 
@@ -99,7 +102,7 @@ export function ShowdownPanel() {
     //   クリック動作: proceedToNextHand()
 
     const isAutoWinnerMode = !!autoWinner;
-    const showResultScreen = isResolved || isAutoWinnerMode;
+    const showResultScreen = isShowdownResolved || isAutoWinnerMode;
 
     // AutoWinnerの場合、ワンクッション置くなら「既存の画面」でOK。
     // 「次へ」ボタンで一括処理。
@@ -119,9 +122,26 @@ export function ShowdownPanel() {
 
     return (
         <div className="glass-panel rounded-2xl p-4 mt-4 animate-slide-up">
-            <div className="flex items-center justify-center gap-2 mb-4">
-                <Trophy className="w-6 h-6 text-yellow-400" />
-                <h2 className="text-xl font-bold">ショーダウン</h2>
+            <div className="relative flex justify-center items-center mb-4">
+                {/* 戻るボタン */}
+                <div className="absolute left-0 top-0 z-10">
+                    <button
+                        onClick={() => undo()}
+                        disabled={!canUndo()}
+                        className={`px-3 py-2 rounded-lg flex items-center gap-2 transition-all border ${canUndo()
+                            ? 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 shadow-sm'
+                            : 'bg-black/20 text-gray-600 border-transparent cursor-not-allowed'
+                            }`}
+                    >
+                        <Undo2 size={18} />
+                        <span className="text-xs font-bold">UNDO</span>
+                    </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <Trophy className="w-6 h-6 text-yellow-400" />
+                    <h2 className="text-xl font-bold">ショーダウン</h2>
+                </div>
             </div>
 
             {/* 自動勝者（AutoWinner）の場合は既存通りの表示で、ボタンで一括処理 */}
@@ -149,7 +169,7 @@ export function ShowdownPanel() {
             ) : (
                 /* 通常ショーダウン */
                 <>
-                    {!isResolved ? (
+                    {!isShowdownResolved ? (
                         /* 勝者選択画面 */
                         <>
                             <div className="space-y-4 mb-6">

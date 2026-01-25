@@ -89,6 +89,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     selectedWinners: new Map(),
     pendingPhase: null,
     showPhaseNotifications: true,
+    isShowdownResolved: false,
     undoStack: [],
     handHistories: [],
 
@@ -123,13 +124,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     handNumber: state.handNumber,
                     actionHistory: [...state.actionHistory],
                     showPhaseNotifications: state.showPhaseNotifications,
+                    isShowdownResolved: state.isShowdownResolved,
                 },
             };
             newHandHistories = [...state.handHistories, currentHandHistory];
-            // 最大10件に制限
-            if (newHandHistories.length > GAME_CONSTANTS.MAX_HISTORY_HANDS) {
-                newHandHistories = newHandHistories.slice(-GAME_CONSTANTS.MAX_HISTORY_HANDS);
-            }
+
         }
 
         const newState = startHand(state);
@@ -179,6 +178,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             handNumber: state.handNumber,
             actionHistory: [...state.actionHistory],
             showPhaseNotifications: state.showPhaseNotifications,
+            isShowdownResolved: state.isShowdownResolved,
         };
 
         // アクション処理
@@ -289,6 +289,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const state = get();
         const { pots, players, selectedWinners } = state;
 
+        // Undo用に変更前のGameStateを保存
+        const snapshotState: GameState = {
+            phase: state.phase,
+            players: state.players.map(p => ({ ...p })),
+            dealerIndex: state.dealerIndex,
+            currentPlayerIndex: state.currentPlayerIndex,
+            pots: state.pots.map(p => ({ ...p, eligiblePlayerIds: [...p.eligiblePlayerIds] })),
+            currentBet: state.currentBet,
+            minRaise: state.minRaise,
+            lastRaiseAmount: state.lastRaiseAmount,
+            communityCardCount: state.communityCardCount,
+            handNumber: state.handNumber,
+            actionHistory: [...state.actionHistory],
+            showPhaseNotifications: state.showPhaseNotifications,
+            isShowdownResolved: state.isShowdownResolved,
+        };
+
         // 勝者にチップを配分
         const distribution = distributePots(pots, selectedWinners);
 
@@ -300,10 +317,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
             };
         });
 
-        // 状態更新（フェーズはSHOWDOWNのまま）
+        // 状態更新（フェーズはSHOWDOWNのまま、解決済みにする）
         set({
             players: newPlayers,
             pots: state.pots.map(p => ({ ...p, amount: 0 })), // ポットを空にする表示用
+            isShowdownResolved: true,
+            undoStack: [...state.undoStack, snapshotState],
         });
     },
 
@@ -330,13 +349,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     handNumber: state.handNumber,
                     actionHistory: [...state.actionHistory],
                     showPhaseNotifications: state.showPhaseNotifications,
+                    isShowdownResolved: state.isShowdownResolved,
                 },
             };
             newHandHistories = [...state.handHistories, currentHandHistory];
-            // 最大10件に制限
-            if (newHandHistories.length > GAME_CONSTANTS.MAX_HISTORY_HANDS) {
-                newHandHistories = newHandHistories.slice(-GAME_CONSTANTS.MAX_HISTORY_HANDS);
-            }
+
         }
 
         // 次のハンドの準備（ディーラー移動など）
@@ -479,11 +496,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const previousState = newUndoStack.pop()!;
 
         // 状態を復元
+        // Showdownフェーズに戻る場合（解決済みからのUndoなど）は勝者選択を保持
+        // それ以外（Riverに戻るなど）は勝者選択をリセット
+        const shouldKeepSelectedWinners = previousState.phase === 'SHOWDOWN';
+
         set({
             ...previousState,
             undoStack: newUndoStack,
             handHistories: state.handHistories,  // 履歴は維持
-            selectedWinners: state.selectedWinners,  // 選択中の勝者は維持
+            selectedWinners: shouldKeepSelectedWinners ? state.selectedWinners : new Map(),
             pendingPhase: null,  // 保留中のフェーズはクリア
         } as GameStore);
 

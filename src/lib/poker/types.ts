@@ -49,6 +49,7 @@ export interface GameState {
     handNumber: number;         // ハンド番号
     actionHistory: ActionRecord[];
     showPhaseNotifications: boolean; // フェーズ遷移通知を表示するかどうか
+    isShowdownResolved: boolean;     // ショーダウンが解決済み（チップ配分済み）かどうか
 }
 
 export interface ActionRecord {
@@ -72,7 +73,6 @@ export const GAME_CONSTANTS = {
     BIG_BLIND: 2,
     MIN_PLAYERS: 2,
     MAX_PLAYERS: 6,
-    MAX_HISTORY_HANDS: 10,  // 最大履歴保持ハンド数
 } as const;
 
 // フェーズ別のディーラー指示
