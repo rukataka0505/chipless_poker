@@ -39,6 +39,10 @@ interface GameStore extends GameState {
     selectWinners: (potIndex: number, winnerIds: string[]) => void;
     confirmShowdown: () => void;
 
+    // Phase transition modal
+    pendingPhase: GamePhase | null;
+    confirmPhaseTransition: () => void;
+
     // Getters
     getCurrentPlayer: () => Player | null;
     getAvailableActionsForCurrentPlayer: () => AvailableActions | null;
@@ -67,6 +71,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     handNumber: 0,
     actionHistory: [],
     selectedWinners: new Map(),
+    pendingPhase: null,
 
     // Setup actions
     initializeGame: (playerNames: string[]) => {
@@ -167,12 +172,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         // ベッティングラウンド終了チェック
         if (isBettingRoundComplete(newPlayers, newCurrentBet)) {
-            // ポットに集約してフェーズ進行
+            // 次のフェーズを計算
             const advancedState = advancePhase({
                 ...state,
                 ...newState,
             });
-            newState = advancedState;
+
+            // FLOP, TURN, RIVERへの遷移はモーダルで確認
+            const nextPhase = advancedState.phase;
+            if (nextPhase === 'FLOP' || nextPhase === 'TURN' || nextPhase === 'RIVER') {
+                // ポットに集約だけ行い、フェーズは保留
+                newState = {
+                    ...newState,
+                    pots: advancedState.pots,
+                    pendingPhase: nextPhase,
+                } as Partial<GameStore>;
+            } else {
+                // SHOWDOWN等はそのまま進行
+                newState = advancedState;
+            }
         } else {
             // 次のプレイヤーへ
             const movedState = moveToNextPlayer({
@@ -264,5 +282,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (!player || player.folded || player.allIn) return false;
 
         return true;
+    },
+
+    // Phase transition confirmation
+    confirmPhaseTransition: () => {
+        const state = get();
+        const { pendingPhase } = state;
+
+        if (!pendingPhase) return;
+
+        // Actually advance to the pending phase
+        const advancedState = advancePhase(state);
+        set({
+            ...advancedState,
+            phase: pendingPhase,
+            pendingPhase: null,
+        } as GameStore);
     },
 }));

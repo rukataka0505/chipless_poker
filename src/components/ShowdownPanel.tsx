@@ -131,7 +131,7 @@ export function ShowdownPanel() {
                     }
         `}
             >
-                確定して次のハンドへ
+                次のゲームに進む
             </button>
         </div>
     );

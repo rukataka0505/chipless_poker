@@ -9,6 +9,7 @@ import { PlayerCard } from './PlayerCard';
 import { COMMUNITY_CARDS_COUNT } from '@/lib/poker/types';
 import { PotDisplay } from './PotDisplay';
 import { BetDisplay } from './BetDisplay';
+import { PhaseTransitionModal } from './PhaseTransitionModal';
 
 export function TableView() {
     const { players, phase, currentPlayerIndex, pots, getTotalPot } = useGameStore();
@@ -114,6 +115,9 @@ export function TableView() {
                     );
                 })}
             </div>
+
+            {/* Phase Transition Modal */}
+            <PhaseTransitionModal />
         </div>
     );
 }
