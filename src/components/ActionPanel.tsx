@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Check, ArrowUp, Minus, Plus, Undo2 } from 'lucide-react';
+import { X, Check, ArrowUp, Minus, Plus, Undo2, ChevronUp } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 import { ConfirmationModal } from './ConfirmationModal';
 import { PlayerAction } from '@/lib/poker/types';
+import { Button } from './ui/Button';
+import { Card } from './ui/Card';
 
 export function ActionPanel() {
     const {
@@ -32,24 +34,16 @@ export function ActionPanel() {
 
     const totalPot = getTotalPot();
     const playerTotalChips = currentPlayer.stack + currentPlayer.currentBet;
-
-    // スライダーと入力の最小・最大値計算
     const minAmount = currentBet === 0 ? availableActions.minBet : availableActions.minRaise;
 
-    // スライダーの最大値計算
     let sliderMaxLimit = 0;
     if (currentBet === 0) {
-        // ベット時: ポットの100%
         sliderMaxLimit = totalPot;
     } else {
-        // レイズ時: 相手のベット額(currentBet)の5倍
         sliderMaxLimit = currentBet * 5;
     }
 
-    // プレイヤーの所持金(現在のベット含む)を超えないように制限
     const maxAmount = Math.min(sliderMaxLimit, playerTotalChips);
-
-    // スライダーの最大値が最小値を下回る場合のガード（オールイン対応等）
     const effectiveSliderMax = Math.max(minAmount, maxAmount);
 
     const executeAction = (action: PlayerAction, amount?: number) => {
@@ -73,20 +67,15 @@ export function ActionPanel() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-
-        // 空文字は許可
         if (value === '') {
             setBetAmount('');
             setError(null);
             return;
         }
-
-        // 半角数字チェック
         if (!/^[0-9]+$/.test(value)) {
             setError('半角数字以外は入力できません');
             return;
         }
-
         setError(null);
         setBetAmount(value);
     };
@@ -97,7 +86,6 @@ export function ActionPanel() {
     };
 
     const handleAllInClick = () => {
-        // オールインボタン: プレイヤーの全チップ額を入力
         setBetAmount(playerTotalChips.toString());
         setError(null);
     };
@@ -120,228 +108,180 @@ export function ActionPanel() {
 
     const handleBetConfirm = () => {
         const amount = parseInt(betAmount, 10);
-
         if (isNaN(amount)) {
             setError('金額を入力してください');
             return;
         }
-
-        // 最大額チェック (所持金チェック)
         if (amount > playerTotalChips) {
             setError('所持金を超えています');
             return;
         }
-
-        // オールイン判定 (全額ベットの場合) - 最小額チェックの前に判定
         if (amount === playerTotalChips) {
             handleAction('ALL_IN');
             return;
         }
-
-        // 範囲チェック (オールインでない場合)
         if (amount < minAmount) {
             setError(`最小額は ${minAmount} です`);
             return;
         }
-
         const action: PlayerAction = currentBet === 0 ? 'BET' : 'RAISE';
         handleAction(action, amount);
     };
 
     return (
-        <div className="glass-panel rounded-2xl p-4 mt-4 animate-slide-up">
-            {/* ヘッダー: 戻るボタン + プレイヤー情報 */}
-            <div className="relative flex justify-center items-start mb-4">
-                {/* 戻るボタン */}
-                <div className="absolute left-0 top-0 z-10">
-                    <button
-                        onClick={() => undo()}
-                        disabled={!canUndo()}
-                        className={`px-3 py-2 rounded-lg flex items-center gap-2 transition-all border ${canUndo()
-                                ? 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 shadow-sm'
-                                : 'bg-black/20 text-gray-600 border-transparent cursor-not-allowed'
-                            }`}
-                    >
-                        <Undo2 size={18} />
-                        <span className="text-xs font-bold">UNDO</span>
-                    </button>
-                </div>
-
-                {/* 現在のプレイヤー表示 */}
-                <div className="text-center w-full">
-                    <p className="text-sm text-gray-400">アクション中</p>
-                    <p className="text-xl font-bold text-yellow-400">{currentPlayer.name}</p>
-                    <p className="text-sm text-gray-300">
-                        スタック: <span className="text-yellow-400">{currentPlayer.stack}</span>
-                        {currentBet > 0 && (
-                            <span className="ml-2">
-                                コール額: <span className="text-green-400">{availableActions.callAmount}</span>
-                            </span>
-                        )}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">Total Pot: {totalPot}</p>
-                </div>
-            </div>
-
-            {/* エラー表示 */}
-            {error && (
-                <div className="bg-red-500/20 border border-red-500 rounded-lg p-2 mb-4 text-center text-red-400 text-sm">
-                    {error}
-                </div>
-            )}
-
-            {/* アクションボタン */}
-            {!showInput ? (
-                <div className="grid grid-cols-3 gap-3">
-                    {/* FOLD */}
-                    <button
-                        onClick={() => handleAction('FOLD')}
-                        className="btn-action btn-fold flex flex-col items-center"
-                    >
-                        <X className="w-6 h-6 mb-1" />
-                        <span>FOLD</span>
-                    </button>
-
-                    {/* CHECK / CALL */}
-                    {availableActions.canCheck ? (
-                        <button
-                            onClick={() => handleAction('CHECK')}
-                            className="btn-action btn-check flex flex-col items-center"
-                        >
-                            <Check className="w-6 h-6 mb-1" />
-                            <span>CHECK</span>
-                        </button>
-                    ) : availableActions.canCall ? (
-                        <button
-                            onClick={() => handleAction('CALL')}
-                            className="btn-action btn-call flex flex-col items-center"
-                        >
-                            <Check className="w-6 h-6 mb-1" />
-                            <span>CALL {availableActions.callAmount}</span>
-                        </button>
-                    ) : null}
-
-                    {/* BET / RAISE */}
-                    {(availableActions.canBet || availableActions.canRaise) && (
-                        <button
-                            onClick={() => {
-                                setShowInput(true);
-                                setBetAmount(minAmount.toString());
-                            }}
-                            className="btn-action btn-raise flex flex-col items-center"
-                        >
-                            <ArrowUp className="w-6 h-6 mb-1" />
-                            <span>{currentBet === 0 ? 'BET' : 'RAISE'}</span>
-                        </button>
-                    )}
-
-                    {/* ALL IN (Direct Action) - Optional to keep, but requirements imply using the input UI mainly. 
-                        Keeping this for quick access if user prefers skipping input UI for direct All-In 
-                        (though "All-In button inside UI" was requested). 
-                        Let's keep it as a main action too for convenience. */}
-                    {currentPlayer.stack > 0 && (
-                        <button
-                            onClick={() => handleAction('ALL_IN')}
-                            className="btn-action bg-purple-600 hover:bg-purple-500 text-white flex flex-col items-center col-span-3"
-                        >
-                            <span className="font-bold">ALL IN ({currentPlayer.stack})</span>
-                        </button>
-                    )}
-                </div>
-            ) : (
-                /* 入力UI (キーボード + スライダー) */
-                <div className="space-y-4">
-                    <div className="bg-gray-800 rounded-xl p-4">
-                        <div className="flex justify-between items-center mb-2">
-                            <label className="text-sm text-gray-400">
-                                {currentBet === 0 ? 'ベット額' : 'レイズ額'}
-                            </label>
-                            <button
-                                onClick={handleAllInClick}
-                                className="text-xs bg-purple-600 hover:bg-purple-500 text-white px-2 py-1 rounded"
-                            >
-                                ALL IN
-                            </button>
-                        </div>
-
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="text-yellow-400 font-bold text-lg">$</span>
-                            <input
-                                type="text"
-                                inputMode="numeric"
-                                pattern="[0-9]*"
-                                value={betAmount}
-                                onChange={handleInputChange}
-                                className="w-full bg-transparent text-3xl font-bold text-white focus:outline-none"
-                                placeholder={minAmount.toString()}
-                            />
-                        </div>
-
-                        {/* スライダー */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 z-50 flex justify-center pointer-events-none">
+            <Card variant="default" className="w-full max-w-2xl pointer-events-auto backdrop-blur-2xl bg-black/80 border-t border-white/10 shadow-2xl">
+                <div className="p-4 space-y-4">
+                    {/* Header: Player Info and Undo */}
+                    <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                            <button
-                                onClick={handleDecrement}
-                                disabled={(parseInt(betAmount, 10) || minAmount) <= minAmount}
-                                className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors"
-                            >
-                                <Minus size={20} />
-                            </button>
+                            <div className="w-10 h-10 rounded-full bg-electric/10 border border-electric/30 flex items-center justify-center">
+                                <span className="text-electric font-bold text-lg">{currentPlayer.name.charAt(0)}</span>
+                            </div>
+                            <div>
+                                <div className="text-xs text-text-secondary uppercase tracking-wider">Current Action</div>
+                                <div className="font-bold text-white">{currentPlayer.name}</div>
+                            </div>
+                        </div>
 
-                            <div className="flex-1 flex items-center gap-2">
-                                <span className="text-xs text-gray-500 w-8 text-right">{minAmount}</span>
-                                <input
-                                    type="range"
-                                    min={minAmount}
-                                    max={effectiveSliderMax}
-                                    value={betAmount || minAmount}
-                                    onChange={handleSliderChange}
-                                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-yellow-400"
-                                />
-                                <span className="text-xs text-gray-500 w-8">{effectiveSliderMax}</span>
+                        <div className="flex items-center gap-4">
+                            <div className="text-right">
+                                <div className="text-xs text-text-secondary uppercase tracking-wider">Stack</div>
+                                <div className="font-display font-bold text-gold glow-text-gold">{currentPlayer.stack.toLocaleString()}</div>
+                            </div>
+                            <div className="w-px h-8 bg-white/10" />
+                            <button
+                                onClick={() => undo()}
+                                disabled={!canUndo()}
+                                className={`text-xs flex items-center gap-1 transition-colors ${canUndo() ? 'text-gray-400 hover:text-white' : 'text-gray-700 cursor-not-allowed'}`}
+                            >
+                                <Undo2 size={16} />
+                                UNDO
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="text-center text-red-400 text-sm bg-red-900/20 py-2 rounded-lg border border-red-500/20 animate-pulse">
+                            {error}
+                        </div>
+                    )}
+
+                    {/* Main Actions */}
+                    {!showInput ? (
+                        <div className="grid grid-cols-3 gap-3">
+                            <Button
+                                variant="danger"
+                                onClick={() => handleAction('FOLD')}
+                                className="h-16"
+                                icon={<X className="w-5 h-5" />}
+                            >
+                                Fold
+                            </Button>
+
+                            {availableActions.canCheck ? (
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => handleAction('CHECK')}
+                                    className="h-16"
+                                    icon={<Check className="w-5 h-5" />}
+                                >
+                                    Check
+                                </Button>
+                            ) : availableActions.canCall ? (
+                                <Button
+                                    variant="secondary"
+                                    onClick={() => handleAction('CALL')}
+                                    className="h-16"
+                                    icon={<Check className="w-5 h-5" />}
+                                >
+                                    Call {availableActions.callAmount}
+                                </Button>
+                            ) : <div />}
+
+                            {(availableActions.canBet || availableActions.canRaise) && (
+                                <Button
+                                    variant="electric"
+                                    onClick={() => {
+                                        setShowInput(true);
+                                        setBetAmount(minAmount.toString());
+                                    }}
+                                    className="h-16"
+                                    icon={<ArrowUp className="w-5 h-5" />}
+                                >
+                                    {currentBet === 0 ? 'Bet' : 'Raise'}
+                                </Button>
+                            )}
+                            {/* Keep ALL IN accessible directly if stack > 0, maybe as a smaller option or replacing bet if stack is low? 
+                                 For now, trusting implemented logic, keeping UI clean. 
+                                 The original had a big ALL IN button below. Let's add it if stack is low or just as an option.
+                             */}
+                        </div>
+                    ) : (
+                        /* Bet/Raise Input UI */
+                        <div className="space-y-4 animate-in slide-in-from-bottom-5 fade-in duration-300">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-text-secondary uppercase tracking-wider">{currentBet === 0 ? 'Bet Amount' : 'Raise Amount'}</span>
+                                <button onClick={handleAllInClick} className="text-xs font-bold text-gold hover:text-white transition-colors">MAX (ALL IN)</button>
                             </div>
 
-                            <button
-                                onClick={handleIncrement}
-                                disabled={(parseInt(betAmount, 10) || minAmount) >= effectiveSliderMax}
-                                className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors"
-                            >
-                                <Plus size={20} />
-                            </button>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold font-bold text-xl">$</span>
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    pattern="[0-9]*"
+                                    value={betAmount}
+                                    onChange={handleInputChange}
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl py-4 pl-10 pr-4 text-3xl font-display font-bold text-white focus:outline-none focus:border-gold/50 transition-colors text-center"
+                                    placeholder={minAmount.toString()}
+                                />
+                            </div>
+
+                            {/* Slider Controls */}
+                            <div className="flex items-center gap-4">
+                                <button onClick={handleDecrement} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-colors">
+                                    <Minus size={18} />
+                                </button>
+                                <div className="flex-1 relative h-2 bg-white/10 rounded-full overflow-hidden">
+                                    <input
+                                        type="range"
+                                        min={minAmount}
+                                        max={effectiveSliderMax}
+                                        value={betAmount || minAmount}
+                                        onChange={handleSliderChange}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    />
+                                    <div
+                                        className="h-full bg-gradient-to-r from-electric to-gold"
+                                        style={{ width: `${Math.min(100, ((parseInt(betAmount) || minAmount) - minAmount) / (effectiveSliderMax - minAmount) * 100)}%` }}
+                                    />
+                                </div>
+                                <button onClick={handleIncrement} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-colors">
+                                    <Plus size={18} />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3 pt-2">
+                                <Button variant="ghost" onClick={() => { setShowInput(false); setBetAmount(''); setError(null); }}>
+                                    Cancel
+                                </Button>
+                                <Button variant="gold" onClick={handleBetConfirm}>
+                                    Confirm
+                                </Button>
+                            </div>
                         </div>
-
-                    </div>
-
-                    {/* 確定・キャンセル */}
-                    <div className="grid grid-cols-2 gap-3">
-                        <button
-                            onClick={() => {
-                                setShowInput(false);
-                                setBetAmount('');
-                                setError(null);
-                            }}
-                            className="btn-action bg-gray-600 hover:bg-gray-500 text-white"
-                        >
-                            キャンセル
-                        </button>
-                        <button
-                            onClick={handleBetConfirm}
-                            className={`btn-action text-white ${error ? 'bg-green-600/50 cursor-not-allowed' : 'bg-green-600 hover:bg-green-500'
-                                }`}
-                            disabled={!!error}
-                        >
-                            確定
-                        </button>
-                    </div>
+                    )}
                 </div>
-            )}
-
+            </Card>
 
             <ConfirmationModal
                 isOpen={showFoldConfirmation}
-                title="確認"
-                message="チェックが可能ですがフォールドしますか？"
-                confirmText="フォールドする"
-                cancelText="キャンセル"
+                title="Confirm Fold"
+                message="You can check for free. Are you sure you want to fold?"
+                confirmText="Fold"
+                cancelText="Cancel"
                 onConfirm={() => {
                     setShowFoldConfirmation(false);
                     executeAction('FOLD');

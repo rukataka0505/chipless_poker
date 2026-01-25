@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
 
 interface ConfirmationModalProps {
     isOpen: boolean;
@@ -18,8 +20,8 @@ export function ConfirmationModal({
     isOpen,
     title,
     message,
-    confirmText = 'はい',
-    cancelText = 'キャンセル',
+    confirmText = 'Yes',
+    cancelText = 'Cancel',
     onConfirm,
     onCancel
 }: ConfirmationModalProps) {
@@ -27,39 +29,34 @@ export function ConfirmationModal({
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md">
                 <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
+                    initial={{ scale: 0.95, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.9, opacity: 0 }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                    className="glass-panel rounded-2xl p-6 max-w-sm mx-4 text-center border border-white/10"
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    className="w-full max-w-sm px-4"
                 >
-                    <div className="flex justify-center mb-4">
-                        <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                            <AlertTriangle className="w-6 h-6 text-yellow-400" />
+                    <Card variant="default" className="p-6 bg-black/90 border-white/10">
+                        <div className="flex justify-center mb-6">
+                            <div className="w-16 h-16 rounded-full bg-red-900/20 flex items-center justify-center border border-red-500/30">
+                                <AlertTriangle className="w-8 h-8 text-red-500" />
+                            </div>
                         </div>
-                    </div>
 
-                    <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-                    <p className="text-gray-300 mb-6 text-sm leading-relaxed">
-                        {message}
-                    </p>
+                        <h3 className="text-xl font-display font-bold text-white mb-2 text-center">{title}</h3>
+                        <p className="text-text-secondary mb-8 text-sm leading-relaxed text-center">
+                            {message}
+                        </p>
 
-                    <div className="flex gap-3">
-                        <button
-                            onClick={onCancel}
-                            className="flex-1 py-3 rounded-xl bg-gray-700 hover:bg-gray-600 text-white font-medium transition-colors"
-                        >
-                            {cancelText}
-                        </button>
-                        <button
-                            onClick={onConfirm}
-                            className="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold transition-all shadow-lg shadow-red-900/20"
-                        >
-                            {confirmText}
-                        </button>
-                    </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <Button variant="ghost" onClick={onCancel}>
+                                {cancelText}
+                            </Button>
+                            <Button variant="danger" onClick={onConfirm}>
+                                {confirmText}
+                            </Button>
+                        </div>
+                    </Card>
                 </motion.div>
             </div>
         </AnimatePresence>

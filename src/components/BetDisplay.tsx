@@ -1,31 +1,16 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface BetDisplayProps {
     amount: number;
-    label?: string; // Optional label (e.g., "Total Pot")
-    className?: string;
 }
 
-export function BetDisplay({ amount, label, className = '' }: BetDisplayProps) {
-    if (amount <= 0) return null;
-
+export function BetDisplay({ amount }: BetDisplayProps) {
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className={`flex items-center gap-1 bg-black/70 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/10 shadow-md ${className}`}
-        >
-            {/* Simple Chip Icon - smaller */}
-            <div className="relative w-3 h-3 rounded-full border border-dashed border-white/70 bg-red-600 shadow-sm flex-shrink-0" />
-
-            {/* Amount & Label */}
-            <div className="flex flex-col leading-none">
-                {label && <span className="text-[8px] text-gray-300 font-medium">{label}</span>}
-                <span className="text-white font-bold font-mono text-[10px] tracking-wide">
-                    {amount.toLocaleString()}
-                </span>
-            </div>
-        </motion.div>
+        <div className="bg-black/80 backdrop-blur-sm border border-gold/30 rounded-full px-3 py-1 shadow-[0_0_15px_rgba(255,215,0,0.1)]">
+            <span className="text-gold font-bold font-display tracking-wider flex items-center gap-1">
+                <span className="text-[10px] opacity-70">BET</span>
+                {amount.toLocaleString()}
+            </span>
+        </div>
     );
 }

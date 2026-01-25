@@ -4,71 +4,69 @@ import React from 'react';
 import { Layers, Check } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 import { GamePhase } from '@/lib/poker/types';
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
 
 const PHASE_MESSAGES: Record<GamePhase, string> = {
     SETUP: '',
-    PREFLOP: '各プレイヤーに2枚ずつカードを配ってください',
-    FLOP: 'コミュニティカードを3枚置いてください',
-    TURN: '4枚目のコミュニティカードを置いてください',
-    RIVER: '5枚目のコミュニティカードを置いてください',
+    PREFLOP: 'Please deal 2 cards to each player.',
+    FLOP: 'Please deal 3 community cards (Flop).',
+    TURN: 'Please deal the 4th community card (Turn).',
+    RIVER: 'Please deal the 5th community card (River).',
     SHOWDOWN: '',
 };
 
 const PHASE_LABELS: Record<GamePhase, string> = {
-    SETUP: 'セットアップ',
-    PREFLOP: 'プリフロップ',
-    FLOP: 'フロップ',
-    TURN: 'ターン',
-    RIVER: 'リバー',
-    SHOWDOWN: 'ショーダウン',
+    SETUP: 'SETUP',
+    PREFLOP: 'PREFLOP',
+    FLOP: 'FLOP',
+    TURN: 'TURN',
+    RIVER: 'RIVER',
+    SHOWDOWN: 'SHOWDOWN',
 };
 
 export function PhaseTransitionModal() {
     const { pendingPhase, confirmPhaseTransition } = useGameStore();
 
-    if (!pendingPhase) {
+    if (!pendingPhase || !PHASE_MESSAGES[pendingPhase]) {
         return null;
     }
 
     const message = PHASE_MESSAGES[pendingPhase];
     const label = PHASE_LABELS[pendingPhase];
 
-    // Don't show modal for SETUP or SHOWDOWN (no card instructions needed)
-    if (!message) {
-        return null;
-    }
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in">
-            <div className="glass-panel rounded-3xl p-8 max-w-md mx-4 text-center animate-scale-in">
-                {/* Phase badge */}
-                <div className="flex justify-center mb-6">
-                    <span className="px-6 py-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg">
-                        {label}
-                    </span>
-                </div>
-
-                {/* Card icon */}
-                <div className="flex justify-center mb-6">
-                    <div className="w-20 h-20 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                        <Layers className="w-10 h-10 text-yellow-400" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
+            <Card variant="highlight" className="max-w-md mx-6 p-8 text-center animate-in zoom-in-95 duration-300 border-gold/20">
+                <div className="flex justify-center mb-8">
+                    <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-electric/20 to-electric/5 border border-electric/30">
+                        <span className="text-electric font-bold font-display tracking-widest text-sm">
+                            {label}
+                        </span>
                     </div>
                 </div>
 
-                {/* Instructions */}
-                <p className="text-xl text-white font-medium mb-8">
+                <div className="flex justify-center mb-8 relative">
+                    <div className="absolute inset-0 bg-gold/20 blur-2xl rounded-full" />
+                    <div className="relative w-24 h-24 rounded-full bg-black border border-gold/30 flex items-center justify-center shadow-[0_0_30px_rgba(255,215,0,0.1)]">
+                        <Layers className="w-10 h-10 text-gold" />
+                    </div>
+                </div>
+
+                <p className="text-lg text-white font-medium mb-10 leading-relaxed">
                     {message}
                 </p>
 
-                {/* Confirm button */}
-                <button
+                <Button
+                    variant="gold"
+                    size="lg"
+                    className="w-full"
                     onClick={confirmPhaseTransition}
-                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white font-bold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+                    icon={<Check className="w-5 h-5" />}
                 >
-                    <Check className="w-6 h-6" />
-                    OK
-                </button>
-            </div>
+                    Confirm & Proceed
+                </Button>
+            </Card>
         </div>
     );
 }

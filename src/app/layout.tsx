@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
-    title: 'Chipless Poker',
-    description: '物理チップ不要のポーカーチップ管理アプリ',
+    title: 'Chipless Poker | Midnight Luxe',
+    description: 'Premium Digital Poker Experience',
 };
 
 export default function RootLayout({
@@ -16,7 +17,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="ja">
-            <body className={inter.className}>{children}</body>
+            <body className={`${inter.variable} ${outfit.variable} font-sans`}>{children}</body>
         </html>
     );
 }

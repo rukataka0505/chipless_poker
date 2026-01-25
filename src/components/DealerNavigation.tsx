@@ -1,66 +1,58 @@
 'use client';
 
 import React from 'react';
-import { AlertCircle, Shuffle, Layers } from 'lucide-react';
+import { AlertCircle, Layers } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 import { DEALER_INSTRUCTIONS, GamePhase } from '@/lib/poker/types';
+import { Card } from './ui/Card';
 
 const PHASE_LABELS: Record<GamePhase, string> = {
-    SETUP: 'セットアップ',
-    PREFLOP: 'プリフロップ',
-    FLOP: 'フロップ',
-    TURN: 'ターン',
-    RIVER: 'リバー',
-    SHOWDOWN: 'ショーダウン',
+    SETUP: 'SETUP',
+    PREFLOP: 'PREFLOP',
+    FLOP: 'FLOP',
+    TURN: 'TURN',
+    RIVER: 'RIVER',
+    SHOWDOWN: 'SHOWDOWN',
 };
 
 const PHASE_COLORS: Record<GamePhase, string> = {
-    SETUP: 'bg-gray-600',
-    PREFLOP: 'bg-blue-600',
-    FLOP: 'bg-green-600',
-    TURN: 'bg-yellow-600',
-    RIVER: 'bg-red-600',
-    SHOWDOWN: 'bg-purple-600',
+    SETUP: 'text-gray-400 border-gray-500/50',
+    PREFLOP: 'text-blue-400 border-blue-500/50',
+    FLOP: 'text-green-400 border-green-500/50',
+    TURN: 'text-yellow-400 border-yellow-500/50',
+    RIVER: 'text-red-400 border-red-500/50',
+    SHOWDOWN: 'text-purple-400 border-purple-500/50',
 };
 
 export function DealerNavigation() {
     const { phase, handNumber, getTotalPot } = useGameStore();
-    const totalPot = getTotalPot();
+
+    if (phase === 'SHOWDOWN' || phase === 'SETUP') return null;
 
     return (
-        <div className="glass-panel rounded-2xl p-4 mb-4">
-            {/* フェーズ表示 */}
-            <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                    <span className={`px-3 py-1 rounded-full text-sm font-bold ${PHASE_COLORS[phase]}`}>
+        <Card variant="default" className="p-4 mb-4 backdrop-blur-md bg-black/40">
+            <div className="flex items-center justify-between mb-0">
+                <div className="flex items-center gap-4">
+                    <span
+                        className={`
+                            px-3 py-1 rounded-full text-xs font-bold font-display tracking-widest uppercase border bg-white/5
+                            ${PHASE_COLORS[phase]}
+                        `}
+                    >
                         {PHASE_LABELS[phase]}
                     </span>
                     {handNumber > 0 && (
-                        <span className="text-sm text-gray-300">
-                            ハンド #{handNumber}
+                        <span className="text-xs text-text-tertiary uppercase tracking-wider">
+                            Hand #{handNumber}
                         </span>
                     )}
                 </div>
 
-                {/* ポット表示 */}
-                {totalPot > 0 && (
-                    <div className="flex items-center gap-2 bg-yellow-500/20 px-4 py-1 rounded-full">
-                        <Layers className="w-4 h-4 text-yellow-400" />
-                        <span className="text-yellow-400 font-bold">{totalPot}</span>
-                    </div>
-                )}
-            </div>
-
-            {/* ディーラー指示 */}
-            <div className="flex items-start gap-3 bg-white/5 rounded-xl p-3">
-                <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                <div>
-                    <p className="text-xs text-gray-400 mb-1">ディーラーへの指示</p>
-                    <p className="text-white font-medium">
-                        {DEALER_INSTRUCTIONS[phase]}
-                    </p>
+                <div className="text-xs text-text-secondary flex items-center gap-2">
+                    <AlertCircle className="w-3 h-3 text-gold" />
+                    {DEALER_INSTRUCTIONS[phase]}
                 </div>
             </div>
-        </div>
+        </Card>
     );
 }

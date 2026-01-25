@@ -4,13 +4,10 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '@/store/gameStore';
 import { PlayerCard } from './PlayerCard';
-
-
 import { COMMUNITY_CARDS_COUNT } from '@/lib/poker/types';
 import { PotDisplay } from './PotDisplay';
 import { BetDisplay } from './BetDisplay';
 import { PhaseTransitionModal } from './PhaseTransitionModal';
-
 import { EditPlayerModal } from './EditPlayerModal';
 import { AddPlayerCard } from './AddPlayerCard';
 import { Player } from '@/lib/poker/types';
@@ -46,7 +43,7 @@ export function TableView() {
         if (isAddingPlayer) {
             addPlayer(name, stack);
         } else if (editingPlayer) {
-            const confirmMessage = `"${editingPlayer.name}"のチップ数を変更しますか？\n${editingPlayer.stack} -> ${stack}`;
+            const confirmMessage = `Update chip count for "${editingPlayer.name}"?\n${editingPlayer.stack} -> ${stack}`;
             if (window.confirm(confirmMessage)) {
                 updatePlayerStack(editingPlayer.id, stack);
             }
@@ -54,15 +51,13 @@ export function TableView() {
     };
 
     const getPlayerPosition = (index: number, total: number) => {
-        // 上から時計回りに配置
-        const angleOffset = -90; // 12時の位置からスタート
+        const angleOffset = -90;
         const angle = (360 / total) * index + angleOffset;
         const radian = (angle * Math.PI) / 180;
 
-        // 楕円形に配置（スタジアムに近い横長）- テーブルの外側に配置
-        // Aspect 2/1に合わせて横幅を広げる
-        const radiusX = 260;
-        const radiusY = 130;
+        // Revised dimensions for better spacing
+        const radiusX = 300;
+        const radiusY = 160;
 
         const x = Math.cos(radian) * radiusX;
         const y = Math.sin(radian) * radiusY;
@@ -73,114 +68,96 @@ export function TableView() {
     const targetCardCount = COMMUNITY_CARDS_COUNT[phase];
 
     return (
-        <div className="relative w-full aspect-[2/1] max-w-2xl mx-auto my-12">
-            {/* テーブル全体（レール + フェルト） - Stadium Shape */}
-            <div className="absolute inset-0 rounded-full table-rail z-0">
-                <div className="absolute inset-5 rounded-full felt-texture border border-black/30 shadow-inner">
-                    {/* Community Cards - Center with Pot above */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="flex flex-col items-center gap-4 z-10 w-full max-w-sm">
-                            {/* Pot Display - directly above cards */}
-                            <PotDisplay pots={pots} totalPot={getTotalPot()} />
+        <div className="relative w-full h-[600px] flex items-center justify-center my-8 perspective-[1000px]">
+            {/* Center Glow Ambience */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-electric/5 rounded-full blur-[100px] pointer-events-none" />
 
-                            {/* コミュニティカードスロットエリア */}
-                            <div className="flex flex-col items-center gap-2 p-4 rounded-3xl bg-black/10 backdrop-blur-sm border border-white/5 shadow-inner">
-                                <div className="flex gap-2">
-                                    {Array.from({ length: 5 }).map((_, i) => (
-                                        <div
-                                            key={i}
-                                            className={`w-10 h-14 rounded-md border-2 transition-all duration-500 transform ${i < targetCardCount
-                                                ? 'bg-white border-white shadow-[0_0_15px_rgba(255,255,255,0.6)] scale-100'
-                                                : 'border-white/10 bg-white/5 scale-95'
-                                                }`}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
+            {/* Table / Arena Visual */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] rounded-full border border-white/5 bg-black/40 backdrop-blur-sm shadow-2xl transform rotate-x-12 pointer-events-none">
+                {/* Decorative Rings */}
+                <div className="absolute inset-0 rounded-full border border-white/5 scale-90" />
+                <div className="absolute inset-0 rounded-full border border-gold/5 scale-75" />
+            </div>
+
+            {/* Central Area: Community Cards & Pot */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center gap-6 transform -translate-y-4">
+                <PotDisplay pot={getTotalPot()} stage={phase} />
+
+                <div className="flex items-center gap-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className={`
+                                w-14 h-20 rounded-lg border flex items-center justify-center
+                                transition-all duration-700 ease-out transform
+                                ${i < targetCardCount
+                                    ? 'bg-white border-white shadow-[0_0_20px_rgba(255,255,255,0.3)] translate-y-0 opacity-100 rotate-0'
+                                    : 'bg-white/5 border-white/10 translate-y-4 opacity-30 rotate-3'
+                                }
+                            `}
+                        >
+                            {/* Card Back / Front Design Placeholder */}
+                            {i < targetCardCount && (
+                                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-300 rounded-md" />
+                            )}
                         </div>
-                    </div>
+                    ))}
                 </div>
             </div>
 
-            {/* プレイヤーとチップの配置 - Add Playerボタンも含めて配置計算 */}
-            <div className="absolute inset-0 pointer-events-none">
-                {/* 
-                   Render existing players AND the Add Player button in the circle 
-                   We treat "Add Player" button as index = players.length
-                */}
-                {[...players, 'ADD_BUTTON'].map((item, index) => {
-                    const totalItems = players.length + 1; // +1 for Add Button
-                    const pos = getPlayerPosition(index, totalItems);
+            {/* Players */}
+            {[...players, 'ADD_BUTTON'].map((item, index) => {
+                const totalItems = players.length + 1;
+                const pos = getPlayerPosition(index, totalItems);
 
-                    // チップはプレイヤーの内側に配置
-                    const betOffsetY = pos.y > 0 ? -35 : 35;
-                    const chipPos = { x: pos.x, y: pos.y + betOffsetY };
+                // Adjust position relative to center
+                // Since this is absolutely positioned in a flex center container, 
+                // we treat (0,0) as center, so just add pos.x, pos.y
 
-                    // If it's the Add Button
-                    if (item === 'ADD_BUTTON') {
-                        return (
-                            <div
-                                key="add-player-btn"
-                                className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-auto"
-                                style={{
-                                    left: `calc(50% + ${pos.x}px)`,
-                                    top: `calc(50% + ${pos.y}px)`,
-                                    zIndex: 1,
-                                }}
-                            >
-                                <AddPlayerCard onClick={handleAddClick} />
-                            </div>
-                        );
-                    }
-
-                    // Otherwise it's a player
-                    const player = item as Player;
-                    const isActive = index === currentPlayerIndex;
-
+                if (item === 'ADD_BUTTON') {
                     return (
-                        <div key={player.id}>
-                            {/* ベットチップ表示 */}
-                            <AnimatePresence>
-                                {player.currentBet > 0 && (
-                                    <motion.div
-                                        key={`bet-${player.id}`}
-                                        initial={{ opacity: 0, scale: 0.5 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.5 }}
-                                        className="absolute transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"
-                                        style={{
-                                            left: `calc(50% + ${chipPos.x}px)`,
-                                            top: `calc(50% + ${chipPos.y}px)`,
-                                        }}
-                                    >
-                                        <BetDisplay
-                                            amount={player.currentBet}
-                                        />
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            {/* プレイヤーカード */}
-                            <div
-                                className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-auto"
-                                style={{
-                                    left: `calc(50% + ${pos.x}px)`,
-                                    top: `calc(50% + ${pos.y}px)`,
-                                    zIndex: isActive ? 10 : 1,
-                                }}
-                            >
-                                <PlayerCard
-                                    player={player}
-                                    isActive={isActive}
-                                    onClick={() => handlePlayerClick(player)}
-                                />
-                            </div>
+                        <div
+                            key="add"
+                            className="absolute transition-all duration-500 z-20"
+                            style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+                        >
+                            <AddPlayerCard onClick={handleAddClick} />
                         </div>
-                    );
-                })}
-            </div>
+                    )
+                }
 
-            {/* Edit/Add Player Modal */}
+                const player = item as Player;
+                const isActive = index === currentPlayerIndex;
+
+                return (
+                    <div
+                        key={player.id}
+                        className="absolute transition-all duration-500 z-20"
+                        style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+                    >
+                        <PlayerCard
+                            player={player}
+                            isActive={isActive}
+                            isDealer={false} // Dealer logic needs to be passed or derived
+                            position="" // Position logic needs to be derived
+                        />
+                        {/* Bet Bubble */}
+                        <AnimatePresence>
+                            {player.currentBet > 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0 }}
+                                    className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black/60 border border-gold/30 text-gold px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap"
+                                >
+                                    ${player.currentBet.toLocaleString()}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                );
+            })}
+
             <EditPlayerModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
@@ -189,7 +166,6 @@ export function TableView() {
                 isAdding={isAddingPlayer}
             />
 
-            {/* Phase Transition Modal */}
             <PhaseTransitionModal />
         </div>
     );
