@@ -20,6 +20,7 @@ export function TableView() {
         pots,
         updatePlayerStack,
         addPlayer,
+        actionHistory,
     } = useGameStore();
 
     const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
@@ -147,6 +148,13 @@ export function TableView() {
                     positionLabel = 'SB';
                 }
 
+                // Determine Bet Type (Yellow for BET/CALL, Red for RAISE)
+                const lastAction = [...actionHistory].reverse().find(a => a.playerId === player.id);
+                // If they have bet > 0 and their last action was RAISE (or derived from it), show Red.
+                // Note: If they Called a Raise, usually it's just a call (Yellow).
+                // Use RAISE color only if they initiated a Raise.
+                const betType = lastAction?.action === 'RAISE' ? 'RAISE' : 'BET';
+
                 return (
                     <div
                         key={player.id}
@@ -159,6 +167,7 @@ export function TableView() {
                             isDealer={isDealer}
                             position={positionLabel}
                             onClick={() => handlePlayerClick(player)}
+                            betType={betType}
                         />
 
                     </div>

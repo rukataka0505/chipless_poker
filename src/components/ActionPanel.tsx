@@ -227,14 +227,14 @@ export function ActionPanel() {
                             </div>
 
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gold font-bold text-xl">$</span>
+                                <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-bold text-xl ${currentBet > 0 ? 'text-red-500' : 'text-gold'}`}>$</span>
                                 <input
                                     type="text"
                                     inputMode="numeric"
                                     pattern="[0-9]*"
                                     value={betAmount}
                                     onChange={handleInputChange}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl py-4 pl-10 pr-4 text-3xl font-display font-bold text-white focus:outline-none focus:border-gold/50 transition-colors text-center"
+                                    className={`w-full bg-black/40 border border-white/10 rounded-xl py-4 pl-10 pr-4 text-3xl font-display font-bold text-white focus:outline-none transition-colors text-center ${currentBet > 0 ? 'focus:border-red-500/50' : 'focus:border-gold/50'}`}
                                     placeholder={minAmount.toString()}
                                 />
                             </div>
@@ -254,7 +254,7 @@ export function ActionPanel() {
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                     />
                                     <div
-                                        className="h-full bg-gradient-to-r from-electric to-gold"
+                                        className={`h-full bg-gradient-to-r ${currentBet > 0 ? 'from-red-900 to-red-500' : 'from-electric to-gold'}`}
                                         style={{ width: `${Math.min(100, ((parseInt(betAmount) || minAmount) - minAmount) / (effectiveSliderMax - minAmount) * 100)}%` }}
                                     />
                                 </div>
@@ -267,7 +267,7 @@ export function ActionPanel() {
                                 <Button variant="ghost" onClick={() => { setShowInput(false); setBetAmount(''); setError(null); }}>
                                     キャンセル
                                 </Button>
-                                <Button variant="gold" onClick={handleBetConfirm}>
+                                <Button variant={currentBet > 0 ? 'ruby' : 'gold'} onClick={handleBetConfirm}>
                                     {currentBet === 0 ? 'Bet' : 'Raise'}
                                 </Button>
                             </div>

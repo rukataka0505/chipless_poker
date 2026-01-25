@@ -8,9 +8,10 @@ interface PlayerCardProps {
     isDealer: boolean;
     position: string; // "SB", "BB", or ""
     onClick?: () => void;
+    betType?: 'BET' | 'RAISE';
 }
 
-export function PlayerCard({ player, isActive, isDealer, position, onClick }: PlayerCardProps) {
+export function PlayerCard({ player, isActive, isDealer, position, onClick, betType = 'BET' }: PlayerCardProps) {
     const isFolded = player.folded;
     const isAllIn = player.allIn;
     const hasBet = player.currentBet > 0;
@@ -31,10 +32,25 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick }: Pl
             `}>
                 <div className="relative">
                     {/* Chip-like Pill - SHARP & CLEAN */}
-                    <div className="bg-gradient-to-b from-yellow-400 to-yellow-600 border-2 border-yellow-200 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
+                    <div className={`
+                        border-2 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_10px_rgba(0,0,0,0.5)]
+                        ${betType === 'RAISE'
+                            ? 'bg-gradient-to-b from-red-500 to-red-700 border-red-300'
+                            : 'bg-gradient-to-b from-yellow-400 to-yellow-600 border-yellow-200'
+                        }
+                    `}>
                         {/* Chip Icon */}
-                        <div className="w-5 h-5 rounded-full border-2 border-yellow-800/50 bg-yellow-500 flex items-center justify-center shadow-inner">
-                            <div className="w-3 h-3 rounded-full border border-dashed border-yellow-800/60" />
+                        <div className={`
+                            w-5 h-5 rounded-full border-2 flex items-center justify-center shadow-inner
+                            ${betType === 'RAISE'
+                                ? 'border-red-900/50 bg-red-600'
+                                : 'border-yellow-800/50 bg-yellow-500'
+                            }
+                        `}>
+                            <div className={`
+                                w-3 h-3 rounded-full border border-dashed
+                                ${betType === 'RAISE' ? 'border-red-900/60' : 'border-yellow-800/60'}
+                            `} />
                         </div>
 
                         {/* Bet Amount */}

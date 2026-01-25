@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'gold' | 'electric';
+    variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'gold' | 'electric' | 'ruby';
     size?: 'sm' | 'md' | 'lg' | 'xl';
     isLoading?: boolean;
     icon?: React.ReactNode;
@@ -28,6 +28,7 @@ export function Button({
         // Special luxe variants
         gold: "bg-gradient-to-b from-gold to-gold-dim text-black shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_30px_rgba(255,215,0,0.5)] border border-gold/50",
         electric: "bg-gradient-to-b from-electric to-electric-dim text-black shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_30px_rgba(0,240,255,0.5)] border border-electric/50",
+        ruby: "bg-gradient-to-b from-red-500 to-red-700 text-white shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] border border-red-400/50",
     };
 
     const sizes = {
@@ -44,7 +45,7 @@ export function Button({
             {...props}
         >
             {/* Interactive sheen effect for luxe buttons */}
-            {(variant === 'gold' || variant === 'electric') && (
+            {(variant === 'gold' || variant === 'electric' || variant === 'ruby') && (
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
             )}
 
