@@ -148,12 +148,14 @@ export function TableView() {
                     positionLabel = 'SB';
                 }
 
-                // Determine Bet Type (Yellow for BET/CALL, Red for RAISE)
+                // Determine Bet Type (Yellow for BET, Lime for CALL, Red for RAISE)
                 const lastAction = [...actionHistory].reverse().find(a => a.playerId === player.id);
                 // If they have bet > 0 and their last action was RAISE (or derived from it), show Red.
-                // Note: If they Called a Raise, usually it's just a call (Yellow).
+                // Note: If they Called a Raise, usually it's just a call (Yellow-Green).
                 // Use RAISE color only if they initiated a Raise.
-                const betType = lastAction?.action === 'RAISE' ? 'RAISE' : 'BET';
+                let betType: 'BET' | 'RAISE' | 'CALL' = 'BET';
+                if (lastAction?.action === 'RAISE') betType = 'RAISE';
+                if (lastAction?.action === 'CALL') betType = 'CALL';
 
                 return (
                     <div

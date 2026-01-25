@@ -6,8 +6,21 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
-    title: 'Chipless Poker | Midnight Luxe',
-    description: 'Premium Digital Poker Experience',
+    metadataBase: new URL('https://chipless-poker.web.app'),
+    title: 'Chipless Poker | 手持ちのトランプでポーカー',
+    description: 'チップがなくても、トランプ1組でいつでもポーカー',
+    openGraph: {
+        title: 'Chipless Poker | 手持ちのトランプでポーカー',
+        description: 'チップがなくても、トランプ1組でいつでもポーカー',
+        siteName: 'Chipless Poker',
+        locale: 'ja_JP',
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: 'Chipless Poker | 手持ちのトランプでポーカー',
+        description: 'チップがなくても、トランプ1組でいつでもポーカー',
+    },
 };
 
 export default function RootLayout({
