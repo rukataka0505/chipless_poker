@@ -7,18 +7,23 @@ import { Player } from '@/lib/poker/types';
 interface PlayerCardProps {
     player: Player;
     isActive: boolean;
+    onClick?: () => void;
 }
 
-export function PlayerCard({ player, isActive }: PlayerCardProps) {
+export function PlayerCard({ player, isActive, onClick }: PlayerCardProps) {
     const { name, stack, currentBet, position, folded, allIn } = player;
 
     return (
         <div
+            onClick={onClick}
             className={`
-        player-card relative text-center transition-all duration-300
-        ${isActive ? 'active active-glow w-24 scale-100' : 'w-16 scale-90'}
-        ${folded ? 'folded' : ''}
-        ${allIn ? 'bg-red-900/50' : 'glass-panel'}
+        player-card relative text-center transition-all duration-300 font-sans
+        ${isActive
+                    ? 'active active-glow w-24 scale-100 bg-black border-2 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)] z-20'
+                    : 'w-16 scale-95 bg-gray-900/90 border border-white/20 shadow-lg z-10'}
+        ${folded ? 'folded opacity-50 bg-gray-950 border-gray-800' : ''}
+        ${allIn ? '!bg-red-900/80 !border-red-500' : ''}
+        ${onClick ? 'cursor-pointer hover:scale-105 hover:border-yellow-500/50' : ''}
       `}
         >
             {/* ポジションバッジ */}

@@ -61,6 +61,9 @@ interface GameStore extends GameState {
     // Settings
     showPhaseNotifications: boolean;
     togglePhaseNotifications: () => void;
+    // Modifying Players
+    updatePlayerStack: (playerId: string, newStack: number) => void;
+    addPlayer: (name: string, stack: number) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -338,5 +341,35 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     togglePhaseNotifications: () => {
         set(state => ({ showPhaseNotifications: !state.showPhaseNotifications }));
+    },
+
+    // Modifying Players
+    updatePlayerStack: (playerId: string, newStack: number) => {
+        set(state => ({
+            players: state.players.map(p =>
+                p.id === playerId ? { ...p, stack: newStack } : p
+            ),
+        }));
+    },
+
+    addPlayer: (name: string, stack: number) => {
+        set(state => {
+            const newPlayerId = `player-${Date.now()}`;
+            const newPlayer: Player = {
+                id: newPlayerId,
+                name: name,
+                stack: stack,
+                currentBet: 0,
+                totalBetThisRound: 0,
+                folded: state.phase !== 'SETUP', // Mid-game joiners are folded
+                allIn: false,
+                hasActedThisRound: false,
+                position: null,
+                seatIndex: state.players.length,
+            };
+            return {
+                players: [...state.players, newPlayer],
+            };
+        });
     },
 }));

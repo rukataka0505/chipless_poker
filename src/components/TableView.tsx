@@ -11,6 +11,10 @@ import { PotDisplay } from './PotDisplay';
 import { BetDisplay } from './BetDisplay';
 import { PhaseTransitionModal } from './PhaseTransitionModal';
 
+import { EditPlayerModal } from './EditPlayerModal';
+import { AddPlayerCard } from './AddPlayerCard';
+import { Player } from '@/lib/poker/types';
+
 export function TableView() {
     const {
         players,
@@ -18,17 +22,46 @@ export function TableView() {
         currentPlayerIndex,
         pots,
         getTotalPot,
+        updatePlayerStack,
+        addPlayer,
     } = useGameStore();
 
-    // 円形配置の角度計算
+    const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+    const [isAddingPlayer, setIsAddingPlayer] = React.useState(false);
+
+    const handlePlayerClick = (player: Player) => {
+        setEditingPlayer(player);
+        setIsAddingPlayer(false);
+        setIsEditModalOpen(true);
+    };
+
+    const handleAddClick = () => {
+        setEditingPlayer(null);
+        setIsAddingPlayer(true);
+        setIsEditModalOpen(true);
+    };
+
+    const handleSavePlayer = (name: string, stack: number) => {
+        if (isAddingPlayer) {
+            addPlayer(name, stack);
+        } else if (editingPlayer) {
+            const confirmMessage = `"${editingPlayer.name}"のチップ数を変更しますか？\n${editingPlayer.stack} -> ${stack}`;
+            if (window.confirm(confirmMessage)) {
+                updatePlayerStack(editingPlayer.id, stack);
+            }
+        }
+    };
+
     const getPlayerPosition = (index: number, total: number) => {
         // 上から時計回りに配置
         const angleOffset = -90; // 12時の位置からスタート
         const angle = (360 / total) * index + angleOffset;
         const radian = (angle * Math.PI) / 180;
 
-        // 楕円形に配置（横長）- テーブルの外側に配置
-        const radiusX = 180;
+        // 楕円形に配置（スタジアムに近い横長）- テーブルの外側に配置
+        // Aspect 2/1に合わせて横幅を広げる
+        const radiusX = 260;
         const radiusY = 130;
 
         const x = Math.cos(radian) * radiusX;
@@ -40,47 +73,68 @@ export function TableView() {
     const targetCardCount = COMMUNITY_CARDS_COUNT[phase];
 
     return (
-        <div className="relative w-full aspect-[4/3] max-w-lg mx-auto">
-            {/* テーブル背景 */}
-            <div className="absolute inset-4 rounded-[50%] felt-texture border-8 border-amber-900 shadow-2xl">
-                {/* Community Cards - Center with Pot above */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="flex flex-col items-center gap-2 z-10">
-                        {/* Pot Display - directly above cards */}
-                        <PotDisplay pots={pots} totalPot={getTotalPot()} />
+        <div className="relative w-full aspect-[2/1] max-w-2xl mx-auto my-12">
+            {/* テーブル全体（レール + フェルト） - Stadium Shape */}
+            <div className="absolute inset-0 rounded-full table-rail z-0">
+                <div className="absolute inset-5 rounded-full felt-texture border border-black/30 shadow-inner">
+                    {/* Community Cards - Center with Pot above */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="flex flex-col items-center gap-4 z-10 w-full max-w-sm">
+                            {/* Pot Display - directly above cards */}
+                            <PotDisplay pots={pots} totalPot={getTotalPot()} />
 
-                        {/* コミュニティカードスロット */}
-                        <div className="flex flex-col items-center gap-1">
-                            <div className="flex gap-1">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className={`w-9 h-12 rounded-md border-2 transition-all duration-500 transform ${i < targetCardCount
+                            {/* コミュニティカードスロットエリア */}
+                            <div className="flex flex-col items-center gap-2 p-4 rounded-3xl bg-black/10 backdrop-blur-sm border border-white/5 shadow-inner">
+                                <div className="flex gap-2">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <div
+                                            key={i}
+                                            className={`w-10 h-14 rounded-md border-2 transition-all duration-500 transform ${i < targetCardCount
                                                 ? 'bg-white border-white shadow-[0_0_15px_rgba(255,255,255,0.6)] scale-100'
-                                                : 'border-white/10 bg-white/5 scale-90'
-                                            }`}
-                                    />
-                                ))}
+                                                : 'border-white/10 bg-white/5 scale-95'
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
                             </div>
-                            {targetCardCount > 0 && (
-                                <span className="text-xs text-white/60">
-                                    {targetCardCount}枚
-                                </span>
-                            )}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* プレイヤーとチップの配置 */}
+            {/* プレイヤーとチップの配置 - Add Playerボタンも含めて配置計算 */}
             <div className="absolute inset-0 pointer-events-none">
-                {players.map((player, index) => {
-                    const pos = getPlayerPosition(index, players.length);
-                    // チップはプレイヤーの内側に配置（上半分なら下に、下半分なら上に）
-                    // pos.y > 0 means bottom half of table
+                {/* 
+                   Render existing players AND the Add Player button in the circle 
+                   We treat "Add Player" button as index = players.length
+                */}
+                {[...players, 'ADD_BUTTON'].map((item, index) => {
+                    const totalItems = players.length + 1; // +1 for Add Button
+                    const pos = getPlayerPosition(index, totalItems);
+
+                    // チップはプレイヤーの内側に配置
                     const betOffsetY = pos.y > 0 ? -35 : 35;
                     const chipPos = { x: pos.x, y: pos.y + betOffsetY };
 
+                    // If it's the Add Button
+                    if (item === 'ADD_BUTTON') {
+                        return (
+                            <div
+                                key="add-player-btn"
+                                className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 pointer-events-auto"
+                                style={{
+                                    left: `calc(50% + ${pos.x}px)`,
+                                    top: `calc(50% + ${pos.y}px)`,
+                                    zIndex: 1,
+                                }}
+                            >
+                                <AddPlayerCard onClick={handleAddClick} />
+                            </div>
+                        );
+                    }
+
+                    // Otherwise it's a player
+                    const player = item as Player;
                     const isActive = index === currentPlayerIndex;
 
                     return (
@@ -115,12 +169,25 @@ export function TableView() {
                                     zIndex: isActive ? 10 : 1,
                                 }}
                             >
-                                <PlayerCard player={player} isActive={isActive} />
+                                <PlayerCard
+                                    player={player}
+                                    isActive={isActive}
+                                    onClick={() => handlePlayerClick(player)}
+                                />
                             </div>
                         </div>
                     );
                 })}
             </div>
+
+            {/* Edit/Add Player Modal */}
+            <EditPlayerModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSave={handleSavePlayer}
+                player={editingPlayer}
+                isAdding={isAddingPlayer}
+            />
 
             {/* Phase Transition Modal */}
             <PhaseTransitionModal />
