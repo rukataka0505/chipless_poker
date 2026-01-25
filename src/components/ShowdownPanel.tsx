@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trophy, Users, Check, ArrowRight, Undo2 } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 
@@ -20,14 +20,41 @@ export function ShowdownPanel() {
 
     // const [isResolved, setIsResolved] = useState(false);
 
-    if (phase !== 'SHOWDOWN') {
-        return null;
-    }
-
     const activePlayers = players.filter(p => !p.folded);
 
     // 1人しか残っていない場合は自動で勝者
     const autoWinner = activePlayers.length === 1 ? activePlayers[0] : null;
+
+    // 各ポットの参加資格があるプレイヤー（フォールドしていない）を計算
+    const getEligiblePlayersForPot = (potIndex: number) => {
+        const pot = pots[potIndex];
+        if (!pot) return [];
+        return pot.eligiblePlayerIds
+            .map(id => players.find(p => p.id === id))
+            .filter(p => p && !p.folded) as typeof players;
+    };
+
+    // 1人しか選択肢のないポットを自動選択
+    useEffect(() => {
+        if (phase !== 'SHOWDOWN' || isShowdownResolved || autoWinner) return;
+
+        pots.forEach((pot, potIndex) => {
+            const eligiblePlayers = getEligiblePlayersForPot(potIndex);
+            // 1人しか参加資格がない場合、自動選択
+            if (eligiblePlayers.length === 1) {
+                const currentWinners = selectedWinners.get(potIndex);
+                const singlePlayerId = eligiblePlayers[0].id;
+                // まだ選択されていない場合のみ選択
+                if (!currentWinners || !currentWinners.includes(singlePlayerId)) {
+                    selectWinners(potIndex, [singlePlayerId]);
+                }
+            }
+        });
+    }, [phase, pots, players, isShowdownResolved, autoWinner]);
+
+    if (phase !== 'SHOWDOWN') {
+        return null;
+    }
 
     const handlePlayerSelect = (potIndex: number, playerId: string) => {
         const currentWinners = selectedWinners.get(potIndex) || [];
@@ -173,47 +200,52 @@ export function ShowdownPanel() {
                         /* 勝者選択画面 */
                         <>
                             <div className="space-y-4 mb-6">
-                                {pots.map((pot, potIndex) => (
-                                    <div key={potIndex} className="bg-white/5 rounded-xl p-3">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <span className="text-sm text-gray-400">
-                                                {pots.length > 1 ? (potIndex === 0 ? 'メインポット' : `サイドポット ${potIndex}`) : 'ポット'}
-                                            </span>
-                                            <span className="text-yellow-400 font-bold">{pot.amount}</span>
+                                {pots.map((pot, potIndex) => {
+                                    // 1人しか参加資格がないポットは表示しない（自動選択される）
+                                    const eligiblePlayers = getEligiblePlayersForPot(potIndex);
+                                    if (eligiblePlayers.length <= 1) {
+                                        return null;
+                                    }
+
+                                    return (
+                                        <div key={potIndex} className="bg-white/5 rounded-xl p-3">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <span className="text-sm text-gray-400">
+                                                    {pots.length > 1 ? (potIndex === 0 ? 'メインポット' : `サイドポット ${potIndex}`) : 'ポット'}
+                                                </span>
+                                                <span className="text-yellow-400 font-bold">{pot.amount}</span>
+                                            </div>
+
+                                            <p className="text-xs text-gray-400 mb-2">
+                                                <Users className="w-3 h-3 inline mr-1" />
+                                                勝者を選択（複数可：チョップ）
+                                            </p>
+
+                                            <div className="flex flex-wrap gap-2">
+                                                {eligiblePlayers.map(player => {
+                                                    const isSelected = selectedWinners.get(potIndex)?.includes(player.id);
+
+                                                    return (
+                                                        <button
+                                                            key={player.id}
+                                                            onClick={() => handlePlayerSelect(potIndex, player.id)}
+                                                            className={`
+                                                                px-4 py-2 rounded-lg font-medium transition-all
+                                                                ${isSelected
+                                                                    ? 'bg-yellow-500 text-black'
+                                                                    : 'bg-gray-700 text-white hover:bg-gray-600'
+                                                                }
+                                                            `}
+                                                        >
+                                                            {isSelected && <Check className="w-4 h-4 inline mr-1" />}
+                                                            {player.name}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
-
-                                        <p className="text-xs text-gray-400 mb-2">
-                                            <Users className="w-3 h-3 inline mr-1" />
-                                            勝者を選択（複数可：チョップ）
-                                        </p>
-
-                                        <div className="flex flex-wrap gap-2">
-                                            {pot.eligiblePlayerIds.map(playerId => {
-                                                const player = players.find(p => p.id === playerId);
-                                                if (!player || player.folded) return null;
-
-                                                const isSelected = selectedWinners.get(potIndex)?.includes(playerId);
-
-                                                return (
-                                                    <button
-                                                        key={playerId}
-                                                        onClick={() => handlePlayerSelect(potIndex, playerId)}
-                                                        className={`
-                                                            px-4 py-2 rounded-lg font-medium transition-all
-                                                            ${isSelected
-                                                                ? 'bg-yellow-500 text-black'
-                                                                : 'bg-gray-700 text-white hover:bg-gray-600'
-                                                            }
-                                                        `}
-                                                    >
-                                                        {isSelected && <Check className="w-4 h-4 inline mr-1" />}
-                                                        {player.name}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
 
                             <button
