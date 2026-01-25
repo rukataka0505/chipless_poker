@@ -14,9 +14,9 @@ export function PotDisplay({ pot, stage }: PotDisplayProps) {
                 </span>
             )}
             <div className="relative group">
-                <div className="absolute inset-0 bg-gold/20 blur-xl rounded-full group-hover:bg-gold/30 transition-all duration-500" />
-                <div className="relative glass-panel bg-black/40 border-gold/20 px-8 py-3 rounded-full flex flex-col items-center min-w-[140px]">
-                    <span className="text-[10px] text-gold/80 font-bold uppercase tracking-widest mb-1">Total Pot</span>
+                {/* Removed ambient glow as per user request */}
+                <div className="relative glass-panel bg-yellow-100/10 border-yellow-100/30 px-8 py-3 rounded-full flex flex-col items-center min-w-[140px] shadow-[0_0_15px_rgba(255,255,200,0.1)]">
+                    <span className="text-[10px] text-yellow-100/90 font-bold uppercase tracking-widest mb-1">Total Pot</span>
                     <span className="font-display text-2xl font-bold text-white glow-text-gold tabular-nums">
                         {pot.toLocaleString()}
                     </span>

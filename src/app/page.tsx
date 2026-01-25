@@ -53,7 +53,6 @@ export default function SetupPage() {
                     <h1 className="text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">
                         Chipless<br />Poker
                     </h1>
-                    <p className="text-text-secondary tracking-widest text-sm uppercase">Midnight Luxe Edition</p>
                 </div>
 
                 {/* Setup Card */}
@@ -110,12 +109,12 @@ export default function SetupPage() {
                         {/* Game Settings Summary */}
                         <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-gold/5 border border-gold/10">
                             <div className="flex flex-col">
-                                <span className="text-xs text-gold/70 uppercase tracking-wide">Starting Stack</span>
+                                <span className="text-xs text-gold/70 uppercase tracking-wide">初期スタック</span>
                                 <span className="font-display font-bold text-gold">{GAME_CONSTANTS.INITIAL_STACK.toLocaleString()}</span>
                             </div>
                             <div className="w-px h-8 bg-gold/20" />
                             <div className="flex flex-col text-right">
-                                <span className="text-xs text-gold/70 uppercase tracking-wide">Blinds</span>
+                                <span className="text-xs text-gold/70 uppercase tracking-wide">ブラインド</span>
                                 <span className="font-display font-bold text-gold">{GAME_CONSTANTS.SMALL_BLIND} / {GAME_CONSTANTS.BIG_BLIND}</span>
                             </div>
                         </div>
@@ -127,7 +126,7 @@ export default function SetupPage() {
                             onClick={handleStart}
                             icon={<Trophy className="w-5 h-5" />}
                         >
-                            Start Game
+                            ゲームを開始
                         </Button>
                     </div>
                 </Card>
