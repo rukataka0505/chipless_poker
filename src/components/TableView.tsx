@@ -55,9 +55,9 @@ export function TableView() {
                                 {Array.from({ length: 5 }).map((_, i) => (
                                     <div
                                         key={i}
-                                        className={`w-8 h-11 rounded border-2 transition-all duration-300 ${i < targetCardCount
-                                            ? 'border-white/60 bg-white/10'
-                                            : 'border-white/20 bg-transparent'
+                                        className={`w-9 h-12 rounded-md border-2 transition-all duration-500 transform ${i < targetCardCount
+                                                ? 'bg-white border-white shadow-[0_0_15px_rgba(255,255,255,0.6)] scale-100'
+                                                : 'border-white/10 bg-white/5 scale-90'
                                             }`}
                                     />
                                 ))}
