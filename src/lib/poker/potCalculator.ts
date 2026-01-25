@@ -10,19 +10,16 @@ import { Player, Pot } from './types';
  * 各プレイヤーのベット額に基づいてポットを分割
  */
 export function calculateSidePots(players: Player[]): Pot[] {
-    // アクティブなプレイヤー（フォールドしていない）のみ対象
-    const activePlayers = players.filter(p => !p.folded);
-
-    if (activePlayers.length === 0) {
-        return [];
-    }
-
-    // 各プレイヤーのこのラウンドでの合計ベット額を取得
-    const bets = activePlayers.map(p => ({
-        playerId: p.id,
-        bet: p.totalBetThisRound,
-        allIn: p.allIn,
-    }));
+    // 全プレイヤー（フォールドしたプレイヤーも含む）のベット額を取得
+    // フォールドしたプレイヤーのチップも「デッドマネー」としてポッドに加算される必要がある
+    const bets = players
+        .filter(p => p.totalBetThisRound > 0)
+        .map(p => ({
+            playerId: p.id,
+            bet: p.totalBetThisRound,
+            allIn: p.allIn,
+            folded: p.folded
+        }));
 
     // ベット額でソート
     const sortedBets = [...bets].sort((a, b) => a.bet - b.bet);
@@ -35,9 +32,10 @@ export function calculateSidePots(players: Player[]): Pot[] {
         const betDiff = currentBet - processedAmount;
 
         if (betDiff > 0) {
-            // このレベルに参加できるプレイヤー数
+            // このレベルに参加できる（ポットを獲得できる権利がある）プレイヤー数
+            // フォールドしていないプレイヤーのみが権利を持つ
             const eligiblePlayers = sortedBets
-                .filter(b => b.bet >= currentBet)
+                .filter(b => !b.folded && b.bet >= currentBet)
                 .map(b => b.playerId);
 
             // 全員がこのレベルまで拠出している金額

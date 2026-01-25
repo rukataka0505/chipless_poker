@@ -64,20 +64,20 @@ export function EditPlayerModal({ isOpen, onClose, onSave, player, isAdding = fa
                         </button>
 
                         <h2 className="text-xl font-bold text-white mb-6">
-                            {isAdding ? 'Add Player' : 'Edit Player'}
+                            {isAdding ? 'プレイヤー追加' : 'プレイヤー編集'}
                         </h2>
 
                         <div className="space-y-6">
                             {/* Name Input */}
                             <div>
                                 <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
-                                    Player Name
+                                    プレイヤー名
                                 </label>
                                 <input
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="Enter name"
+                                    placeholder="名前を入力"
                                     className="w-full bg-black/30 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-500 transition-colors"
                                     readOnly={!isAdding && !!player} // Name is readonly when editing existing player, unless we want to allow renaming? Let's allow renaming for now if desired, but user request focused on chips. Let's keep it editable.
                                 />
@@ -86,7 +86,7 @@ export function EditPlayerModal({ isOpen, onClose, onSave, player, isAdding = fa
                             {/* Stack Input */}
                             <div>
                                 <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
-                                    Chip Stack
+                                    所持チップ
                                 </label>
                                 <div className="flex items-center gap-4">
                                     <button
@@ -132,7 +132,7 @@ export function EditPlayerModal({ isOpen, onClose, onSave, player, isAdding = fa
                                 className="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-bold py-3 rounded-lg shadow-lg hover:from-yellow-500 hover:to-yellow-400 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 <Check size={20} />
-                                {isAdding ? 'Add Player' : 'Save Changes'}
+                                {isAdding ? 'プレイヤーを追加' : '変更を保存'}
                             </button>
                         </div>
                     </motion.div>

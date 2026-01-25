@@ -9,6 +9,7 @@ import {
     Player,
     PlayerAction,
     ActionRecord,
+    HandHistory,
     GAME_CONSTANTS,
 } from '@/lib/poker/types';
 import {
@@ -58,6 +59,12 @@ interface GameStore extends GameState {
     // Internal state
     selectedWinners: Map<number, string[]>;
 
+    // Undo functionality
+    undoStack: GameState[];          // 現在ハンド内のUndo用スタック
+    handHistories: HandHistory[];    // 過去ハンドの履歴（最大10件、将来用）
+    undo: () => boolean;             // 1つ前の状態に戻る（現在ハンド内のみ）
+    canUndo: () => boolean;          // Undo可能かどうか
+
     // Settings
     showPhaseNotifications: boolean;
     togglePhaseNotifications: () => void;
@@ -82,6 +89,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     selectedWinners: new Map(),
     pendingPhase: null,
     showPhaseNotifications: true,
+    undoStack: [],
+    handHistories: [],
 
     // Setup actions
     initializeGame: (playerNames: string[]) => {
@@ -94,12 +103,43 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     startNewHand: () => {
         const state = get();
+
+        // 現在のハンド履歴を保存（アクションがあった場合のみ）
+        let newHandHistories = state.handHistories;
+        if (state.actionHistory.length > 0) {
+            const currentHandHistory: HandHistory = {
+                handNumber: state.handNumber,
+                actions: [...state.actionHistory],
+                finalState: {
+                    phase: state.phase,
+                    players: state.players.map(p => ({ ...p })),
+                    dealerIndex: state.dealerIndex,
+                    currentPlayerIndex: state.currentPlayerIndex,
+                    pots: state.pots.map(p => ({ ...p, eligiblePlayerIds: [...p.eligiblePlayerIds] })),
+                    currentBet: state.currentBet,
+                    minRaise: state.minRaise,
+                    lastRaiseAmount: state.lastRaiseAmount,
+                    communityCardCount: state.communityCardCount,
+                    handNumber: state.handNumber,
+                    actionHistory: [...state.actionHistory],
+                    showPhaseNotifications: state.showPhaseNotifications,
+                },
+            };
+            newHandHistories = [...state.handHistories, currentHandHistory];
+            // 最大10件に制限
+            if (newHandHistories.length > GAME_CONSTANTS.MAX_HISTORY_HANDS) {
+                newHandHistories = newHandHistories.slice(-GAME_CONSTANTS.MAX_HISTORY_HANDS);
+            }
+        }
+
         const newState = startHand(state);
         set({
             ...newState,
             // プリフロップ通知の設定
             pendingPhase: state.showPhaseNotifications ? 'PREFLOP' : null,
             selectedWinners: new Map(),
+            undoStack: [],  // 新ハンド開始時にUndoスタックをクリア
+            handHistories: newHandHistories,
         });
     },
 
@@ -124,6 +164,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (!validation.valid) {
             return { success: false, error: validation.error };
         }
+
+        // Undo用に変更前のGameStateを保存
+        const snapshotState: GameState = {
+            phase: state.phase,
+            players: state.players.map(p => ({ ...p })),
+            dealerIndex: state.dealerIndex,
+            currentPlayerIndex: state.currentPlayerIndex,
+            pots: state.pots.map(p => ({ ...p, eligiblePlayerIds: [...p.eligiblePlayerIds] })),
+            currentBet: state.currentBet,
+            minRaise: state.minRaise,
+            lastRaiseAmount: state.lastRaiseAmount,
+            communityCardCount: state.communityCardCount,
+            handNumber: state.handNumber,
+            actionHistory: [...state.actionHistory],
+            showPhaseNotifications: state.showPhaseNotifications,
+        };
 
         // アクション処理
         const { updatedPlayer, betAmount, newCurrentBet } = processAction(
@@ -215,7 +271,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
             newState.currentPlayerIndex = movedState.currentPlayerIndex;
         }
 
-        set(newState as GameState);
+        set({
+            ...newState,
+            undoStack: [...state.undoStack, snapshotState],
+        } as GameState);
         return { success: true };
     },
 
@@ -252,12 +311,40 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const state = get();
         const { selectedWinners } = state;
 
+        // 現在のハンド履歴を保存
+        let newHandHistories = state.handHistories;
+        if (state.actionHistory.length > 0) {
+            const currentHandHistory: HandHistory = {
+                handNumber: state.handNumber,
+                actions: [...state.actionHistory],
+                finalState: {
+                    phase: state.phase,
+                    players: state.players.map(p => ({ ...p })),
+                    dealerIndex: state.dealerIndex,
+                    currentPlayerIndex: state.currentPlayerIndex,
+                    pots: state.pots.map(p => ({ ...p, eligiblePlayerIds: [...p.eligiblePlayerIds] })),
+                    currentBet: state.currentBet,
+                    minRaise: state.minRaise,
+                    lastRaiseAmount: state.lastRaiseAmount,
+                    communityCardCount: state.communityCardCount,
+                    handNumber: state.handNumber,
+                    actionHistory: [...state.actionHistory],
+                    showPhaseNotifications: state.showPhaseNotifications,
+                },
+            };
+            newHandHistories = [...state.handHistories, currentHandHistory];
+            // 最大10件に制限
+            if (newHandHistories.length > GAME_CONSTANTS.MAX_HISTORY_HANDS) {
+                newHandHistories = newHandHistories.slice(-GAME_CONSTANTS.MAX_HISTORY_HANDS);
+            }
+        }
+
         // 次のハンドの準備（ディーラー移動など）
-        const nextHandState = nextHand(state, Array.from(selectedWinners.keys()).map(String)); // Map key is pot index, we don't need winners for nextHand currently
+        const nextHandState = nextHand(state, Array.from(selectedWinners.keys()).map(String));
 
         if (nextHandState.phase === 'SETUP') {
             // ゲーム終了（プレイヤー不足など）
-            set({ ...nextHandState, selectedWinners: new Map() });
+            set({ ...nextHandState, selectedWinners: new Map(), undoStack: [], handHistories: newHandHistories });
             return;
         }
 
@@ -268,6 +355,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             // プリフロップ通知の設定
             pendingPhase: state.showPhaseNotifications ? 'PREFLOP' : null,
             selectedWinners: new Map(),
+            undoStack: [],  // 新ハンド開始時にUndoスタックをクリア
+            handHistories: newHandHistories,
         });
     },
 
@@ -371,5 +460,33 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 players: [...state.players, newPlayer],
             };
         });
+    },
+
+    // Undo functionality
+    canUndo: () => {
+        const state = get();
+        return state.undoStack.length > 0;
+    },
+
+    undo: () => {
+        const state = get();
+        if (state.undoStack.length === 0) {
+            return false;
+        }
+
+        // スタックから最後の状態を取り出す
+        const newUndoStack = [...state.undoStack];
+        const previousState = newUndoStack.pop()!;
+
+        // 状態を復元
+        set({
+            ...previousState,
+            undoStack: newUndoStack,
+            handHistories: state.handHistories,  // 履歴は維持
+            selectedWinners: state.selectedWinners,  // 選択中の勝者は維持
+            pendingPhase: null,  // 保留中のフェーズはクリア
+        } as GameStore);
+
+        return true;
     },
 }));

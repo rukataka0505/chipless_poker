@@ -58,6 +58,13 @@ export interface ActionRecord {
     timestamp: number;
 }
 
+// ハンド履歴（将来の履歴表示機能用）
+export interface HandHistory {
+    handNumber: number;
+    actions: ActionRecord[];
+    finalState: GameState;  // ハンド終了時の状態
+}
+
 // ゲーム定数
 export const GAME_CONSTANTS = {
     INITIAL_STACK: 200,
@@ -65,6 +72,7 @@ export const GAME_CONSTANTS = {
     BIG_BLIND: 2,
     MIN_PLAYERS: 2,
     MAX_PLAYERS: 6,
+    MAX_HISTORY_HANDS: 10,  // 最大履歴保持ハンド数
 } as const;
 
 // フェーズ別のディーラー指示

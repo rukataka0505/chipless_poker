@@ -149,12 +149,6 @@ export function advancePhase(state: GameState): GameState {
     const newState = { ...state };
     const activePlayers = newState.players.filter(p => !p.folded);
 
-    // 1人しか残っていない場合はショーダウンへ
-    if (activePlayers.length === 1) {
-        newState.phase = 'SHOWDOWN';
-        return newState;
-    }
-
     // ポットを計算して集約
     const sidePots = calculateSidePots(newState.players);
     if (sidePots.length > 0) {
@@ -163,6 +157,26 @@ export function advancePhase(state: GameState): GameState {
         // 既存ポットにベット額を追加
         const totalBets = newState.players.reduce((sum, p) => sum + p.currentBet, 0);
         newState.pots[0].amount += totalBets;
+    }
+
+    // 1人しか残っていない場合はショーダウンへ
+    // ポット集約後にチェックすることで、降りたプレイヤーのチップも回収される
+    if (activePlayers.length === 1) {
+        newState.phase = 'SHOWDOWN';
+
+        // currentBetのリセット等は下の処理で行われるが、ここでreturnするため手動でリセットが必要か？
+        // いいえ、ここでreturnする場合、currentBetは0であるべきだが、
+        // ショーダウンへの遷移時は potCalculator で全部処理済みならOK。
+        // ただし、この関数の後半で行っている reset logic (lines 168-173) も適用しておくと安全。
+
+        newState.players = newState.players.map(p => ({
+            ...p,
+            currentBet: 0,
+            hasActedThisRound: false,
+        }));
+        newState.currentBet = 0;
+
+        return newState;
     }
 
     // 各プレイヤーの currentBet と hasActedThisRound をリセット

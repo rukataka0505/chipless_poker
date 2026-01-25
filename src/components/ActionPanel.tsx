@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Check, ArrowUp, Minus, Plus } from 'lucide-react';
+import { X, Check, ArrowUp, Minus, Plus, Undo2 } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 import { ConfirmationModal } from './ConfirmationModal';
 import { PlayerAction } from '@/lib/poker/types';
@@ -14,6 +14,8 @@ export function ActionPanel() {
         doAction,
         currentBet,
         getTotalPot,
+        undo,
+        canUndo,
     } = useGameStore();
 
     const [betAmount, setBetAmount] = useState<string>('');
@@ -148,19 +150,37 @@ export function ActionPanel() {
 
     return (
         <div className="glass-panel rounded-2xl p-4 mt-4 animate-slide-up">
-            {/* 現在のプレイヤー表示 */}
-            <div className="text-center mb-4">
-                <p className="text-sm text-gray-400">アクション中</p>
-                <p className="text-xl font-bold text-yellow-400">{currentPlayer.name}</p>
-                <p className="text-sm text-gray-300">
-                    スタック: <span className="text-yellow-400">{currentPlayer.stack}</span>
-                    {currentBet > 0 && (
-                        <span className="ml-2">
-                            コール額: <span className="text-green-400">{availableActions.callAmount}</span>
-                        </span>
-                    )}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">Total Pot: {totalPot}</p>
+            {/* ヘッダー: 戻るボタン + プレイヤー情報 */}
+            <div className="relative flex justify-center items-start mb-4">
+                {/* 戻るボタン */}
+                <div className="absolute left-0 top-0 z-10">
+                    <button
+                        onClick={() => undo()}
+                        disabled={!canUndo()}
+                        className={`px-3 py-2 rounded-lg flex items-center gap-2 transition-all border ${canUndo()
+                                ? 'bg-gray-700 hover:bg-gray-600 text-white border-gray-600 shadow-sm'
+                                : 'bg-black/20 text-gray-600 border-transparent cursor-not-allowed'
+                            }`}
+                    >
+                        <Undo2 size={18} />
+                        <span className="text-xs font-bold">UNDO</span>
+                    </button>
+                </div>
+
+                {/* 現在のプレイヤー表示 */}
+                <div className="text-center w-full">
+                    <p className="text-sm text-gray-400">アクション中</p>
+                    <p className="text-xl font-bold text-yellow-400">{currentPlayer.name}</p>
+                    <p className="text-sm text-gray-300">
+                        スタック: <span className="text-yellow-400">{currentPlayer.stack}</span>
+                        {currentBet > 0 && (
+                            <span className="ml-2">
+                                コール額: <span className="text-green-400">{availableActions.callAmount}</span>
+                            </span>
+                        )}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Total Pot: {totalPot}</p>
+                </div>
             </div>
 
             {/* エラー表示 */}
