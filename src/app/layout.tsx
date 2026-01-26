@@ -24,7 +24,6 @@ export const metadata: Metadata = {
 };
 
 import { OrientationGuard } from '@/components/OrientationGuard';
-
 export default function RootLayout({
     children,
 }: {
