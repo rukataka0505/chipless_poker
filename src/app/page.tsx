@@ -37,7 +37,7 @@ export default function SetupPage() {
     };
 
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <main className="min-h-screen min-h-[100dvh] flex flex-col items-center justify-center p-4 relative overflow-hidden">
             {/* Background Ambience */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl animate-pulse-slow" />
@@ -50,7 +50,7 @@ export default function SetupPage() {
                     <div className="inline-flex items-center justify-center p-4 rounded-full bg-gradient-to-br from-white/10 to-transparent border border-white/5 mb-4 shadow-[0_0_30px_rgba(255,215,0,0.1)]">
                         <Spade className="w-12 h-12 text-gold" fill="currentColor" />
                     </div>
-                    <h1 className="text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">
+                    <h1 className="text-4xl sm:text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">
                         Chipless<br />Poker
                     </h1>
                 </div>
