@@ -7,7 +7,7 @@ const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://chipless-poker.web.app'),
-    title: 'どこでもポーカー| 手持ちのトランプでポーカー',
+    title: 'どこでもポーカー | 手持ちのトランプでポーカー',
     description: 'チップがなくても、トランプ1組でいつでもポーカー',
     openGraph: {
         title: 'どこでもポーカー | 手持ちのトランプでポーカー',
