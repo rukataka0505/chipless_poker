@@ -42,6 +42,7 @@ function VariantA({ player }: { player: DummyPlayer }) {
     );
 }
 
+
 // --- Variant B: Floating Satellite Pill ---
 function VariantB({ player }: { player: DummyPlayer }) {
     return (
