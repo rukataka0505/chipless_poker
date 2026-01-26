@@ -123,7 +123,7 @@ export function TableView() {
                             <div
                                 key="add"
                                 className="absolute transition-all duration-500 z-20"
-                                style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+                                style={{ transform: `translate(${pos.x}px, ${pos.y}px) translate(-50%, -50%)` }}
                             >
                                 <AddPlayerCard onClick={handleAddClick} />
                             </div>
@@ -163,7 +163,7 @@ export function TableView() {
                         <div
                             key={player.id}
                             className="absolute transition-all duration-500 z-20"
-                            style={{ transform: `translate(${pos.x}px, ${pos.y}px)` }}
+                            style={{ transform: `translate(${pos.x}px, ${pos.y}px) translate(-50%, -50%)` }}
                         >
                             <PlayerCard
                                 player={player}
