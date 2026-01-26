@@ -55,6 +55,7 @@ export default function SetupPage() {
                     </h1>
                 </div>
 
+
                 {/* Setup Card */}
                 <Card variant="highlight" className="p-8 backdrop-blur-xl">
                     <div className="space-y-8">
