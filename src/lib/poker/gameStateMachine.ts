@@ -52,6 +52,7 @@ export function createInitialState(playerNames: string[]): GameState {
         actionHistory: [],
         showPhaseNotifications: true,
         isShowdownResolved: false,
+        lastTotalPot: 0,
     };
 }
 

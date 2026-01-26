@@ -95,6 +95,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     isShowdownResolved: false,
     undoStack: [],
     handHistories: [],
+    lastTotalPot: 0,
 
     // Setup actions
     initializeGame: (playerNames: string[]) => {
@@ -108,7 +109,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     startNewHand: () => {
         const state = get();
 
-        // 現在のハンド履歴を保存（アクションがあった場合のみ）
         let newHandHistories = state.handHistories;
         if (state.actionHistory.length > 0) {
             const currentHandHistory: HandHistory = {
@@ -128,10 +128,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     actionHistory: [...state.actionHistory],
                     showPhaseNotifications: state.showPhaseNotifications,
                     isShowdownResolved: state.isShowdownResolved,
+                    lastTotalPot: state.lastTotalPot || 0,
                 },
             };
             newHandHistories = [...state.handHistories, currentHandHistory];
-
         }
 
         const newState = startHand(state);
@@ -142,6 +142,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             selectedWinners: new Map(),
             undoStack: [],  // 新ハンド開始時にUndoスタックをクリア
             handHistories: newHandHistories,
+            lastTotalPot: 0, // Reset lastTotalPot
         });
     },
 
@@ -182,6 +183,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             actionHistory: [...state.actionHistory],
             showPhaseNotifications: state.showPhaseNotifications,
             isShowdownResolved: state.isShowdownResolved,
+            lastTotalPot: state.lastTotalPot || 0,
         };
 
         // アクション処理
@@ -344,9 +346,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
             actionHistory: [...state.actionHistory],
             showPhaseNotifications: state.showPhaseNotifications,
             isShowdownResolved: state.isShowdownResolved,
+            lastTotalPot: state.lastTotalPot || 0,
         };
 
         // 勝者にチップを配分
+        const totalPot = pots.reduce((sum, pot) => sum + pot.amount, 0);
         const distribution = distributePots(pots, selectedWinners);
 
         const newPlayers = players.map(p => {
@@ -363,6 +367,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
             pots: state.pots.map(p => ({ ...p, amount: 0 })), // ポットを空にする表示用
             isShowdownResolved: true,
             undoStack: [...state.undoStack, snapshotState],
+            lastTotalPot: totalPot,
         });
     },
 
@@ -390,6 +395,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     actionHistory: [...state.actionHistory],
                     showPhaseNotifications: state.showPhaseNotifications,
                     isShowdownResolved: state.isShowdownResolved,
+                    lastTotalPot: state.lastTotalPot || 0,
                 },
             };
             newHandHistories = [...state.handHistories, currentHandHistory];

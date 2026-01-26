@@ -50,6 +50,7 @@ export interface GameState {
     actionHistory: ActionRecord[];
     showPhaseNotifications: boolean; // フェーズ遷移通知を表示するかどうか
     isShowdownResolved: boolean;     // ショーダウンが解決済み（チップ配分済み）かどうか
+    lastTotalPot: number;            // ショーダウンまたは勝利時の総ポット額
 }
 
 export interface ActionRecord {

@@ -9,9 +9,20 @@ interface PlayerCardProps {
     position: string; // "SB", "BB", or ""
     onClick?: () => void;
     betType?: 'BET' | 'RAISE' | 'CALL' | 'CHECK';
+    isShowdown?: boolean;       // Showdown phase active
+    isContestingPot?: boolean;   // Player is involved in the pot (not folded)
 }
 
-export function PlayerCard({ player, isActive, isDealer, position, onClick, betType = 'BET' }: PlayerCardProps) {
+export function PlayerCard({
+    player,
+    isActive,
+    isDealer,
+    position,
+    onClick,
+    betType = 'BET',
+    isShowdown = false,
+    isContestingPot = false
+}: PlayerCardProps) {
     const isFolded = player.folded;
     const isAllIn = player.allIn;
     const hasBet = player.currentBet > 0;
@@ -101,17 +112,23 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick, betT
 
             {/* Active Square Border Overlay - MOVED OUTSIDE CARD */}
             {/* Matches Card's rounded-[2rem] exactly */}
+            {/* Showdown Highlight (Gold) */}
+            {isShowdown && isContestingPot && (
+                <div className="absolute -inset-[3px] z-20 pointer-events-none border-[4px] border-gold animate-pulse rounded-[2rem] box-border shadow-[0_0_15px_rgba(255,215,0,0.6)]" />
+            )}
+
+            {/* Active Highlight (Red) - Only show if NOT Showdown */}
             {
-                isActive && (
+                isActive && !isShowdown && (
                     <div className="absolute -inset-[3px] z-20 pointer-events-none border-[4px] border-red-600 animate-pulse rounded-[2rem] box-border shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
                 )
             }
 
             <Card
-                variant={isActive ? 'highlight' : 'default'}
+                variant={(isActive || (isShowdown && isContestingPot)) ? 'highlight' : 'default'}
                 className={`
             w-28 sm:w-36 lg:w-44 transition-all duration-300 overflow-visible relative z-10
-            ${isActive
+            ${(isActive || (isShowdown && isContestingPot))
                         ? 'bg-black/90'
                         : 'bg-black/40'
                     }

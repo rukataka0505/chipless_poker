@@ -177,6 +177,8 @@ export function TableView() {
                                 position={positionLabel}
                                 onClick={() => handlePlayerClick(player)}
                                 betType={betType}
+                                isShowdown={phase === 'SHOWDOWN'}
+                                isContestingPot={!player.folded}
                             />
 
                         </div>

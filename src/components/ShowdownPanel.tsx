@@ -93,6 +93,8 @@ export function ShowdownPanel() {
 
     const winners = getWinnersList();
 
+    const totalPotAmount = isShowdownResolved ? (useGameStore.getState().lastTotalPot || 0) : useGameStore.getState().getTotalPot();
+
     return (
         <div className="fixed bottom-0 left-0 right-0 p-4 z-50 flex justify-center pointer-events-none">
             <Card variant="default" className="w-full max-w-2xl pointer-events-auto backdrop-blur-2xl bg-black/80 border-t border-gold/20 shadow-2xl">
@@ -100,7 +102,7 @@ export function ShowdownPanel() {
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
                             <Trophy className="w-6 h-6 text-gold" />
-                            ショーダウン
+                            {isAutoWinnerMode ? '勝者決定' : 'ショーダウン'}
                         </h2>
                         <button
                             onClick={() => undo()}
@@ -114,10 +116,18 @@ export function ShowdownPanel() {
 
                     {isAutoWinnerMode ? (
                         <div className="space-y-6 animate-in slide-in-from-bottom-5">
-                            <div className="text-center p-6 bg-gold/5 rounded-2xl border border-gold/10">
-                                <p className="text-text-secondary text-sm uppercase tracking-widest mb-2">全員がフォールドしました</p>
-                                <div className="text-3xl font-display font-bold text-gold glow-text-gold">{autoWinner.name}</div>
-                                <p className="text-white mt-1">ポットを獲得！</p>
+                            <div className="text-center p-8 bg-gold/5 rounded-2xl border border-gold/20 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
+
+                                <p className="text-gold/80 text-sm uppercase tracking-[0.2em] mb-4">勝者</p>
+                                <div className="text-4xl font-display font-bold text-white glow-text-gold mb-6">{autoWinner.name}</div>
+
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="text-xs text-text-secondary uppercase tracking-widest">獲得ポット</span>
+                                    <span className="text-2xl font-display font-bold text-gold">
+                                        {totalPotAmount.toLocaleString()}
+                                    </span>
+                                </div>
                             </div>
                             <Button
                                 variant="gold"
@@ -129,7 +139,7 @@ export function ShowdownPanel() {
                                 className="w-full"
                                 icon={<ArrowRight className="w-5 h-5" />}
                             >
-                                チップを回収して次のハンドへ
+                                次のハンドへ
                             </Button>
                         </div>
                     ) : (
@@ -192,12 +202,19 @@ export function ShowdownPanel() {
                                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
 
                                         <p className="text-gold/80 text-sm uppercase tracking-[0.2em] mb-4">勝者</p>
-                                        <div className="flex flex-col gap-3">
+                                        <div className="flex flex-col gap-3 mb-6">
                                             {winners.map(winner => (
                                                 <div key={winner.id} className="text-4xl font-display font-bold text-white glow-text-gold">
                                                     {winner.name}
                                                 </div>
                                             ))}
+                                        </div>
+
+                                        <div className="flex flex-col items-center gap-1">
+                                            <span className="text-xs text-text-secondary uppercase tracking-widest">獲得ポット</span>
+                                            <span className="text-2xl font-display font-bold text-gold">
+                                                {totalPotAmount.toLocaleString()}
+                                            </span>
                                         </div>
                                     </div>
 
