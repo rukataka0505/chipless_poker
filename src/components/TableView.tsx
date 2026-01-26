@@ -82,7 +82,7 @@ export function TableView() {
     const targetCardCount = COMMUNITY_CARDS_COUNT[phase];
 
     return (
-        <div className="relative w-full h-[400px] sm:h-[600px] flex items-center justify-center my-4 sm:my-8 perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[400px] sm:h-[600px] flex items-center justify-center my-4 sm:my-8 overflow-visible">
             {/* Mobile Scale Wrapper - Shifted down for mobile (less negative translate) */}
             <div className="transform scale-[0.55] sm:scale-100 -translate-y-5 sm:-translate-y-32 transition-transform duration-300 origin-center">
                 {/* Center Glow Ambience */}
@@ -93,7 +93,7 @@ export function TableView() {
 
                 {/* Table / Arena Visual */}
                 <div
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/5 bg-black/40 backdrop-blur-sm shadow-2xl transform rotate-x-12 pointer-events-none"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/5 bg-black/40 backdrop-blur-sm shadow-2xl pointer-events-none"
                     style={{ width: layout.tableW, height: layout.tableH }}
                 >
                     {/* Decorative Rings */}
