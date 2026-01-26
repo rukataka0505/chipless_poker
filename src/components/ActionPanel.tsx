@@ -130,7 +130,7 @@ export function ActionPanel() {
 
     return (
         <div className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-50 flex justify-center pointer-events-none">
-            <Card variant="default" className="w-full max-w-2xl pointer-events-auto backdrop-blur-2xl bg-black/80 border-t border-white/10 shadow-2xl">
+            <Card variant="default" className="w-full max-w-2xl pointer-events-auto bg-black border-t border-white/10 shadow-2xl">
                 <div className="p-2 sm:p-4 space-y-2 sm:space-y-4">
                     {/* Header: Player Info and Undo */}
                     <div className="flex justify-between items-center">
@@ -163,7 +163,7 @@ export function ActionPanel() {
 
                     {/* Error Message */}
                     {error && (
-                        <div className="text-center text-red-400 text-sm bg-red-900/20 py-2 rounded-lg border border-red-500/20 animate-pulse">
+                        <div className="text-center text-red-400 text-sm bg-red-900/20 py-2 rounded-lg border border-red-500/20">
                             {error}
                         </div>
                     )}
@@ -220,7 +220,7 @@ export function ActionPanel() {
                         </div>
                     ) : (
                         /* Bet/Raise Input UI */
-                        <div className="space-y-4 animate-in slide-in-from-bottom-5 fade-in duration-300">
+                        <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-text-secondary uppercase tracking-wider">{currentBet === 0 ? 'ベット額' : 'レイズ額'}</span>
                                 <button onClick={handleAllInClick} className="text-xs font-bold text-gold hover:text-white transition-colors">ALL IN</button>

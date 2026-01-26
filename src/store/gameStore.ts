@@ -102,6 +102,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         set({
             ...initialState,
             selectedWinners: new Map(),
+            pendingPhase: null,
         });
     },
 

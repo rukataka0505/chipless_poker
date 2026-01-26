@@ -30,7 +30,7 @@ export function DealerNavigation() {
     if (phase === 'SHOWDOWN' || phase === 'SETUP') return null;
 
     return (
-        <Card variant="default" className="p-4 mb-4 backdrop-blur-md bg-black/40">
+        <Card variant="default" className="p-4 mb-4 bg-black">
             <div className="flex items-center justify-between mb-0">
                 <div className="flex items-center gap-4">
                     <span

@@ -48,14 +48,15 @@ export default function SetupPage() {
     return (
         <main className="min-h-screen min-h-[100dvh] flex flex-col items-center justify-center p-4 relative overflow-hidden">
             {/* Background Ambience */}
+            {/* Background Ambience */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl animate-pulse-slow" />
-                <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-electric/5 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }} />
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold/5 rounded-full" />
+                <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-electric/5 rounded-full" />
             </div>
 
             <div className="w-full max-w-md md:max-w-5xl space-y-8 z-10">
                 {/* Header (Mobile) */}
-                <div className="text-center space-y-2 animate-float md:hidden">
+                <div className="text-center space-y-2 md:hidden">
                     <div className="inline-flex items-center justify-center p-4 rounded-full bg-gradient-to-br from-white/10 to-transparent border border-white/5 mb-4 shadow-[0_0_30px_rgba(255,215,0,0.1)]">
                         <Spade className="w-12 h-12 text-gold" fill="currentColor" />
                     </div>
@@ -80,7 +81,7 @@ export default function SetupPage() {
                         </p>
                     </div>
 
-                    <Card variant="highlight" className="p-6 sm:p-8 backdrop-blur-xl w-full md:max-w-xl">
+                    <Card variant="highlight" className="p-6 sm:p-8 w-full md:max-w-xl">
                         <div className="space-y-6 sm:space-y-8">
                             {/* Player Count Control */}
                             <div className="space-y-4">

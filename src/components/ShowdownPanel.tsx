@@ -97,7 +97,7 @@ export function ShowdownPanel() {
 
     return (
         <div className="fixed bottom-0 left-0 right-0 p-4 z-50 flex justify-center pointer-events-none">
-            <Card variant="default" className="w-full max-w-2xl pointer-events-auto backdrop-blur-2xl bg-black/80 border-t border-gold/20 shadow-2xl">
+            <Card variant="default" className="w-full max-w-2xl pointer-events-auto bg-black border-t border-gold/20 shadow-2xl">
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-display font-bold text-white flex items-center gap-2">
@@ -115,7 +115,7 @@ export function ShowdownPanel() {
                     </div>
 
                     {isAutoWinnerMode ? (
-                        <div className="space-y-6 animate-in slide-in-from-bottom-5">
+                        <div className="space-y-6">
                             <div className="text-center p-8 bg-gold/5 rounded-2xl border border-gold/20 relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
 
@@ -145,7 +145,7 @@ export function ShowdownPanel() {
                     ) : (
                         <>
                             {!isShowdownResolved ? (
-                                <div className="space-y-6 animate-in slide-in-from-bottom-5">
+                                <div className="space-y-6">
                                     <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
                                         {pots.map((pot, potIndex) => {
                                             const eligiblePlayers = getEligiblePlayersForPot(potIndex);
@@ -197,7 +197,7 @@ export function ShowdownPanel() {
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="space-y-6 animate-in zoom-in-95">
+                                <div className="space-y-6">
                                     <div className="text-center p-8 bg-gold/5 rounded-2xl border border-gold/20 relative overflow-hidden">
                                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
 

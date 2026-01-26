@@ -36,8 +36,8 @@ export function PhaseTransitionModal() {
     const label = PHASE_LABELS[pendingPhase];
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md animate-in fade-in duration-300">
-            <Card variant="highlight" className="max-w-md mx-6 p-8 text-center animate-in zoom-in-95 duration-300 border-gold/20">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90">
+            <Card variant="highlight" className="max-w-md mx-6 p-8 text-center border-gold/20">
                 <div className="flex justify-center mb-8">
                     <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-electric/20 to-electric/5 border border-electric/30">
                         <span className="text-electric font-bold font-display tracking-widest text-sm">
