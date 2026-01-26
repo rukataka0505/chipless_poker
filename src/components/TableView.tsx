@@ -107,7 +107,7 @@ export function TableView() {
                         <PotDisplay pots={pots} stage={phase} />
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className={`flex items-center ${isMobile ? 'gap-2 scale-90' : 'gap-3'}`}>
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div
                                 key={i}
