@@ -96,7 +96,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     undoStack: [],
     handHistories: [],
     lastTotalPot: 0,
-
     // Setup actions
     initializeGame: (playerNames: string[]) => {
         const initialState = createInitialState(playerNames);
