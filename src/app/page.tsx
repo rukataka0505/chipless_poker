@@ -13,12 +13,9 @@ export default function SetupPage() {
     const { initializeGame, startNewHand } = useGameStore();
 
     const [playerCount, setPlayerCount] = useState(3);
-    const [playerNames, setPlayerNames] = useState<string[]>([
-        'Player 1', 'Player 2', 'Player 3',
-        'Player 4', 'Player 5', 'Player 6',
-        'Player 7', 'Player 8', 'Player 9'
-    ]);
+    const [playerNames, setPlayerNames] = useState<string[]>(Array(9).fill(''));
     const [initialStack, setInitialStack] = useState<string>(GAME_CONSTANTS.INITIAL_STACK.toString());
+    const [error, setError] = useState<string | null>(null);
 
     const handlePlayerCountChange = (delta: number) => {
         const newCount = Math.max(GAME_CONSTANTS.MIN_PLAYERS, Math.min(GAME_CONSTANTS.MAX_PLAYERS, playerCount + delta));
@@ -29,12 +26,20 @@ export default function SetupPage() {
         const newNames = [...playerNames];
         newNames[index] = name;
         setPlayerNames(newNames);
+        if (error) setError(null);
     };
 
     const handleStart = () => {
-        const names = playerNames.slice(0, playerCount);
+        const activeNames = playerNames.slice(0, playerCount);
+
+        // Validation: Check for empty names
+        if (activeNames.some(name => !name.trim())) {
+            setError('名前が入力されていません');
+            return;
+        }
+
         const stack = parseInt(initialStack, 10) || GAME_CONSTANTS.INITIAL_STACK;
-        initializeGame(names, stack);
+        initializeGame(activeNames, stack);
         startNewHand();
         router.push('/game');
     };
@@ -128,21 +133,29 @@ export default function SetupPage() {
                             </div>
 
                             {/* Player Names */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[240px] sm:max-h-none overflow-y-auto pr-1 sm:pr-0 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                                {Array.from({ length: playerCount }).map((_, index) => (
-                                    <div key={index} className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                            <div className="w-2 h-2 rounded-full bg-gold/50 group-focus-within:bg-gold group-focus-within:shadow-[0_0_8px_var(--accent-gold)] transition-all" />
+                            <div className="space-y-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[240px] sm:max-h-none overflow-y-auto pr-1 sm:pr-0 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                                    {Array.from({ length: playerCount }).map((_, index) => (
+                                        <div key={index} className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                <div className="w-2 h-2 rounded-full bg-gold/50 group-focus-within:bg-gold group-focus-within:shadow-[0_0_8px_var(--accent-gold)] transition-all" />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={playerNames[index]}
+                                                onChange={(e) => handleNameChange(index, e.target.value)}
+                                                placeholder="プレイヤー名を入力..."
+                                                className={`w-full bg-white/5 border ${error && !playerNames[index].trim() ? 'border-red-500/50' : 'border-white/10'
+                                                    } rounded-xl py-3 pl-8 pr-4 text-white placeholder-gray-600 focus:outline-none focus:bg-white/10 focus:border-gold/50 transition-all font-medium text-sm`}
+                                            />
                                         </div>
-                                        <input
-                                            type="text"
-                                            value={playerNames[index]}
-                                            onChange={(e) => handleNameChange(index, e.target.value)}
-                                            placeholder={`Player ${index + 1}`}
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-8 pr-4 text-white placeholder-gray-600 focus:outline-none focus:bg-white/10 focus:border-gold/50 transition-all font-medium text-sm"
-                                        />
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+                                {error && (
+                                    <p className="text-red-400 text-sm text-center animate-pulse">
+                                        {error}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Game Settings Summary */}

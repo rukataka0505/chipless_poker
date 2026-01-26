@@ -7,22 +7,21 @@ const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://chipless-poker.web.app'),
-    title: 'リアルポーカー | 手持ちのトランプで仲間とポーカーを楽しもう',
+    title: 'どこでもポーカー| 手持ちのトランプでポーカー',
     description: 'チップがなくても、トランプ1組でいつでもポーカー',
     openGraph: {
-        title: 'リアルポーカー | 手持ちのトランプで仲間とポーカーを楽しもう',
+        title: 'どこでもポーカー | 手持ちのトランプでポーカー',
         description: 'チップがなくても、トランプ1組でいつでもポーカー',
-        siteName: 'リアルポーカー',
+        siteName: 'どこでもポーカー',
         locale: 'ja_JP',
         type: 'website',
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'リアルポーカー | 手持ちのトランプで仲間とポーカーを楽しもう',
+        title: 'どこでもポーカー | 手持ちのトランプでポーカー',
         description: 'チップがなくても、トランプ1組でいつでもポーカー',
     },
 };
-
 
 export default function RootLayout({
     children,
@@ -31,10 +30,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="ja">
-            <body className={`${inter.variable} ${outfit.variable} font-sans`}>
-
-                {children}
-            </body>
+            <body className={`${inter.variable} ${outfit.variable} font-sans`}>{children}</body>
         </html>
     );
 }
