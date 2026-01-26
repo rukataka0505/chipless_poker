@@ -51,14 +51,25 @@ export function TableView() {
         }
     };
 
+    const [isMobile, setIsMobile] = React.useState(false);
+
+    React.useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 640);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     const getPlayerPosition = (index: number, total: number) => {
         const angleOffset = -90;
         const angle = (360 / total) * index + angleOffset;
         const radian = (angle * Math.PI) / 180;
 
-        // Revised dimensions for better spacing
-        const radiusX = 420;
-        const radiusY = 160;
+        // Responsive dimensions
+        // Mobile: tighter radius to fit screen (340-360px usable width)
+        // Desktop: spacious radius
+        const radiusX = isMobile ? 140 : 420;
+        const radiusY = isMobile ? 130 : 160;
 
         const x = Math.cos(radian) * radiusX;
         const y = Math.sin(radian) * radiusY;
@@ -70,13 +81,13 @@ export function TableView() {
 
     return (
         <div className="relative w-full h-[400px] sm:h-[600px] flex items-center justify-center my-4 sm:my-8 perspective-[1000px] overflow-visible">
-            {/* Mobile Scale Wrapper */}
-            <div className="transform scale-[0.55] sm:scale-100 -translate-y-20 sm:-translate-y-32 transition-transform duration-300 origin-center">
+            {/* Main Wrapper - Responsive without scale hacks */}
+            <div className="relative w-full h-full flex items-center justify-center transition-transform duration-300">
                 {/* Center Glow Ambience */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-electric/5 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[600px] h-[150px] sm:h-[300px] bg-electric/5 rounded-full blur-[50px] sm:blur-[100px] pointer-events-none" />
 
                 {/* Table / Arena Visual */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] rounded-full border border-white/5 bg-black/40 backdrop-blur-sm shadow-2xl transform rotate-x-12 pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[700px] h-[160px] sm:h-[350px] rounded-full border border-white/5 bg-black/40 backdrop-blur-sm shadow-2xl transform rotate-x-12 pointer-events-none transition-all duration-500">
                     {/* Decorative Rings */}
                     <div className="absolute inset-0 rounded-full border border-white/5 scale-90" />
                     <div className="absolute inset-0 rounded-full border border-gold/5 scale-75" />
