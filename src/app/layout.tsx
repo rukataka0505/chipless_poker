@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     },
 };
 
-import { OrientationGuard } from '@/components/OrientationGuard';
+
 export default function RootLayout({
     children,
 }: {
@@ -32,7 +32,7 @@ export default function RootLayout({
     return (
         <html lang="ja">
             <body className={`${inter.variable} ${outfit.variable} font-sans`}>
-                <OrientationGuard />
+
                 {children}
             </body>
         </html>
