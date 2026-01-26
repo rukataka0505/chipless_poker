@@ -2,15 +2,16 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Home, Bell, BellOff } from 'lucide-react';
+import { Home, Bell, BellOff, Settings } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
-import { DealerNavigation, TableView, ActionPanel, ShowdownPanel, ConfirmationModal, PhaseTransitionModal } from '@/components';
+import { DealerNavigation, TableView, ActionPanel, ShowdownPanel, ConfirmationModal, PhaseTransitionModal, BlindSettingsModal } from '@/components';
 
 export default function GamePage() {
     const router = useRouter();
     const { phase, players, showPhaseNotifications, togglePhaseNotifications } = useGameStore();
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isHomeConfirmOpen, setIsHomeConfirmOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const handleGuideToggle = () => {
         if (showPhaseNotifications) {
@@ -71,21 +72,30 @@ export default function GamePage() {
                     </span>
                     {showPhaseNotifications ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
                 </button>
-            </div>
+            </button>
 
-            {/* ディーラーナビゲーション */}
-            <DealerNavigation />
+            <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                title="ゲーム設定"
+            >
+                <Settings className="w-5 h-5 text-white" />
+            </button>
+        </div>
 
-            {/* テーブルビュー */}
-            <TableView />
+            {/* ディーラーナビゲーション */ }
+    <DealerNavigation />
 
-            {/* アクションパネル（ベッティング中のみ） */}
-            <ActionPanel />
+    {/* テーブルビュー */ }
+    <TableView />
 
-            {/* ショーダウンパネル */}
-            <ShowdownPanel />
+    {/* アクションパネル（ベッティング中のみ） */ }
+    <ActionPanel />
 
-            {/* 確認モーダル */}
+    {/* ショーダウンパネル */ }
+    <ShowdownPanel />
+
+    {/* 確認モーダル */ }
             <ConfirmationModal
                 isOpen={isConfirmModalOpen}
                 title="ガイドの非表示"
@@ -109,8 +119,14 @@ export default function GamePage() {
                 onCancel={() => setIsHomeConfirmOpen(false)}
             />
 
-            {/* Phase Transition Modal */}
-            <PhaseTransitionModal />
-        </div>
+    {/* Phase Transition Modal */ }
+    <PhaseTransitionModal />
+
+    {/* Settings Modal */ }
+    <BlindSettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+    />
+        </div >
     );
 }

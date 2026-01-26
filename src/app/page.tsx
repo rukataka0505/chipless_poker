@@ -15,6 +15,8 @@ export default function SetupPage() {
     const [playerCount, setPlayerCount] = useState(3);
     const [playerNames, setPlayerNames] = useState<string[]>(Array(9).fill(''));
     const [initialStack, setInitialStack] = useState<string>(GAME_CONSTANTS.INITIAL_STACK.toString());
+    const [smallBlind, setSmallBlind] = useState<string>(GAME_CONSTANTS.SMALL_BLIND.toString());
+    const [bigBlind, setBigBlind] = useState<string>(GAME_CONSTANTS.BIG_BLIND.toString());
     const [error, setError] = useState<string | null>(null);
 
     const handlePlayerCountChange = (delta: number) => {
@@ -39,7 +41,10 @@ export default function SetupPage() {
         }
 
         const stack = parseInt(initialStack, 10) || GAME_CONSTANTS.INITIAL_STACK;
-        initializeGame(activeNames, stack);
+        const sb = parseInt(smallBlind, 10) || GAME_CONSTANTS.SMALL_BLIND;
+        const bb = parseInt(bigBlind, 10) || GAME_CONSTANTS.BIG_BLIND;
+
+        initializeGame(activeNames, stack, sb, bb);
         startNewHand();
         router.push('/game');
     };
@@ -118,18 +123,45 @@ export default function SetupPage() {
                                 </div>
                             </div>
 
-                            {/* Initial Stack */}
                             <div className="space-y-4">
                                 <label className="flex items-center gap-2 text-text-secondary text-sm font-medium uppercase tracking-wider">
                                     <Trophy className="w-4 h-4 text-gold" />
-                                    開始スタック
+                                    開始スタック & ブラインド
                                 </label>
-                                <input
-                                    type="text"
-                                    value={initialStack}
-                                    onChange={(e) => handleStackChange(e.target.value)}
-                                    className="w-full bg-black/20 border border-white/5 rounded-2xl py-3 px-4 text-center text-2xl font-display font-bold text-gold placeholder-gold/30 focus:outline-none focus:bg-black/30 focus:border-gold/30 transition-all glow-text-gold"
-                                />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-xs text-text-tertiary mb-1 block">Stack</label>
+                                        <input
+                                            type="text"
+                                            value={initialStack}
+                                            onChange={(e) => /^\d*$/.test(e.target.value) && setInitialStack(e.target.value)}
+                                            className="w-full bg-black/20 border border-white/5 rounded-2xl py-3 px-4 text-center text-xl font-display font-bold text-gold placeholder-gold/30 focus:outline-none focus:bg-black/30 focus:border-gold/30 transition-all glow-text-gold"
+                                            placeholder="Stack"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-xs text-text-tertiary mb-1 block">SB</label>
+                                            <input
+                                                type="text"
+                                                value={smallBlind}
+                                                onChange={(e) => /^\d*$/.test(e.target.value) && setSmallBlind(e.target.value)}
+                                                className="w-full bg-black/20 border border-white/5 rounded-2xl py-3 px-2 text-center text-xl font-display font-bold text-blue-400 placeholder-blue-400/30 focus:outline-none focus:bg-black/30 focus:border-blue-400/30 transition-all"
+                                                placeholder="SB"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-text-tertiary mb-1 block">BB</label>
+                                            <input
+                                                type="text"
+                                                value={bigBlind}
+                                                onChange={(e) => /^\d*$/.test(e.target.value) && setBigBlind(e.target.value)}
+                                                className="w-full bg-black/20 border border-white/5 rounded-2xl py-3 px-2 text-center text-xl font-display font-bold text-blue-400 placeholder-blue-400/30 focus:outline-none focus:bg-black/30 focus:border-blue-400/30 transition-all"
+                                                placeholder="BB"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Player Names */}
@@ -158,18 +190,6 @@ export default function SetupPage() {
                                 )}
                             </div>
 
-                            {/* Game Settings Summary */}
-                            <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-gold/5 border border-gold/10">
-                                <div className="flex flex-col">
-                                    <span className="text-xs text-gold/70 uppercase tracking-wide">開始スタック</span>
-                                    <span className="font-display font-bold text-gold">{parseInt(initialStack, 10) || 0}</span>
-                                </div>
-                                <div className="w-px h-8 bg-gold/20" />
-                                <div className="flex flex-col text-right">
-                                    <span className="text-xs text-gold/70 uppercase tracking-wide">ブラインド</span>
-                                    <span className="font-display font-bold text-gold">{GAME_CONSTANTS.SMALL_BLIND} / {GAME_CONSTANTS.BIG_BLIND}</span>
-                                </div>
-                            </div>
 
                             <Button
                                 variant="gold"

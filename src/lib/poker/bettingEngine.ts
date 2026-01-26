@@ -23,7 +23,8 @@ export interface AvailableActions {
 export function getAvailableActions(
     player: Player,
     currentBet: number,
-    minRaise: number
+    minRaise: number,
+    bigBlind: number = GAME_CONSTANTS.BIG_BLIND
 ): AvailableActions {
     const toCall = currentBet - player.currentBet;
     const canAffordCall = player.stack >= toCall;
@@ -40,11 +41,11 @@ export function getAvailableActions(
 
     // ベット可能: まだ誰もベットしていない（currentBet === 0）
     const canBet = currentBet === 0 && player.stack > 0;
-    const minBet = GAME_CONSTANTS.BIG_BLIND;
+    const minBet = bigBlind;
 
     // レイズ可能: 既にベットがあり、十分なスタックがある
     const canRaise = currentBet > 0 && player.stack > toCall;
-    const actualMinRaise = Math.max(minRaise, GAME_CONSTANTS.BIG_BLIND);
+    const actualMinRaise = Math.max(minRaise, bigBlind);
 
     return {
         canFold,
@@ -72,9 +73,10 @@ export function validateAction(
     amount: number | undefined,
     player: Player,
     currentBet: number,
-    minRaise: number
+    minRaise: number,
+    bigBlind: number = GAME_CONSTANTS.BIG_BLIND
 ): ValidationResult {
-    const available = getAvailableActions(player, currentBet, minRaise);
+    const available = getAvailableActions(player, currentBet, minRaise, bigBlind);
 
     switch (action) {
         case 'FOLD':

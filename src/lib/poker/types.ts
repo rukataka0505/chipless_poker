@@ -51,6 +51,8 @@ export interface GameState {
     showPhaseNotifications: boolean; // フェーズ遷移通知を表示するかどうか
     isShowdownResolved: boolean;     // ショーダウンが解決済み（チップ配分済み）かどうか
     lastTotalPot: number;            // ショーダウンまたは勝利時の総ポット額
+    smallBlind: number;             // 現在のスモールブラインド
+    bigBlind: number;               // 現在のビッグブラインド
 }
 
 export interface ActionRecord {

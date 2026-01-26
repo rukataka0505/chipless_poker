@@ -15,7 +15,12 @@ import { isBettingRoundComplete, getNextPlayerIndex } from './bettingEngine';
 /**
  * 初期ゲーム状態を作成
  */
-export function createInitialState(playerNames: string[], initialStack: number = GAME_CONSTANTS.INITIAL_STACK): GameState {
+export function createInitialState(
+    playerNames: string[],
+    initialStack: number = GAME_CONSTANTS.INITIAL_STACK,
+    smallBlind: number = GAME_CONSTANTS.SMALL_BLIND,
+    bigBlind: number = GAME_CONSTANTS.BIG_BLIND
+): GameState {
     const numPlayers = playerNames.length;
 
     // ディーラーをランダムに決定
@@ -45,14 +50,18 @@ export function createInitialState(playerNames: string[], initialStack: number =
         currentPlayerIndex: -1,
         pots: [{ amount: 0, eligiblePlayerIds: players.map(p => p.id) }],
         currentBet: 0,
-        minRaise: GAME_CONSTANTS.BIG_BLIND,
-        lastRaiseAmount: GAME_CONSTANTS.BIG_BLIND,
+        currentBet: 0,
+        minRaise: bigBlind,
+        lastRaiseAmount: bigBlind,
         communityCardCount: 0,
         handNumber: 0,
         actionHistory: [],
         showPhaseNotifications: true,
         isShowdownResolved: false,
         lastTotalPot: 0,
+        lastTotalPot: 0,
+        smallBlind,
+        bigBlind,
     };
 }
 
@@ -104,7 +113,7 @@ export function startHand(state: GameState): GameState {
     const sbPlayer = newState.players[sbIndex];
     let sbAmount = 0;
     if (sbPlayer.stack > 0) {
-        sbAmount = Math.min(GAME_CONSTANTS.SMALL_BLIND, sbPlayer.stack);
+        sbAmount = Math.min(newState.smallBlind, sbPlayer.stack);
         newState.players[sbIndex] = {
             ...sbPlayer,
             stack: sbPlayer.stack - sbAmount,
@@ -118,7 +127,7 @@ export function startHand(state: GameState): GameState {
     const bbPlayer = newState.players[bbIndex];
     let bbAmount = 0;
     if (bbPlayer.stack > 0) {
-        bbAmount = Math.min(GAME_CONSTANTS.BIG_BLIND, bbPlayer.stack);
+        bbAmount = Math.min(newState.bigBlind, bbPlayer.stack);
         newState.players[bbIndex] = {
             ...bbPlayer,
             stack: bbPlayer.stack - bbAmount,
@@ -143,9 +152,10 @@ export function startHand(state: GameState): GameState {
     }
 
     newState.phase = 'PREFLOP';
-    newState.currentBet = GAME_CONSTANTS.BIG_BLIND;
-    newState.minRaise = GAME_CONSTANTS.BIG_BLIND;
-    newState.lastRaiseAmount = GAME_CONSTANTS.BIG_BLIND;
+    newState.phase = 'PREFLOP';
+    newState.currentBet = newState.bigBlind;
+    newState.minRaise = newState.bigBlind;
+    newState.lastRaiseAmount = newState.bigBlind;
     newState.currentPlayerIndex = utgIndex;
     newState.communityCardCount = 0;
     newState.handNumber += 1;
@@ -201,8 +211,9 @@ export function advancePhase(state: GameState): GameState {
     }));
 
     newState.currentBet = 0;
-    newState.minRaise = GAME_CONSTANTS.BIG_BLIND;
-    newState.lastRaiseAmount = GAME_CONSTANTS.BIG_BLIND;
+    newState.currentBet = 0;
+    newState.minRaise = newState.bigBlind;
+    newState.lastRaiseAmount = newState.bigBlind;
 
     // フェーズ遷移
     const phaseOrder: GamePhase[] = ['PREFLOP', 'FLOP', 'TURN', 'RIVER', 'SHOWDOWN'];

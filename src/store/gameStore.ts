@@ -31,7 +31,9 @@ import { calculateTotalPot, distributePots } from '@/lib/poker/potCalculator';
 
 interface GameStore extends GameState {
     // Setup actions
-    initializeGame: (playerNames: string[], initialStack?: number) => void;
+    // Setup actions
+    initializeGame: (playerNames: string[], initialStack?: number, smallBlind?: number, bigBlind?: number) => void;
+    startNewHand: () => void;
     startNewHand: () => void;
 
     // Player actions
@@ -72,6 +74,9 @@ interface GameStore extends GameState {
     togglePhaseNotifications: () => void;
     // Modifying Players
     updatePlayerStack: (playerId: string, newStack: number) => void;
+    // Modifying Players
+    updatePlayerStack: (playerId: string, newStack: number) => void;
+    updateBlinds: (smallBlind: number, bigBlind: number) => void;
     addPlayer: (name: string, stack: number) => void;
 }
 
@@ -96,9 +101,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     undoStack: [],
     handHistories: [],
     lastTotalPot: 0,
+    smallBlind: GAME_CONSTANTS.SMALL_BLIND,
+    bigBlind: GAME_CONSTANTS.BIG_BLIND,
     // Setup actions
-    initializeGame: (playerNames: string[], initialStack?: number) => {
-        const initialState = createInitialState(playerNames, initialStack);
+    initializeGame: (playerNames: string[], initialStack?: number, smallBlind?: number, bigBlind?: number) => {
+        const initialState = createInitialState(playerNames, initialStack, smallBlind, bigBlind);
         set({
             ...initialState,
             selectedWinners: new Map(),
@@ -161,7 +168,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
             amount,
             currentPlayer,
             state.currentBet,
-            state.minRaise
+            currentPlayer,
+            state.currentBet,
+            state.minRaise,
+            state.bigBlind
         );
 
         if (!validation.valid) {
@@ -452,7 +462,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
         const currentPlayer = state.players[state.currentPlayerIndex];
         if (!currentPlayer) return null;
 
-        return getAvailableActions(currentPlayer, state.currentBet, state.minRaise);
+        if (!currentPlayer) return null;
+
+        return getAvailableActions(currentPlayer, state.currentBet, state.minRaise, state.bigBlind);
     },
 
     getTotalPot: () => {
@@ -552,6 +564,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 players: [...state.players, newPlayer],
             };
         });
+    },
+
+    updateBlinds: (smallBlind: number, bigBlind: number) => {
+        set({ smallBlind, bigBlind });
     },
 
     // Undo functionality
