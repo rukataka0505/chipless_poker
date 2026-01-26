@@ -173,14 +173,19 @@ export function TableView() {
                     // Determine Bet Type (Yellow for BET, Lime for CALL, Red for RAISE)
                     let betType: 'BET' | 'RAISE' | 'CALL' | 'CHECK' = 'BET';
 
-                    if (player.hasActedThisRound) {
-                        const lastAction = [...actionHistory].reverse().find(a => a.playerId === player.id);
-                        // If they have bet > 0 and their last action was RAISE (or derived from it), show Red.
-                        // Note: If they Called a Raise, usually it's just a call (Yellow-Green).
-                        // Use RAISE color only if they initiated a Raise.
-                        if (lastAction?.action === 'RAISE') betType = 'RAISE';
-                        if (lastAction?.action === 'CALL') betType = 'CALL';
-                        if (lastAction?.action === 'CHECK') betType = 'CHECK';
+                    // Determine Bet Type
+                    const lastAction = [...actionHistory].reverse().find(a => a.playerId === player.id);
+                    if (lastAction) {
+                        if (lastAction.action === 'RAISE') betType = 'RAISE';
+                        if (lastAction.action === 'ALL_IN') betType = 'RAISE';
+                        if (lastAction.action === 'CALL') betType = 'CALL';
+                        if (lastAction.action === 'CHECK') betType = 'CHECK';
+                    }
+
+                    // Special Rule: 'CHECK' can only be shown if the player has acted in the current round
+                    // and is not facing a new bet (which resets hasActedThisRound).
+                    if (betType === 'CHECK' && !player.hasActedThisRound) {
+                        betType = 'BET'; // Fallback to hide the CHECK indicator
                     }
 
                     return (
