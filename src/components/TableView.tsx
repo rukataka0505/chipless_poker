@@ -51,20 +51,20 @@ export function TableView() {
         }
     };
 
-    // Mobile detection for portrait mode
-    const [isMobile, setIsMobile] = React.useState(false);
+    // Portrait mode detection (use vertical layout when height > width)
+    const [isPortrait, setIsPortrait] = React.useState(false);
 
     React.useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 640);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
+        const checkPortrait = () => setIsPortrait(window.innerHeight > window.innerWidth);
+        checkPortrait();
+        window.addEventListener('resize', checkPortrait);
+        return () => window.removeEventListener('resize', checkPortrait);
     }, []);
 
     // Layout configuration
     // Desktop: Use exact values from working backup (horizontal ellipse)
     // Mobile: Use vertical ellipse for portrait mode
-    const layout = isMobile
+    const layout = isPortrait
         ? { radiusX: 210, radiusY: 330, tableW: 390, tableH: 680 }
         : { radiusX: 420, radiusY: 160, tableW: 700, tableH: 350 };
 
@@ -107,7 +107,7 @@ export function TableView() {
                         <PotDisplay pots={pots} stage={phase} />
                     </div>
 
-                    <div className={`flex items-center ${isMobile ? 'gap-2 scale-90' : 'gap-3'}`}>
+                    <div className={`flex items-center ${isPortrait ? 'gap-2 scale-90' : 'gap-3'}`}>
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div
                                 key={i}
