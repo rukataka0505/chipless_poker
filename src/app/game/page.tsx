@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Home, Bell, BellOff } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
-import { DealerNavigation, TableView, ActionPanel, ShowdownPanel, ConfirmationModal } from '@/components';
+import { DealerNavigation, TableView, ActionPanel, ShowdownPanel, ConfirmationModal, PhaseTransitionModal } from '@/components';
 
 export default function GamePage() {
     const router = useRouter();
@@ -94,6 +94,9 @@ export default function GamePage() {
                 onConfirm={confirmToggleOff}
                 onCancel={() => setIsConfirmModalOpen(false)}
             />
+
+            {/* Phase Transition Modal */}
+            <PhaseTransitionModal />
         </div>
     );
 }

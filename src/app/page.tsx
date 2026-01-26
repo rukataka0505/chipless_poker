@@ -62,6 +62,9 @@ export default function SetupPage() {
                     <h1 className="text-4xl sm:text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">
                         どこでもポーカー
                     </h1>
+                    <p className="text-text-tertiary">
+                        手持ちのトランプで仲間とポーカーを楽しもう
+                    </p>
                 </div>                {/* Setup Card */}
                 <div className="flex flex-col md:flex-row gap-8 items-start justify-center w-full">
                     {/* Header for Landscape (Visible on MD+) */}

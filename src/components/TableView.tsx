@@ -7,7 +7,7 @@ import { PlayerCard } from './PlayerCard';
 import { COMMUNITY_CARDS_COUNT } from '@/lib/poker/types';
 import { PotDisplay } from './PotDisplay';
 import { BetDisplay } from './BetDisplay';
-import { PhaseTransitionModal } from './PhaseTransitionModal';
+
 import { EditPlayerModal } from './EditPlayerModal';
 import { AddPlayerCard } from './AddPlayerCard';
 import { Player } from '@/lib/poker/types';
@@ -213,7 +213,7 @@ export function TableView() {
                 isAdding={isAddingPlayer}
             />
 
-            <PhaseTransitionModal />
+
         </div>
     );
 }
