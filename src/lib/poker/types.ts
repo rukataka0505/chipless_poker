@@ -73,7 +73,7 @@ export const GAME_CONSTANTS = {
     SMALL_BLIND: 1,
     BIG_BLIND: 2,
     MIN_PLAYERS: 2,
-    MAX_PLAYERS: 6,
+    MAX_PLAYERS: 9,
 } as const;
 
 // フェーズ別のディーラー指示

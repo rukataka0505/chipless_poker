@@ -31,7 +31,7 @@ import { calculateTotalPot, distributePots } from '@/lib/poker/potCalculator';
 
 interface GameStore extends GameState {
     // Setup actions
-    initializeGame: (playerNames: string[]) => void;
+    initializeGame: (playerNames: string[], initialStack?: number) => void;
     startNewHand: () => void;
 
     // Player actions
@@ -97,8 +97,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     handHistories: [],
     lastTotalPot: 0,
     // Setup actions
-    initializeGame: (playerNames: string[]) => {
-        const initialState = createInitialState(playerNames);
+    initializeGame: (playerNames: string[], initialStack?: number) => {
+        const initialState = createInitialState(playerNames, initialStack);
         set({
             ...initialState,
             selectedWinners: new Map(),

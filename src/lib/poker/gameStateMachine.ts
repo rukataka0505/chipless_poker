@@ -15,7 +15,7 @@ import { isBettingRoundComplete, getNextPlayerIndex } from './bettingEngine';
 /**
  * 初期ゲーム状態を作成
  */
-export function createInitialState(playerNames: string[]): GameState {
+export function createInitialState(playerNames: string[], initialStack: number = GAME_CONSTANTS.INITIAL_STACK): GameState {
     const numPlayers = playerNames.length;
 
     // ディーラーをランダムに決定
@@ -25,7 +25,7 @@ export function createInitialState(playerNames: string[]): GameState {
     const players: Player[] = playerNames.map((name, index) => ({
         id: `player-${index}`,
         name,
-        stack: GAME_CONSTANTS.INITIAL_STACK,
+        stack: initialStack,
         currentBet: 0,
         totalBetThisRound: 0,
         folded: false,

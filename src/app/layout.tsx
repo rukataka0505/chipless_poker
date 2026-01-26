@@ -7,18 +7,18 @@ const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://chipless-poker.web.app'),
-    title: 'Chipless Poker | 手持ちのトランプでポーカー',
+    title: 'リアルポーカー | 手持ちのトランプで仲間とポーカーを楽しもう',
     description: 'チップがなくても、トランプ1組でいつでもポーカー',
     openGraph: {
-        title: 'Chipless Poker | 手持ちのトランプでポーカー',
+        title: 'リアルポーカー | 手持ちのトランプで仲間とポーカーを楽しもう',
         description: 'チップがなくても、トランプ1組でいつでもポーカー',
-        siteName: 'Chipless Poker',
+        siteName: 'リアルポーカー',
         locale: 'ja_JP',
         type: 'website',
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Chipless Poker | 手持ちのトランプでポーカー',
+        title: 'リアルポーカー | 手持ちのトランプで仲間とポーカーを楽しもう',
         description: 'チップがなくても、トランプ1組でいつでもポーカー',
     },
 };
