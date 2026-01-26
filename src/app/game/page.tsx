@@ -2,31 +2,15 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Home, Bell, BellOff, Settings } from 'lucide-react';
+import { Home, Settings } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
-import { DealerNavigation, TableView, ActionPanel, ShowdownPanel, ConfirmationModal, PhaseTransitionModal, BlindSettingsModal } from '@/components';
+import { DealerNavigation, TableView, ActionPanel, ShowdownPanel, ConfirmationModal, PhaseTransitionModal, SettingsModal } from '@/components';
 
 export default function GamePage() {
     const router = useRouter();
-    const { phase, players, showPhaseNotifications, togglePhaseNotifications } = useGameStore();
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const { phase, players } = useGameStore();
     const [isHomeConfirmOpen, setIsHomeConfirmOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-    const handleGuideToggle = () => {
-        if (showPhaseNotifications) {
-            // ON -> OFFにする場合は確認
-            setIsConfirmModalOpen(true);
-        } else {
-            // OFF -> ONにする場合は即時実行
-            togglePhaseNotifications();
-        }
-    };
-
-    const confirmToggleOff = () => {
-        togglePhaseNotifications();
-        setIsConfirmModalOpen(false);
-    };
 
     // プレイヤーがいない場合はセットアップへリダイレクト
     if (players.length === 0) {
@@ -46,7 +30,7 @@ export default function GamePage() {
 
     return (
         <div className="min-h-screen flex flex-col p-4 max-w-2xl mx-auto">
-            {/* ヘッダー：ホームボタンとガイド設定 */}
+            {/* ヘッダー：ホームボタンと設定ボタン */}
             <div className="flex justify-between items-center mb-2">
                 <button
                     onClick={() => setIsHomeConfirmOpen(true)}
@@ -57,55 +41,27 @@ export default function GamePage() {
                 </button>
 
                 <button
-                    onClick={handleGuideToggle}
-                    className={`
-                        p-2 rounded-lg transition-colors flex items-center gap-2
-                        ${showPhaseNotifications
-                            ? 'bg-white/10 hover:bg-white/20 text-white'
-                            : 'bg-white/5 hover:bg-white/10 text-gray-500'
-                        }
-                    `}
-                    title={showPhaseNotifications ? 'ガイド表示: ON' : 'ガイド表示: OFF'}
+                    onClick={() => setIsSettingsOpen(true)}
+                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                    title="ゲーム設定"
                 >
-                    <span className="text-xs font-medium hidden sm:block">
-                        {showPhaseNotifications ? 'ガイドON' : 'ガイドOFF'}
-                    </span>
-                    {showPhaseNotifications ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
+                    <Settings className="w-5 h-5 text-white" />
                 </button>
-            </button>
+            </div>
 
-            <button
-                onClick={() => setIsSettingsOpen(true)}
-                className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-                title="ゲーム設定"
-            >
-                <Settings className="w-5 h-5 text-white" />
-            </button>
-        </div>
+            {/* ディーラーナビゲーション */}
+            <DealerNavigation />
 
-            {/* ディーラーナビゲーション */ }
-    <DealerNavigation />
+            {/* テーブルビュー */}
+            <TableView />
 
-    {/* テーブルビュー */ }
-    <TableView />
+            {/* アクションパネル（ベッティング中のみ） */}
+            <ActionPanel />
 
-    {/* アクションパネル（ベッティング中のみ） */ }
-    <ActionPanel />
+            {/* ショーダウンパネル */}
+            <ShowdownPanel />
 
-    {/* ショーダウンパネル */ }
-    <ShowdownPanel />
-
-    {/* 確認モーダル */ }
-            <ConfirmationModal
-                isOpen={isConfirmModalOpen}
-                title="ガイドの非表示"
-                message="フェーズ遷移時のガイド（ポップアップ）を非表示にしますか？"
-                confirmText="非表示にする"
-                cancelText="キャンセル"
-                onConfirm={confirmToggleOff}
-                onCancel={() => setIsConfirmModalOpen(false)}
-            />
-
+            {/* 確認モーダル（ホームに戻る） */}
             <ConfirmationModal
                 isOpen={isHomeConfirmOpen}
                 title="ホームに戻りますか？"
@@ -119,14 +75,14 @@ export default function GamePage() {
                 onCancel={() => setIsHomeConfirmOpen(false)}
             />
 
-    {/* Phase Transition Modal */ }
-    <PhaseTransitionModal />
+            {/* Phase Transition Modal */}
+            <PhaseTransitionModal />
 
-    {/* Settings Modal */ }
-    <BlindSettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-    />
+            {/* Settings Modal */}
+            <SettingsModal
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+            />
         </div >
     );
 }

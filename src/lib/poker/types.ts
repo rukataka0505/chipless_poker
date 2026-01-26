@@ -29,6 +29,7 @@ export interface Player {
     hasActedThisRound: boolean; // このラウンドでアクションしたか
     position: Position;
     seatIndex: number;      // 座席位置 (0-5)
+    buyIn: number;          // 総バイイン額
 }
 
 export interface Pot {

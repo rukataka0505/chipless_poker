@@ -38,6 +38,7 @@ export function createInitialState(
         hasActedThisRound: false,
         position: null,
         seatIndex: index,
+        buyIn: initialStack,
     }));
 
     // ポジションを設定

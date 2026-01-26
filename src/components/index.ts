@@ -5,4 +5,4 @@ export { ActionPanel } from './ActionPanel';
 export { ShowdownPanel } from './ShowdownPanel';
 export { ConfirmationModal } from './ConfirmationModal';
 export { PhaseTransitionModal } from './PhaseTransitionModal';
-export { BlindSettingsModal } from './BlindSettingsModal';
+export { SettingsModal } from './SettingsModal';

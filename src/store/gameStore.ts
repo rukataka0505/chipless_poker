@@ -539,9 +539,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Modifying Players
     updatePlayerStack: (playerId: string, newStack: number) => {
         set(state => ({
-            players: state.players.map(p =>
-                p.id === playerId ? { ...p, stack: newStack } : p
-            ),
+            players: state.players.map(p => {
+                if (p.id !== playerId) return p;
+
+                // Stack change affects buyIn to preserve profit/loss for Rebuys/Add-ons
+                // Profit = Stack - BuyIn
+                // If we want Profit to stay same:
+                // OldProfit = OldStack - OldBuyIn
+                // NewProfit = NewStack - NewBuyIn
+                // OldStack - OldBuyIn = NewStack - NewBuyIn
+                // NewBuyIn = NewStack - (OldStack - OldBuyIn) = NewStack - OldProfit
+                // NewBuyIn = NewStack - OldStack + OldBuyIn
+                const stackDiff = newStack - p.stack;
+                const newBuyIn = (p.buyIn ?? p.stack) + stackDiff;
+
+                return {
+                    ...p,
+                    stack: newStack,
+                    buyIn: newBuyIn
+                };
+            }),
         }));
     },
 
@@ -559,6 +576,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 hasActedThisRound: false,
                 position: null,
                 seatIndex: state.players.length,
+                buyIn: stack,
             };
             return {
                 players: [...state.players, newPlayer],

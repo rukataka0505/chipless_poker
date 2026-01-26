@@ -40,9 +40,24 @@ export default function SetupPage() {
             return;
         }
 
-        const stack = parseInt(initialStack, 10) || GAME_CONSTANTS.INITIAL_STACK;
-        const sb = parseInt(smallBlind, 10) || GAME_CONSTANTS.SMALL_BLIND;
-        const bb = parseInt(bigBlind, 10) || GAME_CONSTANTS.BIG_BLIND;
+        const stack = parseInt(initialStack, 10);
+        const sb = parseInt(smallBlind, 10);
+        const bb = parseInt(bigBlind, 10);
+
+        if (!initialStack || isNaN(stack) || stack <= 0) {
+            setError('スタックは1以上の整数を入力してください');
+            return;
+        }
+
+        if (!smallBlind || isNaN(sb) || sb <= 0) {
+            setError('SBは1以上の整数を入力してください');
+            return;
+        }
+
+        if (!bigBlind || isNaN(bb) || bb <= 0) {
+            setError('BBは1以上の整数を入力してください');
+            return;
+        }
 
         initializeGame(activeNames, stack, sb, bb);
         startNewHand();
