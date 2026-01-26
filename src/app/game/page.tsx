@@ -10,6 +10,7 @@ export default function GamePage() {
     const router = useRouter();
     const { phase, players, showPhaseNotifications, togglePhaseNotifications } = useGameStore();
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [isHomeConfirmOpen, setIsHomeConfirmOpen] = useState(false);
 
     const handleGuideToggle = () => {
         if (showPhaseNotifications) {
@@ -47,7 +48,7 @@ export default function GamePage() {
             {/* ヘッダー：ホームボタンとガイド設定 */}
             <div className="flex justify-between items-center mb-2">
                 <button
-                    onClick={() => router.push('/')}
+                    onClick={() => setIsHomeConfirmOpen(true)}
                     className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
                     title="セットアップに戻る"
                 >
@@ -93,6 +94,19 @@ export default function GamePage() {
                 cancelText="キャンセル"
                 onConfirm={confirmToggleOff}
                 onCancel={() => setIsConfirmModalOpen(false)}
+            />
+
+            <ConfirmationModal
+                isOpen={isHomeConfirmOpen}
+                title="ホームに戻りますか？"
+                message="進行中のゲームデータは保存されません。ホーム画面に戻ってよろしいですか？"
+                confirmText="戻る"
+                cancelText="キャンセル"
+                onConfirm={() => {
+                    setIsHomeConfirmOpen(false);
+                    router.push('/');
+                }}
+                onCancel={() => setIsHomeConfirmOpen(false)}
             />
 
             {/* Phase Transition Modal */}
