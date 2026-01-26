@@ -51,7 +51,7 @@ export function TableView() {
         }
     };
 
-    const [isMobile, setIsMobile] = React.useState(false);
+    const [isMobile, setIsMobile] = React.useState(true);
 
     React.useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 640);
@@ -60,19 +60,37 @@ export function TableView() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    // Layout configuration to ensure visual table and player positions satisfy the same coordinate system
+    const TABLE_LAYOUT = {
+        MOBILE: {
+            width: 280,
+            height: 520,
+            // Players positioned precisely relative to the table center
+            // Table is 280 wide (rx=140), we put players at 165 (slightly outside)
+            // Table is 520 high (ry=260), we put players at 290 (slightly outside)
+            playerRx: 165,
+            playerRy: 290
+        },
+        DESKTOP: {
+            width: 700,
+            height: 350,
+            // Table is 700 wide (rx=350), players at 420 (comfortable outside)
+            // Table is 350 high (ry=175), players at 230 (comfortable outside)
+            playerRx: 420,
+            playerRy: 230
+        }
+    };
+
+    const currentLayout = isMobile ? TABLE_LAYOUT.MOBILE : TABLE_LAYOUT.DESKTOP;
+
     const getPlayerPosition = (index: number, total: number) => {
+        // Start from -90 (top)
         const angleOffset = -90;
         const angle = (360 / total) * index + angleOffset;
         const radian = (angle * Math.PI) / 180;
 
-        // Responsive dimensions
-        // Mobile: tighter radius to fit screen (340-360px usable width)
-        // Desktop: spacious radius
-        const radiusX = isMobile ? 140 : 420;
-        const radiusY = isMobile ? 130 : 160;
-
-        const x = Math.cos(radian) * radiusX;
-        const y = Math.sin(radian) * radiusY;
+        const x = Math.cos(radian) * currentLayout.playerRx;
+        const y = Math.sin(radian) * currentLayout.playerRy;
 
         return { x, y };
     };
@@ -80,26 +98,38 @@ export function TableView() {
     const targetCardCount = COMMUNITY_CARDS_COUNT[phase];
 
     return (
-        <div className="relative w-full h-[400px] sm:h-[600px] flex items-center justify-center my-4 sm:my-8 perspective-[1000px] overflow-hidden sm:overflow-visible">
+        <div className="relative w-full h-[600px] sm:h-[600px] flex items-center justify-center my-4 sm:my-8 perspective-[1000px] overflow-hidden sm:overflow-visible">
             {/* Mobile Scale Wrapper */}
-            <div className="transform scale-[0.4] sm:scale-100 -translate-y-20 sm:-translate-y-32 transition-transform duration-300 origin-center">
+            <div className="transform scale-[0.6] sm:scale-100 -translate-y-10 sm:-translate-y-32 transition-transform duration-300 origin-center w-full h-full flex items-center justify-center">
                 {/* Center Glow Ambience */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[600px] h-[150px] sm:h-[300px] bg-electric/5 rounded-full blur-[50px] sm:blur-[100px] pointer-events-none" />
+                <div
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-electric/5 rounded-full blur-[50px] sm:blur-[100px] pointer-events-none transition-all duration-300"
+                    style={{
+                        width: currentLayout.width + 40,
+                        height: currentLayout.height + 40
+                    }}
+                />
 
                 {/* Table / Arena Visual */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] sm:w-[700px] h-[160px] sm:h-[350px] rounded-full border border-white/5 bg-black/40 backdrop-blur-sm shadow-2xl transform rotate-x-12 pointer-events-none transition-all duration-500">
+                <div
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[100px] sm:rounded-full border border-white/5 bg-black/40 backdrop-blur-sm shadow-2xl transform rotate-x-0 sm:rotate-x-12 pointer-events-none transition-all duration-500"
+                    style={{
+                        width: currentLayout.width,
+                        height: currentLayout.height
+                    }}
+                >
                     {/* Decorative Rings */}
-                    <div className="absolute inset-0 rounded-full border border-white/5 scale-90" />
-                    <div className="absolute inset-0 rounded-full border border-gold/5 scale-75" />
+                    <div className="absolute inset-0 rounded-[100px] sm:rounded-full border border-white/5 scale-90" />
+                    <div className="absolute inset-0 rounded-[100px] sm:rounded-full border border-gold/5 scale-75" />
                 </div>
 
                 {/* Central Area: Community Cards & Pot */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] z-10 flex flex-col items-center gap-8">
-                    <div className="translate-y-[10px]">
+                    <div className="translate-y-[10px] scale-125 sm:scale-100 mt-20 sm:mt-0">
                         <PotDisplay pots={pots} stage={phase} />
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 sm:gap-3 scale-90 sm:scale-100">
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div
                                 key={i}
