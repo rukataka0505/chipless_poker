@@ -9,17 +9,30 @@ export const metadata: Metadata = {
     metadataBase: new URL('https://chipless-poker.web.app'),
     title: 'どこでもポーカー | 手持ちのトランプでポーカー',
     description: 'チップがなくても、トランプ1組でいつでもポーカー',
+    icons: {
+        icon: '/favicon.png',
+        apple: '/favicon.png',
+    },
     openGraph: {
         title: 'どこでもポーカー | 手持ちのトランプでポーカー',
         description: 'チップがなくても、トランプ1組でいつでもポーカー',
         siteName: 'どこでもポーカー',
         locale: 'ja_JP',
         type: 'website',
+        images: [
+            {
+                url: '/ogp.png',
+                width: 1200,
+                height: 630,
+                alt: 'どこでもポーカー',
+            },
+        ],
     },
     twitter: {
         card: 'summary_large_image',
         title: 'どこでもポーカー | 手持ちのトランプでポーカー',
         description: 'チップがなくても、トランプ1組でいつでもポーカー',
+        images: ['/ogp.png'],
     },
 };
 
