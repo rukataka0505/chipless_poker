@@ -34,12 +34,10 @@ interface GameStore extends GameState {
     // Setup actions
     initializeGame: (playerNames: string[], initialStack?: number, smallBlind?: number, bigBlind?: number) => void;
     startNewHand: () => void;
-    startNewHand: () => void;
 
     // Player actions
     doAction: (action: PlayerAction, amount?: number) => { success: boolean; error?: string };
 
-    // Showdown
     // Showdown
     selectWinners: (potIndex: number, winnerIds: string[]) => void;
     resolveShowdown: () => void;
@@ -73,7 +71,6 @@ interface GameStore extends GameState {
     showPhaseNotifications: boolean;
     togglePhaseNotifications: () => void;
     // Modifying Players
-    updatePlayerStack: (playerId: string, newStack: number) => void;
     // Modifying Players
     updatePlayerStack: (playerId: string, newStack: number) => void;
     updateBlinds: (smallBlind: number, bigBlind: number) => void;
@@ -136,6 +133,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     showPhaseNotifications: state.showPhaseNotifications,
                     isShowdownResolved: state.isShowdownResolved,
                     lastTotalPot: state.lastTotalPot || 0,
+                    smallBlind: state.smallBlind,
+                    bigBlind: state.bigBlind,
                 },
             };
             newHandHistories = [...state.handHistories, currentHandHistory];
@@ -168,8 +167,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
             amount,
             currentPlayer,
             state.currentBet,
-            currentPlayer,
-            state.currentBet,
             state.minRaise,
             state.bigBlind
         );
@@ -194,6 +191,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             showPhaseNotifications: state.showPhaseNotifications,
             isShowdownResolved: state.isShowdownResolved,
             lastTotalPot: state.lastTotalPot || 0,
+            smallBlind: state.smallBlind,
+            bigBlind: state.bigBlind,
         };
 
         // アクション処理
@@ -357,6 +356,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
             showPhaseNotifications: state.showPhaseNotifications,
             isShowdownResolved: state.isShowdownResolved,
             lastTotalPot: state.lastTotalPot || 0,
+            smallBlind: state.smallBlind,
+            bigBlind: state.bigBlind,
         };
 
         // 勝者にチップを配分
@@ -406,6 +407,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
                     showPhaseNotifications: state.showPhaseNotifications,
                     isShowdownResolved: state.isShowdownResolved,
                     lastTotalPot: state.lastTotalPot || 0,
+                    smallBlind: state.smallBlind,
+                    bigBlind: state.bigBlind,
                 },
             };
             newHandHistories = [...state.handHistories, currentHandHistory];
@@ -460,8 +463,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     getAvailableActionsForCurrentPlayer: () => {
         const state = get();
         const currentPlayer = state.players[state.currentPlayerIndex];
-        if (!currentPlayer) return null;
-
         if (!currentPlayer) return null;
 
         return getAvailableActions(currentPlayer, state.currentBet, state.minRaise, state.bigBlind);

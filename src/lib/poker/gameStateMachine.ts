@@ -51,7 +51,6 @@ export function createInitialState(
         currentPlayerIndex: -1,
         pots: [{ amount: 0, eligiblePlayerIds: players.map(p => p.id) }],
         currentBet: 0,
-        currentBet: 0,
         minRaise: bigBlind,
         lastRaiseAmount: bigBlind,
         communityCardCount: 0,
@@ -59,7 +58,6 @@ export function createInitialState(
         actionHistory: [],
         showPhaseNotifications: true,
         isShowdownResolved: false,
-        lastTotalPot: 0,
         lastTotalPot: 0,
         smallBlind,
         bigBlind,
@@ -153,7 +151,6 @@ export function startHand(state: GameState): GameState {
     }
 
     newState.phase = 'PREFLOP';
-    newState.phase = 'PREFLOP';
     newState.currentBet = newState.bigBlind;
     newState.minRaise = newState.bigBlind;
     newState.lastRaiseAmount = newState.bigBlind;
@@ -211,7 +208,6 @@ export function advancePhase(state: GameState): GameState {
         hasActedThisRound: false,
     }));
 
-    newState.currentBet = 0;
     newState.currentBet = 0;
     newState.minRaise = newState.bigBlind;
     newState.lastRaiseAmount = newState.bigBlind;
