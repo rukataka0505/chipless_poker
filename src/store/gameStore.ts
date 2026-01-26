@@ -11,6 +11,7 @@ import {
     ActionRecord,
     HandHistory,
     GAME_CONSTANTS,
+    COMMUNITY_CARDS_COUNT,
 } from '@/lib/poker/types';
 import {
     createInitialState,
@@ -58,6 +59,7 @@ interface GameStore extends GameState {
 
     // Internal state
     selectedWinners: Map<number, string[]>;
+    isTransitioning: boolean;
 
     // Undo functionality
     undoStack: GameState[];          // 現在ハンド内のUndo用スタック
@@ -87,6 +89,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     handNumber: 0,
     actionHistory: [],
     selectedWinners: new Map(),
+    isTransitioning: false,
     pendingPhase: null,
     showPhaseNotifications: true,
     isShowdownResolved: false,
@@ -240,28 +243,65 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         // ベッティングラウンド終了チェック
         if (isBettingRoundComplete(newPlayers, newCurrentBet)) {
-            // 次のフェーズを計算
-            const advancedState = advancePhase({
-                ...state,
+            // Apply the action visual immediately, but delay the phase transition
+            const intermediateState: Partial<GameState> & { isTransitioning: boolean } = {
                 ...newState,
-            });
+                players: newPlayers,
+                currentBet: newCurrentBet,
+                minRaise: newMinRaise,
+                isTransitioning: true, // Lock input
+            };
 
-            // FLOP, TURN, RIVERへの遷移はモーダルで確認（設定ONの場合のみ）
-            const nextPhase = advancedState.phase;
-            const shouldShowNotification = state.showPhaseNotifications &&
-                (nextPhase === 'FLOP' || nextPhase === 'TURN' || nextPhase === 'RIVER');
+            set({
+                ...state,
+                ...intermediateState,
+                undoStack: [...state.undoStack, snapshotState],
+            } as GameStore);
 
-            if (shouldShowNotification) {
-                // ポットに集約だけ行い、フェーズは保留
-                newState = {
-                    ...newState,
-                    pots: advancedState.pots,
-                    pendingPhase: nextPhase,
-                } as Partial<GameStore>;
-            } else {
-                // SHOWDOWN等はそのまま進行、または通知設定OFFなら即時遷移
-                newState = advancedState;
-            }
+            // 1秒遅延してからフェーズ遷移
+            setTimeout(() => {
+                const currentState = get();
+                // Ensure we haven't undid the action (isTransitioning check)
+                if (!currentState.isTransitioning) return;
+
+                // 次のフェーズを計算
+                const advancedState = advancePhase(currentState);
+
+                // FLOP, TURN, RIVERへの遷移はモーダルで確認（設定ONの場合のみ）
+                const nextPhase = advancedState.phase;
+                const shouldShowNotification = currentState.showPhaseNotifications &&
+                    (nextPhase === 'FLOP' || nextPhase === 'TURN' || nextPhase === 'RIVER');
+
+                let finalState: Partial<GameStore> = {};
+
+                if (shouldShowNotification) {
+                    // ポットに集約だけ行い、フェーズは保留（phaseは現在のまま維持）
+                    finalState = {
+                        pots: advancedState.pots,
+                        players: advancedState.players,
+                        currentBet: advancedState.currentBet,
+                        minRaise: advancedState.minRaise,
+                        lastRaiseAmount: advancedState.lastRaiseAmount,
+                        // phase は更新しない（pendingPhase で保留）
+                        pendingPhase: nextPhase,
+                        isTransitioning: false,
+                    } as Partial<GameStore>;
+                } else {
+                    // SHOWDOWN等はそのまま進行、または通知設定OFFなら即時遷移
+                    finalState = {
+                        ...advancedState,
+                        isTransitioning: false,
+                    };
+                }
+
+                set(state => ({
+                    ...state,
+                    ...finalState
+                }));
+            }, 600);
+
+            return { success: true };
+
         } else {
             // 次のプレイヤーへ
             const movedState = moveToNextPlayer({
@@ -269,13 +309,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 ...newState,
             });
             newState.currentPlayerIndex = movedState.currentPlayerIndex;
-        }
 
-        set({
-            ...newState,
-            undoStack: [...state.undoStack, snapshotState],
-        } as GameState);
-        return { success: true };
+            set({
+                ...newState,
+                undoStack: [...state.undoStack, snapshotState],
+            } as GameState);
+            return { success: true };
+        }
     },
 
     // Showdown
@@ -427,7 +467,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     canPlayerAct: (playerId: string) => {
         const state = get();
-        if (state.phase === 'SETUP' || state.phase === 'SHOWDOWN') return false;
+        if (state.phase === 'SETUP' || state.phase === 'SHOWDOWN' || state.isTransitioning) return false;
 
         const currentPlayer = state.players[state.currentPlayerIndex];
         if (currentPlayer?.id !== playerId) return false;
@@ -445,18 +485,32 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
         if (!pendingPhase) return;
 
-        // Actually advance to the pending phase
-        // Actually advance to the pending phase
         if (state.phase === pendingPhase) {
             // Just clear, no advance needed (e.g. Preflop notification)
             set({ pendingPhase: null });
         } else {
-            const advancedState = advancePhase(state);
+            // フェーズを更新し、コミュニティカード数も設定
+            // 注意: ポット集約やプレイヤーリセットは doAction の setTimeout 内で既に完了している
+            // ここでは advancePhase を再度呼ばずに、フェーズとカード数のみを更新
+
+            // 次のアクティブプレイヤーを探す（ディーラーの次から）
+            let startIndex = (state.dealerIndex + 1) % state.players.length;
+            let searchAttempts = 0;
+            while (searchAttempts < state.players.length) {
+                const player = state.players[startIndex];
+                if (!player.folded && !player.allIn) {
+                    break;
+                }
+                startIndex = (startIndex + 1) % state.players.length;
+                searchAttempts++;
+            }
+
             set({
-                ...advancedState,
                 phase: pendingPhase,
+                communityCardCount: COMMUNITY_CARDS_COUNT[pendingPhase],
+                currentPlayerIndex: startIndex,
                 pendingPhase: null,
-            } as GameStore);
+            });
         }
     },
 

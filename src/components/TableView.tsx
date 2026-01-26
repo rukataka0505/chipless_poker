@@ -21,6 +21,7 @@ export function TableView() {
         updatePlayerStack,
         addPlayer,
         actionHistory,
+        isTransitioning,
     } = useGameStore();
 
     const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
@@ -132,7 +133,7 @@ export function TableView() {
 
                     const player = item as Player;
                     const playerIndex = index - 1; // Adjust for ADD_BUTTON at index 0
-                    const isActive = playerIndex === currentPlayerIndex;
+                    const isActive = playerIndex === currentPlayerIndex && !isTransitioning;
 
                     // Determine visuals for Position Badges
                     let isDealer = player.position === 'D';
