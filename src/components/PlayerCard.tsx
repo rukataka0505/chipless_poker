@@ -8,7 +8,7 @@ interface PlayerCardProps {
     isDealer: boolean;
     position: string; // "SB", "BB", or ""
     onClick?: () => void;
-    betType?: 'BET' | 'RAISE' | 'CALL';
+    betType?: 'BET' | 'RAISE' | 'CALL' | 'CHECK';
 }
 
 export function PlayerCard({ player, isActive, isDealer, position, onClick, betType = 'BET' }: PlayerCardProps) {
@@ -28,7 +28,7 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick, betT
             <div className={`
                 absolute -top-10 sm:-top-14 left-1/2 -translate-x-1/2 z-40
                 transition-all duration-500 ease-out
-                ${hasBet ? 'opacity-100 translate-y-0 scale-90 sm:scale-100' : 'opacity-0 translate-y-4 scale-75 sm:scale-90 pointer-events-none'}
+                ${(hasBet || betType === 'CHECK') ? 'opacity-100 translate-y-0 scale-90 sm:scale-100' : 'opacity-0 translate-y-4 scale-75 sm:scale-90 pointer-events-none'}
             `}>
                 <div className="relative">
                     {/* Chip-like Pill - SHARP & CLEAN */}
@@ -38,7 +38,9 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick, betT
                             ? 'bg-gradient-to-b from-red-500 to-red-700 border-red-300'
                             : betType === 'CALL'
                                 ? 'bg-gradient-to-b from-lime-400 to-lime-600 border-lime-200'
-                                : 'bg-gradient-to-b from-yellow-400 to-yellow-600 border-yellow-200'
+                                : betType === 'CHECK'
+                                    ? 'bg-gradient-to-b from-cyan-400 to-cyan-600 border-cyan-200'
+                                    : 'bg-gradient-to-b from-yellow-400 to-yellow-600 border-yellow-200'
                         }
                     `}>
                         {/* Chip Icon */}
@@ -48,7 +50,9 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick, betT
                                 ? 'border-red-900/50 bg-red-600'
                                 : betType === 'CALL'
                                     ? 'border-lime-800/50 bg-lime-500'
-                                    : 'border-yellow-800/50 bg-yellow-500'
+                                    : betType === 'CHECK'
+                                        ? 'border-cyan-800/50 bg-cyan-500'
+                                        : 'border-yellow-800/50 bg-yellow-500'
                             }
                         `}>
                             <div className={`
@@ -57,15 +61,28 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick, betT
                                     ? 'border-red-900/60'
                                     : betType === 'CALL'
                                         ? 'border-lime-800/60'
-                                        : 'border-yellow-800/60'
+                                        : betType === 'CHECK'
+                                            ? 'border-cyan-800/60'
+                                            : 'border-yellow-800/60'
                                 }
                             `} />
                         </div>
 
                         {/* Bet Amount */}
-                        <span className="font-display font-bold text-xl text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)] tabular-nums tracking-wider text-shadow-outline">
-                            {player.currentBet.toLocaleString()}
-                        </span>
+                        {betType === 'CHECK' ? (
+                            <span className="font-display font-bold text-xl text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)] tracking-wider text-shadow-outline">
+                                CHECK
+                            </span>
+                        ) : (
+                            <div className="flex items-baseline gap-1.5 ml-1">
+                                <span className="font-bold text-xs text-white/90 drop-shadow-[0_1px_0_rgba(0,0,0,0.8)] tracking-wider text-shadow-outline self-center">
+                                    {betType}
+                                </span>
+                                <span className="font-display font-bold text-2xl text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)] tabular-nums tracking-wider text-shadow-outline -my-1">
+                                    {player.currentBet.toLocaleString()}
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
