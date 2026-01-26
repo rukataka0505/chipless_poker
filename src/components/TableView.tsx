@@ -65,7 +65,7 @@ export function TableView() {
     // Desktop: Use exact values from working backup (horizontal ellipse)
     // Mobile: Use vertical ellipse for portrait mode
     const layout = isMobile
-        ? { radiusX: 130, radiusY: 220, tableW: 280, tableH: 460 }
+        ? { radiusX: 160, radiusY: 280, tableW: 340, tableH: 580 }
         : { radiusX: 420, radiusY: 160, tableW: 700, tableH: 350 };
 
     const getPlayerPosition = (index: number, total: number) => {
