@@ -65,7 +65,7 @@ export function TableView() {
     // Desktop: Use exact values from working backup (horizontal ellipse)
     // Mobile: Use vertical ellipse for portrait mode
     const layout = isMobile
-        ? { radiusX: 160, radiusY: 280, tableW: 340, tableH: 580 }
+        ? { radiusX: 210, radiusY: 330, tableW: 390, tableH: 680 }
         : { radiusX: 420, radiusY: 160, tableW: 700, tableH: 350 };
 
     const getPlayerPosition = (index: number, total: number) => {
@@ -83,8 +83,8 @@ export function TableView() {
 
     return (
         <div className="relative w-full h-[400px] sm:h-[600px] flex items-center justify-center my-4 sm:my-8 perspective-[1000px] overflow-visible">
-            {/* Mobile Scale Wrapper */}
-            <div className="transform scale-[0.55] sm:scale-100 -translate-y-20 sm:-translate-y-32 transition-transform duration-300 origin-center">
+            {/* Mobile Scale Wrapper - Shifted down for mobile (less negative translate) */}
+            <div className="transform scale-[0.55] sm:scale-100 -translate-y-5 sm:-translate-y-32 transition-transform duration-300 origin-center">
                 {/* Center Glow Ambience */}
                 <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-electric/5 rounded-full blur-[100px] pointer-events-none"
