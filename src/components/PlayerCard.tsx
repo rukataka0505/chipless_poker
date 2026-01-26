@@ -15,6 +15,18 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick, betT
     const isFolded = player.folded;
     const isAllIn = player.allIn;
     const hasBet = player.currentBet > 0;
+    const showIndicator = hasBet || betType === 'CHECK';
+
+    // Sticky state to hold previous values during fade-out
+    const [displayBetType, setDisplayBetType] = React.useState(betType);
+    const [displayBetAmount, setDisplayBetAmount] = React.useState(player.currentBet);
+
+    React.useEffect(() => {
+        if (showIndicator) {
+            setDisplayBetType(betType);
+            setDisplayBetAmount(player.currentBet);
+        }
+    }, [showIndicator, betType, player.currentBet]);
 
     return (
         <div
@@ -28,17 +40,17 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick, betT
             <div className={`
                 absolute -top-10 sm:-top-14 left-1/2 -translate-x-1/2 z-40
                 transition-all duration-500 ease-out
-                ${(hasBet || betType === 'CHECK') ? 'opacity-100 translate-y-0 scale-90 sm:scale-100' : 'opacity-0 translate-y-4 scale-75 sm:scale-90 pointer-events-none'}
+                ${showIndicator ? 'opacity-100 translate-y-0 scale-90 sm:scale-100' : 'opacity-0 translate-y-4 scale-75 sm:scale-90 pointer-events-none'}
             `}>
                 <div className="relative">
                     {/* Chip-like Pill - SHARP & CLEAN */}
                     <div className={`
                         border-2 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_10px_rgba(0,0,0,0.5)]
-                        ${betType === 'RAISE'
+                        ${displayBetType === 'RAISE'
                             ? 'bg-gradient-to-b from-red-500 to-red-700 border-red-300'
-                            : betType === 'CALL'
+                            : displayBetType === 'CALL'
                                 ? 'bg-gradient-to-b from-lime-400 to-lime-600 border-lime-200'
-                                : betType === 'CHECK'
+                                : displayBetType === 'CHECK'
                                     ? 'bg-gradient-to-b from-cyan-400 to-cyan-600 border-cyan-200'
                                     : 'bg-gradient-to-b from-yellow-400 to-yellow-600 border-yellow-200'
                         }
@@ -46,22 +58,22 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick, betT
                         {/* Chip Icon */}
                         <div className={`
                             w-5 h-5 rounded-full border-2 flex items-center justify-center shadow-inner
-                            ${betType === 'RAISE'
+                            ${displayBetType === 'RAISE'
                                 ? 'border-red-900/50 bg-red-600'
-                                : betType === 'CALL'
+                                : displayBetType === 'CALL'
                                     ? 'border-lime-800/50 bg-lime-500'
-                                    : betType === 'CHECK'
+                                    : displayBetType === 'CHECK'
                                         ? 'border-cyan-800/50 bg-cyan-500'
                                         : 'border-yellow-800/50 bg-yellow-500'
                             }
                         `}>
                             <div className={`
                                 w-3 h-3 rounded-full border border-dashed
-                                ${betType === 'RAISE'
+                                ${displayBetType === 'RAISE'
                                     ? 'border-red-900/60'
-                                    : betType === 'CALL'
+                                    : displayBetType === 'CALL'
                                         ? 'border-lime-800/60'
-                                        : betType === 'CHECK'
+                                        : displayBetType === 'CHECK'
                                             ? 'border-cyan-800/60'
                                             : 'border-yellow-800/60'
                                 }
@@ -69,17 +81,17 @@ export function PlayerCard({ player, isActive, isDealer, position, onClick, betT
                         </div>
 
                         {/* Bet Amount */}
-                        {betType === 'CHECK' ? (
+                        {displayBetType === 'CHECK' ? (
                             <span className="font-display font-bold text-xl text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)] tracking-wider text-shadow-outline">
                                 CHECK
                             </span>
                         ) : (
                             <div className="flex items-baseline gap-1.5 ml-1">
                                 <span className="font-bold text-xs text-white/90 drop-shadow-[0_1px_0_rgba(0,0,0,0.8)] tracking-wider text-shadow-outline self-center">
-                                    {betType}
+                                    {displayBetType}
                                 </span>
                                 <span className="font-display font-bold text-2xl text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)] tabular-nums tracking-wider text-shadow-outline -my-1">
-                                    {player.currentBet.toLocaleString()}
+                                    {displayBetAmount.toLocaleString()}
                                 </span>
                             </div>
                         )}
