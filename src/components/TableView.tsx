@@ -69,9 +69,9 @@ export function TableView() {
     const targetCardCount = COMMUNITY_CARDS_COUNT[phase];
 
     return (
-        <div className="relative w-full h-[400px] sm:h-[600px] flex items-center justify-center my-4 sm:my-8 perspective-[1000px] overflow-visible">
+        <div className="relative w-full h-[400px] sm:h-[600px] flex items-center justify-center my-4 sm:my-8 perspective-[1000px] overflow-hidden sm:overflow-visible">
             {/* Mobile Scale Wrapper */}
-            <div className="transform scale-[0.55] sm:scale-100 -translate-y-20 sm:-translate-y-32 transition-transform duration-300 origin-center">
+            <div className="transform scale-[0.4] sm:scale-100 -translate-y-20 sm:-translate-y-32 transition-transform duration-300 origin-center">
                 {/* Center Glow Ambience */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-electric/5 rounded-full blur-[100px] pointer-events-none" />
 
