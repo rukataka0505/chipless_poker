@@ -93,6 +93,9 @@ interface GameStore extends GameState {
     selectedWinners: Map<number, string[]>;
     isTransitioning: boolean;
 
+    // Hydration state
+    _hasHydrated: boolean;
+
     // Undo functionality
     undoStack: GameState[];          // 現在ハンド内のUndo用スタック
     handHistories: HandHistory[];    // 過去ハンドの履歴（最大10件、将来用）
@@ -127,6 +130,7 @@ export const useGameStore = create<GameStore>()(
             selectedWinners: new Map(),
             isTransitioning: false,
             pendingPhase: null,
+            _hasHydrated: false,
             showPhaseNotifications: true,
             isShowdownResolved: false,
             undoStack: [],
@@ -678,7 +682,13 @@ export const useGameStore = create<GameStore>()(
                 smallBlind: state.smallBlind,
                 bigBlind: state.bigBlind,
                 handHistories: state.handHistories,
+                pendingPhase: state.pendingPhase,
             }),
+            onRehydrateStorage: () => (state) => {
+                if (state) {
+                    state._hasHydrated = true;
+                }
+            },
         }
     )
 );

@@ -8,9 +8,18 @@ import { DealerNavigation, TableView, ActionPanel, ShowdownPanel, ConfirmationMo
 
 export default function GamePage() {
     const router = useRouter();
-    const { phase, players } = useGameStore();
+    const { phase, players, _hasHydrated } = useGameStore();
     const [isHomeConfirmOpen, setIsHomeConfirmOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+    // ハイドレーション完了まで待機
+    if (!_hasHydrated) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-pulse text-gray-400">読み込み中...</div>
+            </div>
+        );
+    }
 
     // プレイヤーがいない場合はセットアップへリダイレクト
     if (players.length === 0) {
