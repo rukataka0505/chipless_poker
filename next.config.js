@@ -4,10 +4,14 @@ const withPWA = require('next-pwa')({
 });
 
 const nextConfig = {
-    output: 'standalone',
+    output: 'export',
     eslint: {
         // デプロイ時のビルドエラーを防ぐため
         ignoreDuringBuilds: true,
+    },
+    images: {
+        // 静的エクスポートではNext.js画像最適化が使えないため
+        unoptimized: true,
     },
 };
 
