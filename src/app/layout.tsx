@@ -9,9 +9,15 @@ export const metadata: Metadata = {
     metadataBase: new URL('https://chipless-poker.web.app'),
     title: 'どこでもポーカー | 手持ちのトランプでポーカー',
     description: 'チップがなくても、トランプ1組でいつでもポーカー',
+    manifest: '/manifest.json',
     icons: {
         icon: '/favicon.png',
-        apple: '/favicon.png',
+        apple: '/icon-192x192.png',
+    },
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: 'black-translucent',
+        title: 'どこでもポーカー',
     },
     openGraph: {
         title: 'どこでもポーカー | 手持ちのトランプでポーカー',
