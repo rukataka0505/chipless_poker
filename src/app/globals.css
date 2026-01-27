@@ -22,6 +22,11 @@
   --glass-highlight: hsla(0, 0%, 100%, 0.05);
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
 body {
   @apply text-white bg-black antialiased;
   background-color: var(--background-void);
