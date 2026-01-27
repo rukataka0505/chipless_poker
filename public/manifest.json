@@ -1,6 +1,6 @@
 {
     "name": "どこでもポーカー",
-    "short_name": "Poker",
+    "short_name": "どこでもポーカー",
     "description": "チップがなくても、トランプ1組でいつでもポーカー",
     "start_url": "/",
     "display": "standalone",
