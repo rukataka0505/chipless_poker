@@ -34,7 +34,7 @@ export const metadata: Metadata = {
         type: 'website',
         images: [
             {
-                url: '/ogp.png',
+                url: 'https://chipless-poker.web.app/ogp.png',
                 width: 1200,
                 height: 630,
                 alt: 'どこでもポーカー',
@@ -45,7 +45,14 @@ export const metadata: Metadata = {
         card: 'summary_large_image',
         title: 'どこでもポーカー | 手持ちのトランプでポーカー',
         description: 'チップがなくても、トランプ1組でいつでもポーカー',
-        images: ['/ogp.png'],
+        images: [
+            {
+                url: 'https://chipless-poker.web.app/ogp.png',
+                width: 1200,
+                height: 630,
+                alt: 'どこでもポーカー',
+            },
+        ],
     },
 };
 
