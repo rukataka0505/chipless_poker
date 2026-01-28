@@ -168,14 +168,19 @@ export function PlayerCard({
 
                 <div className={`${isPortrait ? 'py-[26px] px-4' : 'p-4'} flex flex-col items-center gap-1 mt-2`}>
                     {/* Name */}
-                    <div className={`
-                    font-bold truncate w-full text-center text-shadow-sm
-                    ${isActive
-                            ? (isPortrait ? 'text-2xl text-white' : 'text-base sm:text-lg text-white')
-                            : (isPortrait ? 'text-xl text-gray-200' : 'text-xs sm:text-base text-gray-200')
-                        } 
-                    ${isFolded ? 'opacity-50' : ''}
-                `}>
+                    <div
+                        className={`
+                        font-bold truncate w-full text-center
+                        ${isActive
+                                ? (isPortrait ? 'text-3xl text-white' : 'text-lg sm:text-xl text-white')
+                                : (isPortrait ? 'text-2xl text-gray-200' : 'text-sm sm:text-lg text-gray-200')
+                            } 
+                        ${isFolded ? 'opacity-50' : ''}
+                        `}
+                        style={{
+                            textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000'
+                        }}
+                    >
                         {player.name}
                     </div>
 
