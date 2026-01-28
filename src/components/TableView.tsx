@@ -19,13 +19,16 @@ export function TableView() {
         currentPlayerIndex,
         pots,
         updatePlayerStack,
+        updatePlayerName,
         addPlayer,
         actionHistory,
         isTransitioning,
         toggleSitOutNextHand,
         toggleDeletePlayerNextHand,
         resumeGame,
-        pendingPhase
+        pendingPhase,
+        isShowdownResolved,
+        selectedWinners
     } = useGameStore();
 
     const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
@@ -113,6 +116,7 @@ export function TableView() {
             addPlayer(name, stack);
         } else if (editingPlayer) {
             updatePlayerStack(editingPlayer.id, stack);
+            updatePlayerName(editingPlayer.id, name);
         }
     };
 
@@ -262,6 +266,7 @@ export function TableView() {
                                 betType={betType}
                                 isShowdown={phase === 'SHOWDOWN'}
                                 isContestingPot={!player.folded}
+                                isWinner={isShowdownResolved && Array.from(selectedWinners.values()).flat().includes(player.id)}
                                 isPortrait={dimensions.isPortrait}
                             />
                             {/* Status Badges for Sit Out / Next Hand */}
@@ -279,7 +284,7 @@ export function TableView() {
                                     )}
                                     {player.isDeletedNextHand && (
                                         <span className="text-[10px] font-bold bg-red-900/80 text-red-200 px-2 py-0.5 rounded-full border border-red-500/50">
-                                            削除予約
+                                            次のハンドから削除
                                         </span>
                                     )}
                                 </div>

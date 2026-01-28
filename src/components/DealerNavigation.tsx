@@ -40,11 +40,13 @@ export function DealerNavigation() {
             <Card
                 variant="default"
                 className={`p-4 mb-4 transition-all ${phase === 'PAUSED'
-                    ? 'cursor-pointer bg-red-950/60 border-red-500 hover:bg-red-900/60 animate-[glow_1.5s_ease-in-out_infinite]'
+                    ? canResume
+                        ? 'cursor-pointer bg-teal-950/60 border-teal-500 hover:bg-teal-900/60'
+                        : 'cursor-pointer bg-red-950/60 border-red-500 hover:bg-red-900/60'
                     : 'bg-black'
                     }`}
                 style={phase === 'PAUSED' ? {
-                    animation: 'glow 1.5s ease-in-out infinite',
+                    animation: canResume ? 'glow-teal 1.5s ease-in-out infinite' : 'glow 1.5s ease-in-out infinite',
                 } : undefined}
                 onClick={() => {
                     if (phase === 'PAUSED') setIsExpanded(true);
@@ -54,6 +56,10 @@ export function DealerNavigation() {
                     @keyframes glow {
                         0%, 100% { box-shadow: 0 0 10px rgba(255,0,0,0.2), 0 0 20px rgba(255,0,0,0.1); }
                         50% { box-shadow: 0 0 20px rgba(255,0,0,0.4), 0 0 30px rgba(255,0,0,0.2); }
+                    }
+                    @keyframes glow-teal {
+                        0%, 100% { box-shadow: 0 0 10px rgba(20,184,166,0.2), 0 0 20px rgba(20,184,166,0.1); }
+                        50% { box-shadow: 0 0 20px rgba(20,184,166,0.4), 0 0 30px rgba(20,184,166,0.2); }
                     }
                 `}</style>
                 <div className={`flex items-center mb-0 ${phase === 'PAUSED' ? 'justify-center' : 'justify-between'}`}>
@@ -75,12 +81,14 @@ export function DealerNavigation() {
                         </div>
                     )}
 
-                    <div className={`text-xs flex items-center gap-2 ${phase === 'PAUSED' ? 'text-red-300' : 'text-text-secondary'}`}>
-                        <AlertCircle className={`w-4 h-4 ${phase === 'PAUSED' ? 'text-red-400' : 'text-gold'}`} />
+                    <div className={`text-xs flex items-center gap-2 ${phase === 'PAUSED' ? (canResume ? 'text-teal-300' : 'text-red-300') : 'text-text-secondary'}`}>
+                        <AlertCircle className={`w-4 h-4 ${phase === 'PAUSED' ? (canResume ? 'text-teal-400' : 'text-red-400') : 'text-gold'}`} />
                         {phase === 'PAUSED' ? (
                             <span className="flex items-center gap-2 font-medium">
-                                {DEALER_INSTRUCTIONS[phase]}
-                                <span className="text-[10px] bg-red-500/30 px-2 py-0.5 rounded-full text-red-200 border border-red-500/30">再開</span>
+                                {canResume ? 'ゲームを再開できます' : DEALER_INSTRUCTIONS[phase]}
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full border ${canResume ? 'bg-teal-500/30 text-teal-200 border-teal-500/30' : 'bg-red-500/30 text-red-200 border-red-500/30'}`}>
+                                    {canResume ? 'タップして再開' : '待機中'}
+                                </span>
                             </span>
                         ) : (
                             DEALER_INSTRUCTIONS[phase]

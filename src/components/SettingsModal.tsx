@@ -90,19 +90,54 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
     if (!isOpen) return null;
 
+    // Change Detection
+    const hasChanges = (() => {
+        if (sbValue !== smallBlind.toString()) return true;
+        if (bbValue !== bigBlind.toString()) return true;
+
+        const currentServerOrder = pendingSeatOrder || players.map(p => p.id);
+        if (seatOrderItems.length !== currentServerOrder.length) return true;
+
+        for (let i = 0; i < seatOrderItems.length; i++) {
+            if (seatOrderItems[i] !== currentServerOrder[i]) return true;
+        }
+
+        return false;
+    })();
+
     const handleSave = () => {
         const sb = parseInt(sbValue, 10);
         const bb = parseInt(bbValue, 10);
 
         if (!isNaN(sb) && !isNaN(bb)) {
+            // Prepare changes list for confirmation
+            const changes = [];
+            if (sb !== smallBlind) changes.push(`Small Blind: ${smallBlind} -> ${sb}`);
+            if (bb !== bigBlind) changes.push(`Big Blind: ${bigBlind} -> ${bb}`);
+
+            const currentServerOrder = pendingSeatOrder || players.map(p => p.id);
+            const isOrderChanged = seatOrderItems.length !== currentServerOrder.length ||
+                !seatOrderItems.every((id, i) => id === currentServerOrder[i]);
+
+            if (isOrderChanged) {
+                changes.push('座席順を変更');
+            }
+
+            if (changes.length > 0) {
+                const confirmMessage = `設定を変更しますか？\n\n${changes.join('\n')}`;
+                if (!window.confirm(confirmMessage)) {
+                    return;
+                }
+            }
+
             updateBlinds(sb, bb);
 
-            // Apply seat order: check if order changed from current players order
-            const currentOrder = players.map(p => p.id);
-            const orderChanged = seatOrderItems.length === currentOrder.length &&
-                !seatOrderItems.every((id, i) => id === currentOrder[i]);
+            // Apply seat order: check if order changed from current players order (for store logic)
+            const currentPlayersOrder = players.map(p => p.id);
+            const orderDifferentFromPlayers = seatOrderItems.length === currentPlayersOrder.length &&
+                !seatOrderItems.every((id, i) => id === currentPlayersOrder[i]);
 
-            if (orderChanged) {
+            if (orderDifferentFromPlayers) {
                 setSeatOrder(seatOrderItems);
             } else {
                 // If order matches original, clear any pending order
@@ -134,6 +169,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         <Button
                             variant="gold"
                             onClick={handleSave}
+                            disabled={!hasChanges}
                             className="py-0.5 px-1.5 text-sm flex-shrink-0"
                             icon={<Save className="w-4 h-4" />}
                         >

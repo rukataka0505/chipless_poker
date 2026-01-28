@@ -11,6 +11,7 @@ interface PlayerCardProps {
     betType?: 'BET' | 'RAISE' | 'CALL' | 'CHECK';
     isShowdown?: boolean;       // Showdown phase active
     isContestingPot?: boolean;   // Player is involved in the pot (not folded)
+    isWinner?: boolean;          // Player is a winner in resolved showdown
     isPortrait?: boolean;
 }
 
@@ -23,6 +24,7 @@ export function PlayerCard({
     betType = 'BET',
     isShowdown = false,
     isContestingPot = false,
+    isWinner = false,
     isPortrait = false
 }: PlayerCardProps) {
     const isFolded = player.folded;
@@ -41,12 +43,17 @@ export function PlayerCard({
         }
     }, [showIndicator, betType, player.currentBet]);
 
+    // Determine if card should be highlighted (scaled up)
+    // During showdown: only winners after resolution
+    // Outside showdown: active player
+    const shouldHighlight = isShowdown ? isWinner : isActive;
+
     return (
         <div
             onClick={onClick}
             className={`
             relative transition-all duration-500 ease-out flex flex-col items-center cursor-pointer
-            ${isActive
+            ${shouldHighlight
                     ? (isPortrait ? 'scale-[0.9375] z-50' : 'scale-125 z-50')
                     : 'scale-100 z-10'} 
             ${isFolded ? 'opacity-80' : 'opacity-100'}
@@ -116,26 +123,26 @@ export function PlayerCard({
 
             {/* Active Square Border Overlay - MOVED OUTSIDE CARD */}
             {/* Matches Card's rounded-[2rem] exactly */}
-            {/* Showdown Highlight (Gold) */}
+            {/* Showdown Winner Highlight (Gold) - Only show for winners after showdown is resolved */}
             {
-                isShowdown && isContestingPot && (
+                isShowdown && isWinner && (
                     <div className="absolute -inset-[3px] z-20 pointer-events-none border-[4px] border-gold animate-pulse rounded-[2rem] box-border shadow-[0_0_15px_rgba(255,215,0,0.6)]" />
                 )
             }
 
-            {/* Active Highlight (Red) - Only show if NOT Showdown */}
+            {/* Active Highlight (White) - Only show if NOT Showdown */}
             {
                 isActive && !isShowdown && (
-                    <div className="absolute -inset-[3px] z-20 pointer-events-none border-[4px] border-red-600 animate-pulse rounded-[2rem] box-border shadow-[0_0_15px_rgba(220,38,38,0.5)]" />
+                    <div className="absolute -inset-[3px] z-20 pointer-events-none border-[4px] border-white animate-pulse rounded-[2rem] box-border shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
                 )
             }
 
             <Card
-                variant={(isActive || (isShowdown && isContestingPot)) ? 'highlight' : 'default'}
+                variant={shouldHighlight ? 'highlight' : 'default'}
                 className={`
             ${isPortrait ? 'w-[204px]' : 'w-28 sm:w-36 lg:w-44'} transition-all duration-300 overflow-visible relative z-10
             /* Gradient Backgrounds */
-            ${(isActive || (isShowdown && isContestingPot))
+            ${shouldHighlight
                         ? '!bg-gradient-to-br !from-purple-500 !to-purple-700 !opacity-100 shadow-[0_8px_20px_rgba(147,51,234,0.4)] border border-purple-400/30'
                         : '!bg-gradient-to-br !from-purple-600/90 !to-slate-900/95 border border-white/10'
                     }

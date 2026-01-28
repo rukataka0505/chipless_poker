@@ -191,6 +191,7 @@ export function EditPlayerModal({
                                                     if (player.isDeletedNextHand) {
                                                         // Cancel delete - instant
                                                         onDeletePlayer?.(player.id);
+                                                        onClose();
                                                     } else {
                                                         // Delete - confirm
                                                         if (window.confirm("次のハンドからプレイヤーを削除します　収支データは削除されません")) {

@@ -99,6 +99,7 @@ interface GameStore extends GameState {
     // Modifying Players
     // Modifying Players
     updatePlayerStack: (playerId: string, newStack: number) => void;
+    updatePlayerName: (playerId: string, newName: string) => void;
     updateBlinds: (smallBlind: number, bigBlind: number) => void;
     addPlayer: (name: string, stack: number) => void;
     toggleSitOutNextHand: (playerId: string) => void;
@@ -725,7 +726,7 @@ export const useGameStore = create<GameStore>()(
                         seatIndex: state.players.length,
                         buyIn: stack,
                         isSittingOut: state.phase !== 'SETUP' && state.phase !== 'PAUSED', // Mid-game joiners sit out
-                        isSittingOutNextHand: state.phase !== 'SETUP' && state.phase !== 'PAUSED',
+                        isSittingOutNextHand: false, // Default to sit in next hand
                         isDeletedNextHand: false,
                     };
                     return {
@@ -734,28 +735,82 @@ export const useGameStore = create<GameStore>()(
                 });
             },
 
+            updatePlayerName: (playerId: string, newName: string) => {
+                set(state => ({
+                    players: state.players.map(p =>
+                        p.id === playerId
+                            ? { ...p, name: newName }
+                            : p
+                    ),
+                }));
+            },
+
             updateBlinds: (smallBlind: number, bigBlind: number) => {
                 set({ smallBlind, bigBlind });
             },
 
             toggleSitOutNextHand: (playerId: string) => {
-                set(state => ({
-                    players: state.players.map(p =>
-                        p.id === playerId
-                            ? { ...p, isSittingOutNextHand: !p.isSittingOutNextHand }
-                            : p
-                    )
-                }));
+                const state = get();
+
+                // PAUSED状態では即座に適用
+                if (state.phase === 'PAUSED') {
+                    set({
+                        players: state.players.map(p =>
+                            p.id === playerId
+                                ? {
+                                    ...p,
+                                    isSittingOut: !p.isSittingOut,
+                                    isSittingOutNextHand: !p.isSittingOut
+                                }
+                                : p
+                        )
+                    });
+                } else {
+                    // 通常は次のハンドで適用
+                    set({
+                        players: state.players.map(p =>
+                            p.id === playerId
+                                ? { ...p, isSittingOutNextHand: !p.isSittingOutNextHand }
+                                : p
+                        )
+                    });
+                }
             },
 
             toggleDeletePlayerNextHand: (playerId: string) => {
-                set(state => ({
-                    players: state.players.map(p =>
-                        p.id === playerId
-                            ? { ...p, isDeletedNextHand: !p.isDeletedNextHand }
-                            : p
-                    )
-                }));
+                const state = get();
+
+                // PAUSED状態では即座に削除
+                if (state.phase === 'PAUSED') {
+                    const playerToDelete = state.players.find(p => p.id === playerId);
+                    if (playerToDelete) {
+                        if (playerToDelete.isDeletedNextHand) {
+                            // キャンセル：フラグをリセット
+                            set({
+                                players: state.players.map(p =>
+                                    p.id === playerId
+                                        ? { ...p, isDeletedNextHand: false }
+                                        : p
+                                )
+                            });
+                        } else {
+                            // 即座に削除
+                            set({
+                                players: state.players.filter(p => p.id !== playerId),
+                                removedPlayers: [...state.removedPlayers, { ...playerToDelete, isSittingOut: true }]
+                            });
+                        }
+                    }
+                } else {
+                    // 通常は次のハンドで適用
+                    set({
+                        players: state.players.map(p =>
+                            p.id === playerId
+                                ? { ...p, isDeletedNextHand: !p.isDeletedNextHand }
+                                : p
+                        )
+                    });
+                }
             },
 
             // Seat Swap functionality
