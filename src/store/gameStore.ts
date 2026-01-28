@@ -325,9 +325,12 @@ export const useGameStore = create<GameStore>()(
                         const advancedState = advancePhase(currentState);
 
                         // FLOP, TURN, RIVERへの遷移はモーダルで確認（設定ONの場合のみ）
+                        // SHOWDOWN通知は複数プレイヤーが残っている場合のみ
                         const nextPhase = advancedState.phase;
+                        const nonFoldedPlayers = advancedState.players.filter(p => !p.folded);
+                        const isRealShowdown = nextPhase === 'SHOWDOWN' && nonFoldedPlayers.length >= 2;
                         const shouldShowNotification = currentState.showPhaseNotifications &&
-                            (nextPhase === 'FLOP' || nextPhase === 'TURN' || nextPhase === 'RIVER');
+                            (nextPhase === 'FLOP' || nextPhase === 'TURN' || nextPhase === 'RIVER' || isRealShowdown);
 
                         let finalState: Partial<GameStore> = {};
 

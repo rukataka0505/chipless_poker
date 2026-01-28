@@ -76,10 +76,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 const oldIndex = items.indexOf(active.id.toString());
                 const newIndex = items.indexOf(over.id.toString());
                 const newOrder = arrayMove(items, oldIndex, newIndex);
-
-                // Update pending order immediately
-                setSeatOrder(newOrder);
-
+                // Only update local state, no store change until save
                 return newOrder;
             });
         }
@@ -88,7 +85,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     const handleResetSeatOrder = () => {
         const defaultOrder = players.map(p => p.id);
         setSeatOrderItems(defaultOrder);
-        clearSeatOrder();
+        // clearSeatOrder will be handled in handleSave or on close
     };
 
     if (!isOpen) return null;
@@ -99,6 +96,19 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         if (!isNaN(sb) && !isNaN(bb)) {
             updateBlinds(sb, bb);
+
+            // Apply seat order: check if order changed from current players order
+            const currentOrder = players.map(p => p.id);
+            const orderChanged = seatOrderItems.length === currentOrder.length &&
+                !seatOrderItems.every((id, i) => id === currentOrder[i]);
+
+            if (orderChanged) {
+                setSeatOrder(seatOrderItems);
+            } else {
+                // If order matches original, clear any pending order
+                clearSeatOrder();
+            }
+
             onClose();
         }
     };

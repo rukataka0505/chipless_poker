@@ -13,7 +13,7 @@ const PHASE_MESSAGES: Record<GamePhase, string> = {
     FLOP: '3枚のフロップを開いてください',
     TURN: 'ターンを1枚開いてください',
     RIVER: 'リバーを1枚開いてください',
-    SHOWDOWN: '',
+    SHOWDOWN: '残っているプレイヤーはハンドをオープンしてください',
     PAUSED: '',
 };
 
