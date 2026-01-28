@@ -151,20 +151,16 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
                     height: (dimensions.layout.radiusY * 2) + (dimensions.layout.cardH || 200)
                 }}
             >
-                {/* Center Glow Ambience */}
+                {/* Table / Arena Visual - Inner scaled for tighter look */}
                 <div
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-electric/5 rounded-full blur-[100px] pointer-events-none"
-                    style={{ width: dimensions.layout.tableW, height: dimensions.layout.tableH }}
-                />
-
-                {/* Table / Arena Visual */}
-                <div
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/5 bg-black/40 backdrop-blur-sm shadow-2xl pointer-events-none"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                     style={{ width: dimensions.layout.tableW, height: dimensions.layout.tableH }}
                 >
-                    {/* Decorative Rings */}
-                    <div className="absolute inset-0 rounded-full border border-white/5 scale-90" />
-                    <div className="absolute inset-0 rounded-full border border-gold/5 scale-75" />
+                    {/* Actual visible table background & border - scaled down */}
+                    <div className="absolute inset-0 rounded-full border border-white/10 bg-black/40 backdrop-blur-sm shadow-2xl scale-[0.85]">
+                        {/* Decorative Inner Ring */}
+                        <div className="absolute inset-0 rounded-full border border-gold/5 scale-90" />
+                    </div>
                 </div>
 
                 {/* Central Area: Community Cards & Pot */}
