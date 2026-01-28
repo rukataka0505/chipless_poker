@@ -110,6 +110,11 @@ interface GameStore extends GameState {
     updatePlayerStack: (playerId: string, newStack: number) => void;
     updateBlinds: (smallBlind: number, bigBlind: number) => void;
     addPlayer: (name: string, stack: number) => void;
+    toggleSitOutNextHand: (playerId: string) => void;
+    toggleDeletePlayerNextHand: (playerId: string) => void;
+
+    // Archived/Left players for balance history
+    removedPlayers: Player[];
 }
 
 export const useGameStore = create<GameStore>()(
@@ -118,6 +123,7 @@ export const useGameStore = create<GameStore>()(
             // Initial state
             phase: 'SETUP' as GamePhase,
             players: [],
+            removedPlayers: [],
             dealerIndex: 0,
             currentPlayerIndex: -1,
             pots: [],
@@ -145,6 +151,7 @@ export const useGameStore = create<GameStore>()(
                     ...initialState,
                     selectedWinners: new Map(),
                     pendingPhase: null,
+                    removedPlayers: [],
                 });
             },
 
@@ -468,8 +475,63 @@ export const useGameStore = create<GameStore>()(
                     return;
                 }
 
+                // Process pending statuses (Sit Out / Delete)
+                const activePlayers: Player[] = [];
+                const nextRemovedPlayers = [...state.removedPlayers];
+
+                state.players.forEach(p => {
+                    // Check Delete Pending
+                    if (p.isDeletedNextHand) {
+                        nextRemovedPlayers.push({ ...p, isSittingOut: true }); // Ensure marked as out
+                        return; // Remove from active players
+                    }
+
+                    // Check Sit Out Pending
+                    // If isSittingOutNextHand is set (true or false), apply it.
+                    // If it is undefined/null (implied by boolean logic), use current.
+                    // Actually boolean defaults to false if undefined? No, explicit check.
+                    // We treat boolean true/false as distinct from undefined?
+                    // Let's assume the toggle sets it to true/false.
+                    // If we use specific logic:
+                    let newIsSittingOut = p.isSittingOut;
+                    if (p.isSittingOutNextHand !== undefined) {
+                        // Only if it differs? Logic: Toggle sets the *next* state.
+                        // Actually, let's just use the flag if present.
+                        // But the toggle UI will probably set `isSittingOutNextHand` to !current.
+                        // So we just apply it.
+                        newIsSittingOut = p.isSittingOutNextHand;
+                    }
+
+                    activePlayers.push({
+                        ...p,
+                        isSittingOut: newIsSittingOut,
+                        // Reset pending flags
+                        // isSittingOutNextHand is stateful (toggle), so we should probably keep it synced?
+                        // Or reset it to match current?
+                        // Simpler: isSittingOutNextHand just BECOMES isSittingOut.
+                        // And we keep isSittingOutNextHand as the "target state".
+                        // So if they are sitting out, nextHand is true.
+                        isSittingOutNextHand: newIsSittingOut,
+                        isDeletedNextHand: false
+                    });
+                });
+
+                // If we removed players, we might have issues with dealerIndex pointing to wrong index?
+                // nextHand function usually relies on arrays.
+                // We should pass the CLEANED list to nextHand?
+                // Or let nextHand handle it?
+                // nextHand takes `state` which includes `players`.
+                // We better update state.players temporarily or modify nextHand input.
+
+                // Construct a temporary state with processed players to pass to nextHand logic
+                const stateForNextHand = {
+                    ...state,
+                    players: activePlayers,
+                    removedPlayers: nextRemovedPlayers
+                };
+
                 // 次のハンドの準備（ディーラー移動など）
-                const nextHandState = nextHand(state, Array.from(selectedWinners.keys()).map(String));
+                const nextHandState = nextHand(stateForNextHand as GameState, Array.from(selectedWinners.keys()).map(String));
 
                 if (nextHandState.phase === 'SETUP') {
                     // ゲーム終了（プレイヤー不足など）
@@ -481,6 +543,7 @@ export const useGameStore = create<GameStore>()(
                 const startedState = startHand(nextHandState);
                 set({
                     ...startedState,
+                    removedPlayers: nextRemovedPlayers, // Update removed list
                     // プリフロップ通知の設定
                     pendingPhase: state.showPhaseNotifications ? 'PREFLOP' : null,
                     selectedWinners: new Map(),
@@ -616,6 +679,9 @@ export const useGameStore = create<GameStore>()(
                         position: null,
                         seatIndex: state.players.length,
                         buyIn: stack,
+                        isSittingOut: state.phase !== 'SETUP', // Mid-game joiners sit out
+                        isSittingOutNextHand: state.phase !== 'SETUP',
+                        isDeletedNextHand: false,
                     };
                     return {
                         players: [...state.players, newPlayer],
@@ -625,6 +691,26 @@ export const useGameStore = create<GameStore>()(
 
             updateBlinds: (smallBlind: number, bigBlind: number) => {
                 set({ smallBlind, bigBlind });
+            },
+
+            toggleSitOutNextHand: (playerId: string) => {
+                set(state => ({
+                    players: state.players.map(p =>
+                        p.id === playerId
+                            ? { ...p, isSittingOutNextHand: !p.isSittingOutNextHand }
+                            : p
+                    )
+                }));
+            },
+
+            toggleDeletePlayerNextHand: (playerId: string) => {
+                set(state => ({
+                    players: state.players.map(p =>
+                        p.id === playerId
+                            ? { ...p, isDeletedNextHand: !p.isDeletedNextHand }
+                            : p
+                    )
+                }));
             },
 
             // Undo functionality
@@ -683,6 +769,7 @@ export const useGameStore = create<GameStore>()(
                 bigBlind: state.bigBlind,
                 handHistories: state.handHistories,
                 pendingPhase: state.pendingPhase,
+                removedPlayers: state.removedPlayers,
             }),
             onRehydrateStorage: () => (state) => {
                 if (state) {

@@ -17,6 +17,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         bigBlind,
         updateBlinds,
         players,
+        removedPlayers,
         showPhaseNotifications,
         togglePhaseNotifications
     } = useGameStore();
@@ -144,6 +145,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
+                                    {/* Active players */}
                                     {players.map(player => {
                                         const buyIn = player.buyIn ?? 0;
                                         // スタック + 現在のベット額 = 実質的な所持チップ
@@ -155,6 +157,28 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                                         return (
                                             <tr key={player.id} className="text-white hover:bg-white/5 transition-colors">
                                                 <td className="px-4 py-3 font-bold">{player.name}</td>
+                                                <td className="px-4 py-3 text-right text-text-tertiary">{buyIn}</td>
+                                                <td className="px-4 py-3 text-right">{effectiveStack}</td>
+                                                <td className={`px-4 py-3 text-right font-bold ${isPositive ? 'text-green-400' : isNegative ? 'text-red-400' : 'text-gray-400'}`}>
+                                                    {isPositive ? '+' : ''}{profit}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                    {/* Removed players (balance history preserved) */}
+                                    {removedPlayers.map(player => {
+                                        const buyIn = player.buyIn ?? 0;
+                                        const effectiveStack = player.stack + player.currentBet;
+                                        const profit = effectiveStack - buyIn;
+                                        const isPositive = profit > 0;
+                                        const isNegative = profit < 0;
+
+                                        return (
+                                            <tr key={player.id} className="text-gray-400 hover:bg-white/5 transition-colors opacity-70">
+                                                <td className="px-4 py-3 font-bold">
+                                                    {player.name}
+                                                    <span className="ml-2 text-xs text-gray-500">(削除済)</span>
+                                                </td>
                                                 <td className="px-4 py-3 text-right text-text-tertiary">{buyIn}</td>
                                                 <td className="px-4 py-3 text-right">{effectiveStack}</td>
                                                 <td className={`px-4 py-3 text-right font-bold ${isPositive ? 'text-green-400' : isNegative ? 'text-red-400' : 'text-gray-400'}`}>

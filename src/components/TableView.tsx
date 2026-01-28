@@ -22,6 +22,8 @@ export function TableView() {
         addPlayer,
         actionHistory,
         isTransitioning,
+        toggleSitOutNextHand,
+        toggleDeletePlayerNextHand
     } = useGameStore();
 
     const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
@@ -108,7 +110,7 @@ export function TableView() {
         if (isAddingPlayer) {
             addPlayer(name, stack);
         } else if (editingPlayer) {
-            const confirmMessage = `「${editingPlayer.name}」のチップ数を変更しますか？\n${editingPlayer.stack} -> ${stack}`;
+            const confirmMessage = `「${editingPlayer.name}」の設定を変更しますか？\n${editingPlayer.stack} -> ${stack}`;
             if (window.confirm(confirmMessage)) {
                 updatePlayerStack(editingPlayer.id, stack);
             }
@@ -263,6 +265,26 @@ export function TableView() {
                                 isContestingPot={!player.folded}
                                 isPortrait={dimensions.isPortrait}
                             />
+                            {/* Status Badges for Sit Out / Next Hand */}
+                            {(player.isSittingOut || player.isSittingOutNextHand || player.isDeletedNextHand) && (
+                                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-50 whitespace-nowrap pointer-events-none">
+                                    {player.isSittingOut && (
+                                        <span className="text-[10px] font-bold bg-black/60 text-gray-400 px-2 py-0.5 rounded-full border border-gray-600">
+                                            離席中
+                                        </span>
+                                    )}
+                                    {player.isSittingOutNextHand !== player.isSittingOut && (
+                                        <span className="text-[10px] font-bold bg-blue-900/80 text-blue-200 px-2 py-0.5 rounded-full border border-blue-500/50">
+                                            {player.isSittingOutNextHand ? '次ハンド離席' : '次ハンド着席'}
+                                        </span>
+                                    )}
+                                    {player.isDeletedNextHand && (
+                                        <span className="text-[10px] font-bold bg-red-900/80 text-red-200 px-2 py-0.5 rounded-full border border-red-500/50">
+                                            削除予約
+                                        </span>
+                                    )}
+                                </div>
+                            )}
 
                         </div>
                     );
@@ -275,6 +297,8 @@ export function TableView() {
                 onSave={handleSavePlayer}
                 player={editingPlayer}
                 isAdding={isAddingPlayer}
+                onToggleSitOut={toggleSitOutNextHand}
+                onDeletePlayer={toggleDeletePlayerNextHand}
             />
         </div>
     );

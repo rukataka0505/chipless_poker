@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Player } from '@/lib/poker/types';
-import { X, Plus, Minus, Check } from 'lucide-react';
+import { X, Plus, Minus, Check, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
@@ -11,9 +11,19 @@ interface EditPlayerModalProps {
     onSave: (name: string, stack: number) => void;
     player?: Player | null;
     isAdding?: boolean;
+    onToggleSitOut?: (playerId: string) => void;
+    onDeletePlayer?: (playerId: string) => void;
 }
 
-export function EditPlayerModal({ isOpen, onClose, onSave, player, isAdding = false }: EditPlayerModalProps) {
+export function EditPlayerModal({
+    isOpen,
+    onClose,
+    onSave,
+    player,
+    isAdding = false,
+    onToggleSitOut,
+    onDeletePlayer
+}: EditPlayerModalProps) {
     const [name, setName] = useState('');
     const [stack, setStack] = useState(200);
 
@@ -42,7 +52,12 @@ export function EditPlayerModal({ isOpen, onClose, onSave, player, isAdding = fa
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md pointer-events-auto"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) onClose();
+                    }}
+                >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -115,6 +130,76 @@ export function EditPlayerModal({ isOpen, onClose, onSave, player, isAdding = fa
                                         ))}
                                     </div>
                                 </div>
+
+                                {/* Actions for Existing Players */}
+                                {!isAdding && player && (
+                                    <div className="pt-2 space-y-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {/* Sit Out / In Toggle */}
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (player.isSittingOutNextHand) {
+                                                        // Currently Sitting Out (Next Hand) -> Want to Sit In
+                                                        if (window.confirm("次のハンドから復帰しますか？")) {
+                                                            onToggleSitOut?.(player.id);
+                                                            onClose();
+                                                        }
+                                                    } else {
+                                                        // Currently Playing -> Want to Sit Out
+                                                        if (window.confirm("次のハンドから離席しますがよろしいですか？チップは保持されます")) {
+                                                            onToggleSitOut?.(player.id);
+                                                            onClose();
+                                                        }
+                                                    }
+                                                }}
+                                                className={`
+                                                    py-2 px-3 rounded-lg font-bold text-xs uppercase tracking-wide transition-all border
+                                                    ${player.isSittingOutNextHand
+                                                        ? 'bg-red-600 border-red-500 text-white shadow-[0_0_10px_rgba(220,38,38,0.5)]'
+                                                        : 'bg-white/5 border-white/10 text-text-secondary hover:bg-white/10 hover:text-white'
+                                                    }
+                                                `}
+                                            >
+                                                {player.isSittingOutNextHand ? '離席中' : '一時離席'}
+                                            </button>
+
+                                            {/* Delete Toggle */}
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (player.isDeletedNextHand) {
+                                                        // Cancel delete - instant
+                                                        onDeletePlayer?.(player.id);
+                                                    } else {
+                                                        // Delete - confirm
+                                                        if (window.confirm("次のハンドからプレイヤーを削除します　収支データは削除されません")) {
+                                                            onDeletePlayer?.(player.id);
+                                                            onClose();
+                                                        }
+                                                    }
+                                                }}
+                                                className={`
+                                                    py-2 px-3 rounded-lg font-bold text-xs uppercase tracking-wide transition-all border flex items-center justify-center gap-2
+                                                    ${player.isDeletedNextHand
+                                                        ? 'bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30'
+                                                        : 'bg-white/5 border-white/10 text-text-secondary hover:bg-white/10 hover:text-red-400'
+                                                    }
+                                                `}
+                                            >
+                                                {!player.isDeletedNextHand && <Trash2 size={14} />}
+                                                {player.isDeletedNextHand ? '削除キャンセル' : 'プレイヤーを削除'}
+                                            </button>
+                                        </div>
+
+                                        {/* Status Message */}
+                                        {(player.isSittingOutNextHand || player.isDeletedNextHand) && (
+                                            <div className="text-center text-[10px] text-gold/80 animate-pulse">
+                                                ※ 次のハンド開始時に適用されます
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
                                 <Button
                                     variant="gold"

@@ -30,6 +30,9 @@ export interface Player {
     position: Position;
     seatIndex: number;      // 座席位置 (0-5)
     buyIn: number;          // 総バイイン額
+    isSittingOut: boolean;  // 離席中か
+    isSittingOutNextHand: boolean; // 次のハンドから離席/着席するか
+    isDeletedNextHand: boolean; // 次のハンドから削除するか
 }
 
 export interface Pot {

@@ -135,10 +135,10 @@ export function PlayerCard({
                 className={`
             ${isPortrait ? 'w-[204px]' : 'w-28 sm:w-36 lg:w-44'} transition-all duration-300 overflow-visible relative z-10
             ${(isActive || (isShowdown && isContestingPot))
-                        ? 'bg-black/90'
-                        : 'bg-black/40'
+                        ? '!bg-slate-700 !opacity-100 shadow-xl'
+                        : '!bg-slate-800/95'
                     }
-            ${isFolded ? 'bg-black/20 border-white/5' : ''}
+            ${isFolded ? '!bg-slate-900/60 !border-white/5' : ''}
         `}
             >
                 {/* --- Position Badges (Inside Top Right) --- */}
@@ -168,10 +168,10 @@ export function PlayerCard({
                 <div className={`${isPortrait ? 'py-[26px] px-4' : 'p-4'} flex flex-col items-center gap-1 mt-2`}>
                     {/* Name */}
                     <div className={`
-                    font-bold truncate w-full text-center 
+                    font-bold truncate w-full text-center text-shadow-outline
                     ${isActive
                             ? (isPortrait ? 'text-2xl text-white' : 'text-base sm:text-lg text-white')
-                            : (isPortrait ? 'text-xl text-gray-300' : 'text-xs sm:text-base text-gray-300')
+                            : (isPortrait ? 'text-xl text-gray-200' : 'text-xs sm:text-base text-gray-200')
                         } 
                     ${isFolded ? 'opacity-50' : ''}
                 `}>
@@ -180,9 +180,9 @@ export function PlayerCard({
 
                     {/* Stack */}
                     <div className={`
-                        font-display font-bold ${isPortrait ? 'tracking-tighter' : 'tracking-wide'} transition-all
+                        font-display font-bold ${isPortrait ? 'tracking-tighter' : 'tracking-wide'} transition-all text-shadow-outline
                         ${isActive
-                            ? (isPortrait ? 'text-6xl text-red-500 glow-text-red' : 'text-2xl text-red-500 glow-text-red')
+                            ? (isPortrait ? 'text-6xl text-white' : 'text-2xl text-white')
                             : (isPortrait ? 'text-5xl text-white' : 'text-xl text-white')
                         }
                         ${isAllIn ? 'text-gold glow-text-gold animate-pulse' : ''}
