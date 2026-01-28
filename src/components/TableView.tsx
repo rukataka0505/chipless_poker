@@ -110,10 +110,7 @@ export function TableView() {
         if (isAddingPlayer) {
             addPlayer(name, stack);
         } else if (editingPlayer) {
-            const confirmMessage = `「${editingPlayer.name}」の設定を変更しますか？\n${editingPlayer.stack} -> ${stack}`;
-            if (window.confirm(confirmMessage)) {
-                updatePlayerStack(editingPlayer.id, stack);
-            }
+            updatePlayerStack(editingPlayer.id, stack);
         }
     };
 

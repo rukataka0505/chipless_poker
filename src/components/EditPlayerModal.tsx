@@ -43,10 +43,30 @@ export function EditPlayerModal({
         setStack(prev => Math.max(0, prev + amount));
     };
 
+    const hasChanges = player ? (name !== player.name || stack !== player.stack) : false;
+
     const handleSave = () => {
         if (!name.trim()) return;
-        onSave(name, stack);
-        onClose();
+
+        if (isAdding) {
+            onSave(name, stack);
+            onClose();
+            return;
+        }
+
+        if (!hasChanges) return;
+
+        const changes = [];
+        if (player && name !== player.name) changes.push(`プレイヤー名: ${player.name} -> ${name}`);
+        if (player && stack !== player.stack) changes.push(`スタック: ${player.stack} -> ${stack}`);
+
+        if (changes.length > 0) {
+            const confirmMessage = `設定を変更しますか？\n\n${changes.join('\n')}`;
+            if (window.confirm(confirmMessage)) {
+                onSave(name, stack);
+                onClose();
+            }
+        }
     };
 
     return (
@@ -156,8 +176,8 @@ export function EditPlayerModal({
                                                 className={`
                                                     py-2 px-3 rounded-lg font-bold text-xs uppercase tracking-wide transition-all border
                                                     ${player.isSittingOutNextHand
-                                                        ? 'bg-red-600 border-red-500 text-white shadow-[0_0_10px_rgba(220,38,38,0.5)]'
-                                                        : 'bg-white/5 border-white/10 text-text-secondary hover:bg-white/10 hover:text-white'
+                                                        ? 'bg-indigo-600 border-indigo-500 text-white shadow-[0_0_10px_rgba(79,70,229,0.5)]'
+                                                        : 'bg-indigo-500/20 border-indigo-500 text-indigo-300 hover:bg-indigo-500/30 hover:text-white'
                                                     }
                                                 `}
                                             >
@@ -182,8 +202,8 @@ export function EditPlayerModal({
                                                 className={`
                                                     py-2 px-3 rounded-lg font-bold text-xs uppercase tracking-wide transition-all border flex items-center justify-center gap-2
                                                     ${player.isDeletedNextHand
-                                                        ? 'bg-red-500/20 border-red-500 text-red-400 hover:bg-red-500/30'
-                                                        : 'bg-white/5 border-white/10 text-text-secondary hover:bg-white/10 hover:text-red-400'
+                                                        ? 'bg-red-600 border-red-500 text-white shadow-[0_0_10px_rgba(220,38,38,0.5)]'
+                                                        : 'bg-red-500/20 border-red-500 text-red-500 hover:bg-red-500/30 hover:text-white'
                                                     }
                                                 `}
                                             >
@@ -204,7 +224,7 @@ export function EditPlayerModal({
                                 <Button
                                     variant="gold"
                                     onClick={handleSave}
-                                    disabled={!name.trim()}
+                                    disabled={!name.trim() || (!isAdding && !hasChanges)}
                                     className="w-full mt-2"
                                     icon={<Check size={20} />}
                                 >
