@@ -60,27 +60,19 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
             // Portrait mode will be maintained until width > height * 1.3
             const isPortrait = availableW < availableH * 1.3;
 
-            // Reference dimensions for calculation
-            // These roughly match the component's unscaled sizes
-            // Portrait: Card ~204x250, Table ~390x680
-            // Landscape: Card ~176x200, Table ~700x350
-            const refLayout = isPortrait
-                ? {
-                    radiusX: 210,
-                    radiusY: 330,
-                    tableW: 390,
-                    tableH: 680,
-                    cardW: 204,
-                    cardH: 260
-                }
-                : {
-                    radiusX: 420,
-                    radiusY: 160,
-                    tableW: 700,
-                    tableH: 350,
-                    cardW: 180,
-                    cardH: 200
-                };
+            // Base dimensions
+            const portraitDims = { radiusX: 210, radiusY: 330, cardW: 204, cardH: 260 };
+            const landscapeDims = { radiusX: 420, radiusY: 160, cardW: 180, cardH: 200 };
+
+            const currentDims = isPortrait ? portraitDims : landscapeDims;
+
+            const refLayout = {
+                ...currentDims,
+                // テーブルサイズを調整：カード中心がテーブル端に近づくように（カード幅の0.5倍を加算＝カード半分がはみ出る設定）
+                // ユーザー要望「外側に配置を移動」に対応するため、テーブルに対する相対位置を外へ
+                tableW: (currentDims.radiusX * 2) + (currentDims.cardW * 0.5),
+                tableH: (currentDims.radiusY * 2) + (currentDims.cardH * 0.5),
+            };
 
             // Calculate required space: 楕円の直径 + 片側のカードサイズ (カードは中央配置なので片側のみ)
             const requiredW = (refLayout.radiusX * 2) + refLayout.cardW;
