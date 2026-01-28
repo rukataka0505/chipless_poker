@@ -85,8 +85,8 @@ export default function SetupPage() {
             </div>
 
             <div className="w-full max-w-md md:max-w-5xl space-y-8 z-10 relative">
-                {/* Header (Mobile) */}
-                <div className="text-center space-y-2 md:hidden">
+                {/* Header (Unified) */}
+                <div className="text-center space-y-2">
                     <div className="inline-flex items-center justify-center p-4 rounded-full bg-gradient-to-br from-white/10 to-transparent border border-white/5 mb-4 shadow-[0_0_30px_rgba(255,215,0,0.1)]">
                         <Spade className="w-12 h-12 text-gold" fill="currentColor" />
                     </div>
@@ -97,19 +97,7 @@ export default function SetupPage() {
                         手持ちのトランプで仲間とポーカーを楽しもう
                     </p>
                 </div>                {/* Setup Card */}
-                <div className="flex flex-col md:flex-row gap-8 items-start justify-center w-full">
-                    {/* Header for Landscape (Visible on MD+) */}
-                    <div className="hidden md:flex flex-col items-center justify-center p-8 text-center space-y-4 flex-1">
-                        <div className="inline-flex items-center justify-center p-6 rounded-full bg-gradient-to-br from-white/10 to-transparent border border-white/5 mb-4 shadow-[0_0_40px_rgba(255,215,0,0.15)]">
-                            <Spade className="w-20 h-20 text-gold" fill="currentColor" />
-                        </div>
-                        <h1 className="text-6xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 leading-tight">
-                            どこでもポーカー
-                        </h1>
-                        <p className="text-text-tertiary">
-                            手持ちのトランプで仲間とポーカーを楽しもう
-                        </p>
-                    </div>
+                <div className="flex flex-col gap-8 items-center justify-center w-full">
 
                     <Card variant="highlight" className="p-6 sm:p-8 w-full md:max-w-xl">
                         <div className="space-y-6 sm:space-y-8">
