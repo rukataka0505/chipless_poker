@@ -214,7 +214,7 @@ export default function SetupPage() {
                 </div>
 
                 <p className="text-center text-xs text-text-tertiary md:hidden">
-                    © 2026 どこでもポーカー. 手持ちのトランプで仲間とポーカーを楽しもう
+                    © 2026 どこでもポーカー
                 </p>
             </div>
         </main>
