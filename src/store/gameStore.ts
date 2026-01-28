@@ -113,6 +113,9 @@ interface GameStore extends GameState {
     toggleSitOutNextHand: (playerId: string) => void;
     toggleDeletePlayerNextHand: (playerId: string) => void;
 
+    // Pause / Resume
+    resumeGame: () => void;
+
     // Archived/Left players for balance history
     removedPlayers: Player[];
 }
@@ -460,21 +463,6 @@ export const useGameStore = create<GameStore>()(
 
                 }
 
-                // 【重要】次のハンドに進む前に、プレイ継続可能なプレイヤー数をチェック
-                // スタック > 0 のプレイヤーが2人未満の場合はゲーム終了
-                const playersWithStack = state.players.filter(p => p.stack > 0);
-                if (playersWithStack.length < 2) {
-                    // ゲーム終了 - プレイヤー不足
-                    set({
-                        phase: 'SETUP',
-                        selectedWinners: new Map(),
-                        undoStack: [],
-                        handHistories: newHandHistories,
-                        isShowdownResolved: false,
-                    });
-                    return;
-                }
-
                 // Process pending statuses (Sit Out / Delete)
                 const activePlayers: Player[] = [];
                 const nextRemovedPlayers = [...state.removedPlayers];
@@ -486,42 +474,50 @@ export const useGameStore = create<GameStore>()(
                         return; // Remove from active players
                     }
 
-                    // Check Sit Out Pending
-                    // If isSittingOutNextHand is set (true or false), apply it.
-                    // If it is undefined/null (implied by boolean logic), use current.
-                    // Actually boolean defaults to false if undefined? No, explicit check.
-                    // We treat boolean true/false as distinct from undefined?
-                    // Let's assume the toggle sets it to true/false.
-                    // If we use specific logic:
                     let newIsSittingOut = p.isSittingOut;
                     if (p.isSittingOutNextHand !== undefined) {
-                        // Only if it differs? Logic: Toggle sets the *next* state.
-                        // Actually, let's just use the flag if present.
-                        // But the toggle UI will probably set `isSittingOutNextHand` to !current.
-                        // So we just apply it.
                         newIsSittingOut = p.isSittingOutNextHand;
                     }
 
                     activePlayers.push({
                         ...p,
                         isSittingOut: newIsSittingOut,
-                        // Reset pending flags
-                        // isSittingOutNextHand is stateful (toggle), so we should probably keep it synced?
-                        // Or reset it to match current?
-                        // Simpler: isSittingOutNextHand just BECOMES isSittingOut.
-                        // And we keep isSittingOutNextHand as the "target state".
-                        // So if they are sitting out, nextHand is true.
                         isSittingOutNextHand: newIsSittingOut,
                         isDeletedNextHand: false
                     });
                 });
 
-                // If we removed players, we might have issues with dealerIndex pointing to wrong index?
-                // nextHand function usually relies on arrays.
-                // We should pass the CLEANED list to nextHand?
-                // Or let nextHand handle it?
-                // nextHand takes `state` which includes `players`.
-                // We better update state.players temporarily or modify nextHand input.
+                // Check active players (not sitting out and stack > 0)
+                // Actually in 'nextHand' logic, we also skip sitting out players for dealing cards.
+                // But for "Game Over" check, we care about "potential players".
+                // If everyone is sitting out, we probably should pause too?
+                // Or if only 1 player is left not sitting out?
+                // The requirement is "active players <= 1".
+                // In Setup, "active" usually means just joined.
+                // In game, "active" means able to play.
+                // If a player has stack=0, they are out.
+                // So checking stack > 0.
+                const playersWithStack = activePlayers.filter(p => p.stack > 0 && !p.isSittingOut);
+
+                // If we have < 2 valid players, enter PAUSED state instead of SETUP
+                // unless it is really empty? No, the requirement says "when active players <= 1".
+                if (playersWithStack.length < 2) {
+                    // Update player list with processed statuses first
+                    set({
+                        phase: 'PAUSED',
+                        players: activePlayers,
+                        removedPlayers: nextRemovedPlayers,
+                        selectedWinners: new Map(),
+                        undoStack: [],
+                        handHistories: newHandHistories,
+                        isShowdownResolved: false,
+                        pots: [], // Clear pots
+                        communityCardCount: 0,
+                        currentBet: 0,
+                        // Maintain dealer/hand number? maybe not critical, next hand start will fix dealer
+                    });
+                    return;
+                }
 
                 // Construct a temporary state with processed players to pass to nextHand logic
                 const stateForNextHand = {
@@ -534,7 +530,7 @@ export const useGameStore = create<GameStore>()(
                 const nextHandState = nextHand(stateForNextHand as GameState, Array.from(selectedWinners.keys()).map(String));
 
                 if (nextHandState.phase === 'SETUP') {
-                    // ゲーム終了（プレイヤー不足など）
+                    // Logic fallback if nextHand returns SETUP (shouldn't happen with our check above, but for safety)
                     set({ ...nextHandState, selectedWinners: new Map(), undoStack: [], handHistories: newHandHistories });
                     return;
                 }
@@ -550,6 +546,34 @@ export const useGameStore = create<GameStore>()(
                     undoStack: [],  // 新ハンド開始時にUndoスタックをクリア
                     handHistories: newHandHistories,
                 });
+            },
+
+            resumeGame: () => {
+                const state = get();
+                // Check if we have enough players to resume
+                const activePlayers = state.players.filter(p => !p.isSittingOut && p.stack > 0);
+
+                if (activePlayers.length >= 2) {
+                    // Start new hand logic
+                    // We need to properly transition from PAUSED to PREFLOP (via startHand logic)
+                    // Since we paused *between* hands, we treat this as starting a fresh hand.
+
+                    // But we need to make sure dealer button moves correctly if it wasn't moved yet.
+                    // In proceedToNextHand, we paused BEFORE calling nextHand().
+                    // So we effectively postponed nextHand().
+
+                    // Let's call nextHand() then startHand()
+                    const nextHandState = nextHand(state, []); // No winners to pass here as it was cleared on pause
+
+                    // startHand will deal cards etc.
+                    const startedState = startHand(nextHandState);
+
+                    set({
+                        ...startedState,
+                        pendingPhase: state.showPhaseNotifications ? 'PREFLOP' : null,
+                        undoStack: [],
+                    });
+                }
             },
 
             // Getters
@@ -587,7 +611,7 @@ export const useGameStore = create<GameStore>()(
 
             canPlayerAct: (playerId: string) => {
                 const state = get();
-                if (state.phase === 'SETUP' || state.phase === 'SHOWDOWN' || state.isTransitioning) return false;
+                if (state.phase === 'SETUP' || state.phase === 'SHOWDOWN' || state.phase === 'PAUSED' || state.isTransitioning) return false;
 
                 const currentPlayer = state.players[state.currentPlayerIndex];
                 if (currentPlayer?.id !== playerId) return false;
@@ -673,14 +697,14 @@ export const useGameStore = create<GameStore>()(
                         stack: stack,
                         currentBet: 0,
                         totalBetThisRound: 0,
-                        folded: state.phase !== 'SETUP', // Mid-game joiners are folded
+                        folded: state.phase !== 'SETUP' && state.phase !== 'PAUSED', // Mid-game joiners are folded
                         allIn: false,
                         hasActedThisRound: false,
                         position: null,
                         seatIndex: state.players.length,
                         buyIn: stack,
-                        isSittingOut: state.phase !== 'SETUP', // Mid-game joiners sit out
-                        isSittingOutNextHand: state.phase !== 'SETUP',
+                        isSittingOut: state.phase !== 'SETUP' && state.phase !== 'PAUSED', // Mid-game joiners sit out
+                        isSittingOutNextHand: state.phase !== 'SETUP' && state.phase !== 'PAUSED',
                         isDeletedNextHand: false,
                     };
                     return {

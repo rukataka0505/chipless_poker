@@ -6,7 +6,9 @@ export type GamePhase =
     | 'FLOP'       // フロップ
     | 'TURN'       // ターン
     | 'RIVER'      // リバー
-    | 'SHOWDOWN';  // ショーダウン
+    | 'RIVER'      // リバー
+    | 'SHOWDOWN'   // ショーダウン
+    | 'PAUSED';    // 一時停止
 
 export type PlayerAction =
     | 'FOLD'
@@ -90,6 +92,7 @@ export const DEALER_INSTRUCTIONS: Record<GamePhase, string> = {
     TURN: '1枚バーンして、ターンを1枚開いてください',
     RIVER: '1枚バーンして、リバーを1枚開いてください',
     SHOWDOWN: '残っているプレイヤーはハンドをオープンしてください',
+    PAUSED: 'プレイヤーの参加を待っています',
 };
 
 // コミュニティカード枚数
@@ -100,4 +103,5 @@ export const COMMUNITY_CARDS_COUNT: Record<GamePhase, number> = {
     TURN: 4,
     RIVER: 5,
     SHOWDOWN: 5,
+    PAUSED: 0,
 };

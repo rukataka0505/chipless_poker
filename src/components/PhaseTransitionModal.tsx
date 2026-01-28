@@ -14,6 +14,7 @@ const PHASE_MESSAGES: Record<GamePhase, string> = {
     TURN: '1枚バーンしてターンを1枚開いてください',
     RIVER: '1枚バーンしてリバーを1枚開いてください',
     SHOWDOWN: '',
+    PAUSED: '',
 };
 
 const PHASE_LABELS: Record<GamePhase, string> = {
@@ -23,6 +24,7 @@ const PHASE_LABELS: Record<GamePhase, string> = {
     TURN: 'TURN',
     RIVER: 'RIVER',
     SHOWDOWN: 'SHOWDOWN',
+    PAUSED: 'PAUSED',
 };
 
 export function PhaseTransitionModal() {

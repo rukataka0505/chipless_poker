@@ -28,7 +28,7 @@ export function ActionPanel() {
     const currentPlayer = getCurrentPlayer();
     const availableActions = getAvailableActionsForCurrentPlayer();
 
-    if (!currentPlayer || !availableActions || phase === 'SETUP' || phase === 'SHOWDOWN') {
+    if (!currentPlayer || !availableActions || phase === 'SETUP' || phase === 'SHOWDOWN' || phase === 'PAUSED') {
         return null;
     }
 

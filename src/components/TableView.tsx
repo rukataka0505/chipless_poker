@@ -23,7 +23,8 @@ export function TableView() {
         actionHistory,
         isTransitioning,
         toggleSitOutNextHand,
-        toggleDeletePlayerNextHand
+        toggleDeletePlayerNextHand,
+        resumeGame
     } = useGameStore();
 
     const [editingPlayer, setEditingPlayer] = React.useState<Player | null>(null);
@@ -297,6 +298,7 @@ export function TableView() {
                 onToggleSitOut={toggleSitOutNextHand}
                 onDeletePlayer={toggleDeletePlayerNextHand}
             />
+
         </div>
     );
 }
