@@ -26,9 +26,9 @@ export function PotDisplay({ pots, stage }: PotDisplayProps) {
 
             {/* Total Pot Display */}
             <div className="relative group">
-                <div className="relative glass-panel bg-yellow-100/10 border-yellow-100/30 px-8 py-3 rounded-full flex flex-col items-center min-w-[140px] shadow-[0_0_15px_rgba(255,255,200,0.1)]">
+                <div className="relative glass-panel bg-yellow-100/10 border-yellow-100/30 px-10 py-4 rounded-full flex flex-col items-center min-w-[140px] shadow-[0_0_15px_rgba(255,255,200,0.1)]">
                     <span className="text-[10px] text-yellow-100/90 font-bold uppercase tracking-widest mb-1">Total Pot</span>
-                    <span className="font-display text-2xl font-bold text-white glow-text-gold tabular-nums">
+                    <span className="font-display text-5xl font-bold text-white glow-text-gold tabular-nums">
                         {totalPot.toLocaleString()}
                     </span>
                 </div>

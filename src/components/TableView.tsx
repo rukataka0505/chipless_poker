@@ -203,6 +203,7 @@ export function TableView() {
                                 betType={betType}
                                 isShowdown={phase === 'SHOWDOWN'}
                                 isContestingPot={!player.folded}
+                                isPortrait={isPortrait}
                             />
 
                         </div>

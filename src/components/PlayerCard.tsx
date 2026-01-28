@@ -11,6 +11,7 @@ interface PlayerCardProps {
     betType?: 'BET' | 'RAISE' | 'CALL' | 'CHECK';
     isShowdown?: boolean;       // Showdown phase active
     isContestingPot?: boolean;   // Player is involved in the pot (not folded)
+    isPortrait?: boolean;
 }
 
 export function PlayerCard({
@@ -21,7 +22,8 @@ export function PlayerCard({
     onClick,
     betType = 'BET',
     isShowdown = false,
-    isContestingPot = false
+    isContestingPot = false,
+    isPortrait = false
 }: PlayerCardProps) {
     const isFolded = player.folded;
     const isAllIn = player.allIn;
@@ -44,19 +46,21 @@ export function PlayerCard({
             onClick={onClick}
             className={`
             relative transition-all duration-500 ease-out flex flex-col items-center cursor-pointer
-            ${isActive ? 'scale-125 z-50' : 'scale-100 z-10'} 
+            ${isActive
+                    ? (isPortrait ? 'scale-[0.9375] z-50' : 'scale-125 z-50')
+                    : 'scale-100 z-10'} 
             ${isFolded ? 'opacity-80' : 'opacity-100'}
         `}>
             {/* --- VARIANT B: Floating Satellite Pill for Bets --- */}
             <div className={`
-                absolute -top-10 sm:-top-14 left-1/2 -translate-x-1/2 z-40
+                absolute ${isPortrait ? '-top-[66px]' : '-top-10 sm:-top-14'} left-1/2 -translate-x-1/2 z-40
                 transition-all duration-500 ease-out
                 ${showIndicator ? 'opacity-100 translate-y-0 scale-90 sm:scale-100' : 'opacity-0 translate-y-4 scale-75 sm:scale-90 pointer-events-none'}
             `}>
                 <div className="relative">
                     {/* Chip-like Pill - SHARP & CLEAN */}
                     <div className={`
-                        border-2 px-4 py-1.5 rounded-full flex items-center gap-2 shadow-[0_4px_10px_rgba(0,0,0,0.5)]
+                        border-2 ${isPortrait ? 'px-6 py-3' : 'px-4 py-1.5'} rounded-full flex items-center gap-2 shadow-[0_4px_10px_rgba(0,0,0,0.5)]
                         ${displayBetType === 'RAISE'
                             ? 'bg-gradient-to-b from-red-500 to-red-700 border-red-300'
                             : displayBetType === 'CALL'
@@ -68,7 +72,7 @@ export function PlayerCard({
                     `}>
                         {/* Chip Icon */}
                         <div className={`
-                            w-5 h-5 rounded-full border-2 flex items-center justify-center shadow-inner
+                            ${isPortrait ? 'w-8 h-8' : 'w-5 h-5'} rounded-full border-2 flex items-center justify-center shadow-inner
                             ${displayBetType === 'RAISE'
                                 ? 'border-red-900/50 bg-red-600'
                                 : displayBetType === 'CALL'
@@ -79,7 +83,7 @@ export function PlayerCard({
                             }
                         `}>
                             <div className={`
-                                w-3 h-3 rounded-full border border-dashed
+                                ${isPortrait ? 'w-5 h-5' : 'w-3 h-3'} rounded-full border border-dashed
                                 ${displayBetType === 'RAISE'
                                     ? 'border-red-900/60'
                                     : displayBetType === 'CALL'
@@ -93,29 +97,31 @@ export function PlayerCard({
 
                         {/* Bet Amount */}
                         {displayBetType === 'CHECK' ? (
-                            <span className="font-display font-bold text-xl text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)] tracking-wider text-shadow-outline">
+                            <span className={`font-display font-bold ${isPortrait ? 'text-4xl' : 'text-xl'} text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)] tracking-wider text-shadow-outline`}>
                                 CHECK
                             </span>
                         ) : (
                             <div className="flex items-baseline gap-1.5 ml-1">
-                                <span className="font-bold text-xs text-white/90 drop-shadow-[0_1px_0_rgba(0,0,0,0.8)] tracking-wider text-shadow-outline self-center">
+                                <span className={`font-bold ${isPortrait ? 'text-lg' : 'text-xs'} text-white/90 drop-shadow-[0_1px_0_rgba(0,0,0,0.8)] tracking-wider text-shadow-outline self-center`}>
                                     {displayBetType}
                                 </span>
-                                <span className="font-display font-bold text-2xl text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)] tabular-nums tracking-wider text-shadow-outline -my-1">
+                                <span className={`font-display font-bold ${isPortrait ? 'text-5xl' : 'text-2xl'} text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)] tabular-nums tracking-wider text-shadow-outline -my-1`}>
                                     {displayBetAmount.toLocaleString()}
                                 </span>
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* Active Square Border Overlay - MOVED OUTSIDE CARD */}
             {/* Matches Card's rounded-[2rem] exactly */}
             {/* Showdown Highlight (Gold) */}
-            {isShowdown && isContestingPot && (
-                <div className="absolute -inset-[3px] z-20 pointer-events-none border-[4px] border-gold animate-pulse rounded-[2rem] box-border shadow-[0_0_15px_rgba(255,215,0,0.6)]" />
-            )}
+            {
+                isShowdown && isContestingPot && (
+                    <div className="absolute -inset-[3px] z-20 pointer-events-none border-[4px] border-gold animate-pulse rounded-[2rem] box-border shadow-[0_0_15px_rgba(255,215,0,0.6)]" />
+                )
+            }
 
             {/* Active Highlight (Red) - Only show if NOT Showdown */}
             {
@@ -127,7 +133,7 @@ export function PlayerCard({
             <Card
                 variant={(isActive || (isShowdown && isContestingPot)) ? 'highlight' : 'default'}
                 className={`
-            w-28 sm:w-36 lg:w-44 transition-all duration-300 overflow-visible relative z-10
+            ${isPortrait ? 'w-[204px]' : 'w-28 sm:w-36 lg:w-44'} transition-all duration-300 overflow-visible relative z-10
             ${(isActive || (isShowdown && isContestingPot))
                         ? 'bg-black/90'
                         : 'bg-black/40'
@@ -138,33 +144,47 @@ export function PlayerCard({
                 {/* --- Position Badges (Inside Top Right) --- */}
                 <div className="absolute top-2 right-2 flex flex-col gap-1 z-50 pointer-events-none">
                     {/* Dealer Button */}
-                    {isDealer && (
-                        <div className="w-6 h-6 rounded-full bg-white text-black font-bold text-[10px] flex items-center justify-center shadow-lg border border-gray-300">
-                            BTN
-                        </div>
-                    )}
+                    {
+                        isDealer && (
+                            <div className="w-6 h-6 rounded-full bg-white text-black font-bold text-[10px] flex items-center justify-center shadow-lg border border-gray-300">
+                                BTN
+                            </div>
+                        )
+                    }
 
                     {/* SB / BB Badge */}
-                    {position && (
-                        <div className={`
+                    {
+                        position && (
+                            <div className={`
                             w-6 h-6 rounded-full font-bold text-[10px] flex items-center justify-center shadow-lg border border-white/20
                             ${position === 'SB' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'}
                         `}>
-                            {position}
-                        </div>
-                    )}
-                </div>
+                                {position}
+                            </div>
+                        )
+                    }
+                </div >
 
-                <div className="p-4 flex flex-col items-center gap-1 mt-2">
+                <div className={`${isPortrait ? 'py-[26px] px-4' : 'p-4'} flex flex-col items-center gap-1 mt-2`}>
                     {/* Name */}
-                    <div className={`font-bold truncate w-full text-center ${isActive ? 'text-base sm:text-lg text-white' : 'text-xs sm:text-base text-gray-300'} ${isFolded ? 'opacity-50' : ''}`}>
+                    <div className={`
+                    font-bold truncate w-full text-center 
+                    ${isActive
+                            ? (isPortrait ? 'text-2xl text-white' : 'text-base sm:text-lg text-white')
+                            : (isPortrait ? 'text-xl text-gray-300' : 'text-xs sm:text-base text-gray-300')
+                        } 
+                    ${isFolded ? 'opacity-50' : ''}
+                `}>
                         {player.name}
                     </div>
 
                     {/* Stack */}
                     <div className={`
-                        font-display font-bold tracking-wide transition-all
-                        ${isActive ? 'text-2xl text-red-500 glow-text-red' : 'text-xl text-white'}
+                        font-display font-bold ${isPortrait ? 'tracking-tighter' : 'tracking-wide'} transition-all
+                        ${isActive
+                            ? (isPortrait ? 'text-6xl text-red-500 glow-text-red' : 'text-2xl text-red-500 glow-text-red')
+                            : (isPortrait ? 'text-5xl text-white' : 'text-xl text-white')
+                        }
                         ${isAllIn ? 'text-gold glow-text-gold animate-pulse' : ''}
                         ${isFolded ? 'opacity-50' : ''}
                     `}>
@@ -179,13 +199,15 @@ export function PlayerCard({
                     )}
                 </div>
 
-                {isFolded && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <span className="text-red-500/80 font-bold uppercase tracking-[0.3em] text-sm border-y border-red-500/30 py-1 bg-black/40 backdrop-blur-[1px] px-4 rounded-full z-40">Fold</span>
-                    </div>
-                )}
+                {
+                    isFolded && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <span className="text-red-500/80 font-bold uppercase tracking-[0.3em] text-sm border-y border-red-500/30 py-1 bg-black/40 backdrop-blur-[1px] px-4 rounded-full z-40">Fold</span>
+                        </div>
+                    )
+                }
 
-            </Card>
+            </Card >
         </div >
     );
 }
