@@ -28,6 +28,70 @@ export function TableView() {
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
     const [isAddingPlayer, setIsAddingPlayer] = React.useState(false);
 
+    // Dynamic layout state
+    const [dimensions, setDimensions] = React.useState({
+        scale: 1,
+        isPortrait: false,
+        layout: { radiusX: 420, radiusY: 160, tableW: 700, tableH: 350 }
+    });
+    const [mounted, setMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setMounted(true);
+        const handleResize = () => {
+            const TOP_OFFSET = 130;
+            const BOTTOM_OFFSET = 140;
+
+            const availableW = window.innerWidth;
+            const availableH = window.innerHeight - TOP_OFFSET - BOTTOM_OFFSET;
+
+            // Determine orientation based on available drawable area
+            const isPortrait = availableH > availableW;
+
+            // Reference dimensions for calculation
+            // These roughly match the component's unscaled sizes
+            // Portrait: Card ~204x250, Table ~390x680
+            // Landscape: Card ~176x200, Table ~700x350
+            const refLayout = isPortrait
+                ? {
+                    radiusX: 210,
+                    radiusY: 330,
+                    tableW: 390,
+                    tableH: 680,
+                    cardW: 204,
+                    cardH: 260
+                }
+                : {
+                    radiusX: 420,
+                    radiusY: 160,
+                    tableW: 700,
+                    tableH: 350,
+                    cardW: 180,
+                    cardH: 200
+                };
+
+            // Calculate required space including cards (radius * 2 is diameter between centers)
+            // Plus half card size on each side + padding
+            const requiredW = (refLayout.radiusX * 2) + refLayout.cardW + 40; // 20px padding each side
+            const requiredH = (refLayout.radiusY * 2) + refLayout.cardH + 40;
+
+            // Calculate fit scale
+            const scaleW = availableW / requiredW;
+            const scaleH = availableH / requiredH;
+            const scale = Math.min(scaleW, scaleH, 1.2); // Cap max scale at 1.2 to avoid too large on 4k
+
+            setDimensions({
+                scale,
+                isPortrait,
+                layout: refLayout
+            });
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const handlePlayerClick = (player: Player) => {
         setEditingPlayer(player);
         setIsAddingPlayer(false);
@@ -51,50 +115,49 @@ export function TableView() {
         }
     };
 
-    // Portrait mode detection (use vertical layout when height > width)
-    const [isPortrait, setIsPortrait] = React.useState(false);
-
-    React.useEffect(() => {
-        const checkPortrait = () => setIsPortrait(window.innerHeight > window.innerWidth);
-        checkPortrait();
-        window.addEventListener('resize', checkPortrait);
-        return () => window.removeEventListener('resize', checkPortrait);
-    }, []);
-
-    // Layout configuration
-    // Desktop: Use exact values from working backup (horizontal ellipse)
-    // Mobile: Use vertical ellipse for portrait mode
-    const layout = isPortrait
-        ? { radiusX: 210, radiusY: 330, tableW: 390, tableH: 680 }
-        : { radiusX: 420, radiusY: 160, tableW: 700, tableH: 350 };
-
     const getPlayerPosition = (index: number, total: number) => {
         const angleOffset = -90;
         const angle = (360 / total) * index + angleOffset;
         const radian = (angle * Math.PI) / 180;
 
-        const x = Math.cos(radian) * layout.radiusX;
-        const y = Math.sin(radian) * layout.radiusY;
+        const x = Math.cos(radian) * dimensions.layout.radiusX;
+        const y = Math.sin(radian) * dimensions.layout.radiusY;
 
         return { x, y };
     };
 
     const targetCardCount = COMMUNITY_CARDS_COUNT[phase];
 
+    if (!mounted) return <div className="w-full h-full" />;
+
     return (
-        <div className="relative w-full h-[400px] sm:h-[600px] flex items-center justify-center my-4 sm:my-8 overflow-visible">
-            {/* Mobile Scale Wrapper - Shifted down for mobile (less negative translate) */}
-            <div className="transform scale-[0.55] sm:scale-100 -translate-y-5 sm:-translate-y-32 transition-transform duration-300 origin-center">
+        <div
+            className="absolute left-0 right-0 flex items-center justify-center overflow-hidden pointer-events-none"
+            style={{
+                top: '130px',
+                bottom: '140px',
+                // Debug background to verify area if needed: backgroundColor: 'rgba(255,0,0,0.1)' 
+            }}
+        >
+            {/* Scaled Container */}
+            <div
+                className="relative flex items-center justify-center pointer-events-auto transition-transform duration-300 ease-out"
+                style={{
+                    transform: `scale(${dimensions.scale})`,
+                    width: dimensions.layout.tableW + 400, // Ensure ample space for absolute positioned elements
+                    height: dimensions.layout.tableH + 300
+                }}
+            >
                 {/* Center Glow Ambience */}
                 <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-electric/5 rounded-full blur-[100px] pointer-events-none"
-                    style={{ width: layout.tableW, height: layout.tableH }}
+                    style={{ width: dimensions.layout.tableW, height: dimensions.layout.tableH }}
                 />
 
                 {/* Table / Arena Visual */}
                 <div
                     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/5 bg-black/40 backdrop-blur-sm shadow-2xl pointer-events-none"
-                    style={{ width: layout.tableW, height: layout.tableH }}
+                    style={{ width: dimensions.layout.tableW, height: dimensions.layout.tableH }}
                 >
                     {/* Decorative Rings */}
                     <div className="absolute inset-0 rounded-full border border-white/5 scale-90" />
@@ -107,7 +170,7 @@ export function TableView() {
                         <PotDisplay pots={pots} stage={phase} />
                     </div>
 
-                    <div className={`flex items-center ${isPortrait ? 'gap-2 scale-90' : 'gap-3'}`}>
+                    <div className={`flex items-center ${dimensions.isPortrait ? 'gap-2 scale-90' : 'gap-3'}`}>
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div
                                 key={i}
@@ -134,16 +197,16 @@ export function TableView() {
                     const totalItems = players.length + 1;
                     const pos = getPlayerPosition(index, totalItems);
 
-                    // Adjust position relative to center
-                    // Since this is absolutely positioned in a flex center container, 
-                    // we treat (0,0) as center, so just add pos.x, pos.y
-
                     if (item === 'ADD_BUTTON') {
                         return (
                             <div
                                 key="add"
                                 className="absolute transition-all duration-500 z-20"
-                                style={{ transform: `translate(${pos.x}px, ${pos.y}px) translate(-50%, -50%)` }}
+                                style={{
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: `translate(${pos.x}px, ${pos.y}px) translate(-50%, -50%)`
+                                }}
                             >
                                 <AddPlayerCard onClick={handleAddClick} />
                             </div>
@@ -161,19 +224,12 @@ export function TableView() {
                     if (player.position === 'SB') positionLabel = 'SB';
                     if (player.position === 'BB') positionLabel = 'BB';
 
-                    // Special Case: Heads Up (2 Players)
-                    // In Heads Up, the Button (Dealer) is also the Small Blind.
-                    // The other player is Big Blind.
-                    // Our gameState sets Dealer as 'D' and other as 'BB'.
-                    // So if we see 'D' and there are only 2 players, we should also show 'SB'.
                     if (players.length === 2 && player.position === 'D') {
                         positionLabel = 'SB';
                     }
 
-                    // Determine Bet Type (Yellow for BET, Lime for CALL, Red for RAISE)
-                    let betType: 'BET' | 'RAISE' | 'CALL' | 'CHECK' = 'BET';
-
                     // Determine Bet Type
+                    let betType: 'BET' | 'RAISE' | 'CALL' | 'CHECK' = 'BET';
                     const lastAction = [...actionHistory].reverse().find(a => a.playerId === player.id);
                     if (lastAction) {
                         if (lastAction.action === 'RAISE') betType = 'RAISE';
@@ -182,17 +238,19 @@ export function TableView() {
                         if (lastAction.action === 'CHECK') betType = 'CHECK';
                     }
 
-                    // Special Rule: 'CHECK' can only be shown if the player has acted in the current round
-                    // and is not facing a new bet (which resets hasActedThisRound).
                     if (betType === 'CHECK' && !player.hasActedThisRound) {
-                        betType = 'BET'; // Fallback to hide the CHECK indicator
+                        betType = 'BET';
                     }
 
                     return (
                         <div
                             key={player.id}
                             className="absolute transition-all duration-500 z-20"
-                            style={{ transform: `translate(${pos.x}px, ${pos.y}px) translate(-50%, -50%)` }}
+                            style={{
+                                top: '50%',
+                                left: '50%',
+                                transform: `translate(${pos.x}px, ${pos.y}px) translate(-50%, -50%)`
+                            }}
                         >
                             <PlayerCard
                                 player={player}
@@ -203,7 +261,7 @@ export function TableView() {
                                 betType={betType}
                                 isShowdown={phase === 'SHOWDOWN'}
                                 isContestingPot={!player.folded}
-                                isPortrait={isPortrait}
+                                isPortrait={dimensions.isPortrait}
                             />
 
                         </div>
@@ -218,8 +276,6 @@ export function TableView() {
                 player={editingPlayer}
                 isAdding={isAddingPlayer}
             />
-
-
         </div>
     );
 }
