@@ -52,8 +52,10 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
         setMounted(true);
         const handleResize = () => {
             // 親の制約を無視し、画面幅をフルに使用
+            // 横方向の+50pxは削除（ユーザー要望により元に戻す）
             const availableW = window.innerWidth;
-            const availableH = window.innerHeight - topOffset - bottomOffset;
+            // 縦方向は+50px維持に加え、上部余白を削減する分(+40px)も考慮して描画エリアを確保
+            const availableH = (window.innerHeight - (topOffset - 40) - bottomOffset) + 50;
 
             // Determine orientation based on available drawable area
             // Stricter threshold: only switch to landscape if width is significantly larger than height
@@ -61,8 +63,26 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
             const isPortrait = availableW < availableH * 1.3;
 
             // Base dimensions
-            const portraitDims = { radiusX: 210, radiusY: 330, cardW: 204, cardH: 260 };
+            let portraitDims = { radiusX: 210, radiusY: 330, cardW: 204, cardH: 260 };
             const landscapeDims = { radiusX: 420, radiusY: 160, cardW: 180, cardH: 200 };
+
+            // Portraitモードの場合、画面アスペクト比に合わせてradiusYを動的に拡張する
+            // 横幅がいっぱいで縦が余る場合、radiusYを伸ばして縦も埋める
+            if (isPortrait) {
+                // 現在のradiusXに基づく横方向のスケール
+                const requiredW = (portraitDims.radiusX * 2) + portraitDims.cardW;
+                const scaleW = availableW / requiredW;
+
+                // このスケールで画面高さを満たすために必要なradiusYを逆算
+                // availableH = scaleW * ((radiusY * 2) + cardH)
+                // radiusY = ((availableH / scaleW) - cardH) / 2
+                const optimalRadiusY = ((availableH / scaleW) - portraitDims.cardH) / 2;
+
+                // 元のradiusYより大きい場合のみ採用（縮むのは防ぐ）
+                if (optimalRadiusY > portraitDims.radiusY) {
+                    portraitDims = { ...portraitDims, radiusY: optimalRadiusY };
+                }
+            }
 
             const currentDims = isPortrait ? portraitDims : landscapeDims;
 
@@ -136,7 +156,7 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
         <div
             className="absolute left-0 right-0 flex items-center justify-center overflow-hidden pointer-events-none"
             style={{
-                top: `${topOffset}px`,
+                top: `${topOffset - 40}px`, // 上部余白を削るリクエストに対応 (-40px)
                 bottom: `${bottomOffset}px`,
                 // Debug background to verify area if needed: backgroundColor: 'rgba(255,0,0,0.1)' 
             }}

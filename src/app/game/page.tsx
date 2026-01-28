@@ -33,8 +33,9 @@ export default function GamePage() {
             const bottomPanelHeight = Math.max(actionPanelHeight, showdownPanelHeight);
 
             // パディング (p-4 = 16px) を考慮せず、直接配置
-            const topOffset = headerHeight + 8; // ヘッダー + 最小限の隙間 (8px)
-            const bottomOffset = bottomPanelHeight > 0 ? bottomPanelHeight + 8 : 140; // パネル + 最小限の隙間
+            // さらに攻めて余白を最小限(2px)に設定。デフォルトボトムオフセットも大幅削減。
+            const topOffset = headerHeight + 2;
+            const bottomOffset = bottomPanelHeight > 0 ? bottomPanelHeight + 2 : 20;
 
             setOffsets({
                 top: topOffset > 0 ? topOffset : 130,
