@@ -131,7 +131,7 @@ export function ActionPanel() {
     return (
         <div data-panel="action" className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-50 flex justify-center pointer-events-none">
             <Card variant="default" className="w-full max-w-2xl pointer-events-auto bg-black border-t border-white/10 shadow-2xl">
-                <div className="p-2 sm:p-4 space-y-2 sm:space-y-4">
+                <div className="p-2 space-y-2">
                     {/* Header: Player Info and Undo */}
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
@@ -174,7 +174,7 @@ export function ActionPanel() {
                             <Button
                                 variant="danger"
                                 onClick={() => handleAction('FOLD')}
-                                className="h-14 sm:h-16"
+                                className="h-14"
                                 icon={<X className="w-5 h-5" />}
                             >
                                 Fold
@@ -184,7 +184,7 @@ export function ActionPanel() {
                                 <Button
                                     variant="secondary"
                                     onClick={() => handleAction('CHECK')}
-                                    className="h-14 sm:h-16"
+                                    className="h-14"
                                     icon={<Check className="w-5 h-5" />}
                                 >
                                     Check
@@ -193,7 +193,7 @@ export function ActionPanel() {
                                 <Button
                                     variant="secondary"
                                     onClick={() => handleAction('CALL')}
-                                    className="h-14 sm:h-16"
+                                    className="h-14"
                                     icon={<Check className="w-5 h-5" />}
                                 >
                                     Call {availableActions.callAmount}
@@ -207,7 +207,7 @@ export function ActionPanel() {
                                         setShowInput(true);
                                         setBetAmount(minAmount.toString());
                                     }}
-                                    className="h-14 sm:h-16"
+                                    className="h-14"
                                     icon={<ArrowUp className="w-5 h-5" />}
                                 >
                                     {currentBet === 0 ? 'Bet' : 'Raise'}

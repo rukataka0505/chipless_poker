@@ -54,8 +54,8 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
             // 親の制約を無視し、画面幅をフルに使用
             // 横方向の+50pxは削除（ユーザー要望により元に戻す）
             const availableW = window.innerWidth;
-            // 縦方向は+50px維持に加え、上部余白を削減する分(+40px)も考慮して描画エリアを確保
-            const availableH = (window.innerHeight - (topOffset - 40) - bottomOffset) + 50;
+            // 縦方向は+50px維持に加え、上部余白調整分(-20px)も考慮して描画エリアを確保
+            const availableH = (window.innerHeight - (topOffset - 20) - bottomOffset) + 50;
 
             // Determine orientation based on available drawable area
             // Stricter threshold: only switch to landscape if width is significantly larger than height
@@ -156,7 +156,7 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
         <div
             className="absolute left-0 right-0 flex items-center justify-center overflow-hidden pointer-events-none"
             style={{
-                top: `${topOffset - 40}px`, // 上部余白を削るリクエストに対応 (-40px)
+                top: `${topOffset - 20}px`, // 上部余白調整変更 (-20px)
                 bottom: `${bottomOffset}px`,
                 // Debug background to verify area if needed: backgroundColor: 'rgba(255,0,0,0.1)' 
             }}
