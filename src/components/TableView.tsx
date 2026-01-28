@@ -41,10 +41,28 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
     const [isAddingPlayer, setIsAddingPlayer] = React.useState(false);
 
     // Dynamic layout state
-    const [dimensions, setDimensions] = React.useState({
+    const [dimensions, setDimensions] = React.useState<{
+        scale: number;
+        isPortrait: boolean;
+        layout: {
+            radiusX: number;
+            radiusY: number;
+            tableW: number;
+            tableH: number;
+            cardW: number;
+            cardH: number;
+        }
+    }>({
         scale: 1,
         isPortrait: false,
-        layout: { radiusX: 420, radiusY: 160, tableW: 700, tableH: 350 }
+        layout: {
+            radiusX: 420,
+            radiusY: 160,
+            tableW: 700,
+            tableH: 350,
+            cardW: 180,
+            cardH: 200
+        }
     });
     const [mounted, setMounted] = React.useState(false);
 
