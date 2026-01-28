@@ -38,7 +38,7 @@ export default function GamePage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col p-4 max-w-2xl mx-auto">
+        <div className="h-screen flex flex-col p-4 max-w-2xl mx-auto overflow-hidden">
             {/* ヘッダー：ホームボタンと設定ボタン */}
             <div className="flex justify-between items-center mb-2">
                 <button
