@@ -51,11 +51,14 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
     React.useEffect(() => {
         setMounted(true);
         const handleResize = () => {
+            // 親の制約を無視し、画面幅をフルに使用
             const availableW = window.innerWidth;
             const availableH = window.innerHeight - topOffset - bottomOffset;
 
             // Determine orientation based on available drawable area
-            const isPortrait = availableH > availableW;
+            // Stricter threshold: only switch to landscape if width is significantly larger than height
+            // Portrait mode will be maintained until width > height * 1.3
+            const isPortrait = availableW < availableH * 1.3;
 
             // Reference dimensions for calculation
             // These roughly match the component's unscaled sizes
@@ -79,15 +82,15 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
                     cardH: 200
                 };
 
-            // Calculate required space including cards (radius * 2 is diameter between centers)
-            // Plus half card size on each side + minimal padding for aggressive scaling
-            const requiredW = (refLayout.radiusX * 2) + refLayout.cardW + 20; // 10px padding each side
-            const requiredH = (refLayout.radiusY * 2) + refLayout.cardH + 20;
+            // Calculate required space: 楕円の直径 + 片側のカードサイズ (カードは中央配置なので片側のみ)
+            const requiredW = (refLayout.radiusX * 2) + refLayout.cardW;
+            const requiredH = (refLayout.radiusY * 2) + refLayout.cardH;
 
-            // Calculate fit scale - more aggressive scaling allowed
+            // 利用可能領域に対して最大限フィットさせる（上限なし）
             const scaleW = availableW / requiredW;
             const scaleH = availableH / requiredH;
-            const scale = Math.min(scaleW, scaleH, 1.5); // Cap max scale at 1.5 for larger display
+            // 上限を設けず、利用可能領域を100%使用
+            const scale = Math.min(scaleW, scaleH);
 
             setDimensions({
                 scale,
@@ -151,8 +154,9 @@ export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProp
                 className="relative flex items-center justify-center pointer-events-auto transition-transform duration-300 ease-out"
                 style={{
                     transform: `scale(${dimensions.scale})`,
-                    width: dimensions.layout.tableW + 400, // Ensure ample space for absolute positioned elements
-                    height: dimensions.layout.tableH + 300
+                    // Container = table + (card size for each side) - tighter fit
+                    width: (dimensions.layout.radiusX * 2) + (dimensions.layout.cardW || 180),
+                    height: (dimensions.layout.radiusY * 2) + (dimensions.layout.cardH || 200)
                 }}
             >
                 {/* Center Glow Ambience */}

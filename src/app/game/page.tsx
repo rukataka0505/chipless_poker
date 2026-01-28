@@ -32,9 +32,9 @@ export default function GamePage() {
             const showdownPanelHeight = showdownPanelElement?.getBoundingClientRect().height || 0;
             const bottomPanelHeight = Math.max(actionPanelHeight, showdownPanelHeight);
 
-            // パディング (p-4 = 16px) を考慮
-            const topOffset = headerHeight + 16; // ヘッダー + 上部パディング
-            const bottomOffset = bottomPanelHeight > 0 ? bottomPanelHeight + 16 : 140; // パネル + パディング or デフォルト
+            // パディング (p-4 = 16px) を考慮せず、直接配置
+            const topOffset = headerHeight + 8; // ヘッダー + 最小限の隙間 (8px)
+            const bottomOffset = bottomPanelHeight > 0 ? bottomPanelHeight + 8 : 140; // パネル + 最小限の隙間
 
             setOffsets({
                 top: topOffset > 0 ? topOffset : 130,
@@ -94,9 +94,9 @@ export default function GamePage() {
     }
 
     return (
-        <div className="h-screen flex flex-col p-4 max-w-2xl mx-auto overflow-hidden">
+        <div className="h-screen flex flex-col p-4 overflow-hidden relative">
             {/* ヘッダーエリア（動的高さ計測用） */}
-            <div ref={headerRef}>
+            <div ref={headerRef} className="max-w-2xl mx-auto w-full">
                 {/* ヘッダー：ホームボタンと設定ボタン */}
                 <div className="flex justify-between items-center mb-2">
                     <button
