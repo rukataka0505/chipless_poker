@@ -60,7 +60,7 @@ export function PlayerCard({
         `}>
             {/* --- VARIANT B: Floating Satellite Pill for Bets --- */}
             <div className={`
-                absolute ${isPortrait ? '-top-[66px]' : '-top-10 sm:-top-14'} left-1/2 -translate-x-1/2 z-40
+                absolute ${isPortrait ? '-top-[66px]' : '-top-6 sm:-top-10'} left-1/2 -translate-x-1/2 z-40
                 transition-all duration-500 ease-out
                 ${showIndicator ? 'opacity-100 translate-y-0 scale-90 sm:scale-100' : 'opacity-0 translate-y-4 scale-75 sm:scale-90 pointer-events-none'}
             `}>
