@@ -12,7 +12,12 @@ import { EditPlayerModal } from './EditPlayerModal';
 import { AddPlayerCard } from './AddPlayerCard';
 import { Player } from '@/lib/poker/types';
 
-export function TableView() {
+interface TableViewProps {
+    topOffset?: number;
+    bottomOffset?: number;
+}
+
+export function TableView({ topOffset = 130, bottomOffset = 140 }: TableViewProps) {
     const {
         players,
         phase,
@@ -46,11 +51,8 @@ export function TableView() {
     React.useEffect(() => {
         setMounted(true);
         const handleResize = () => {
-            const TOP_OFFSET = 130;
-            const BOTTOM_OFFSET = 140;
-
             const availableW = window.innerWidth;
-            const availableH = window.innerHeight - TOP_OFFSET - BOTTOM_OFFSET;
+            const availableH = window.innerHeight - topOffset - bottomOffset;
 
             // Determine orientation based on available drawable area
             const isPortrait = availableH > availableW;
@@ -78,14 +80,14 @@ export function TableView() {
                 };
 
             // Calculate required space including cards (radius * 2 is diameter between centers)
-            // Plus half card size on each side + padding
-            const requiredW = (refLayout.radiusX * 2) + refLayout.cardW + 40; // 20px padding each side
-            const requiredH = (refLayout.radiusY * 2) + refLayout.cardH + 40;
+            // Plus half card size on each side + minimal padding for aggressive scaling
+            const requiredW = (refLayout.radiusX * 2) + refLayout.cardW + 20; // 10px padding each side
+            const requiredH = (refLayout.radiusY * 2) + refLayout.cardH + 20;
 
-            // Calculate fit scale
+            // Calculate fit scale - more aggressive scaling allowed
             const scaleW = availableW / requiredW;
             const scaleH = availableH / requiredH;
-            const scale = Math.min(scaleW, scaleH, 1.2); // Cap max scale at 1.2 to avoid too large on 4k
+            const scale = Math.min(scaleW, scaleH, 1.5); // Cap max scale at 1.5 for larger display
 
             setDimensions({
                 scale,
@@ -97,7 +99,7 @@ export function TableView() {
         handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    }, [topOffset, bottomOffset]); // オフセット変更時にも再計算
 
     const handlePlayerClick = (player: Player) => {
         setEditingPlayer(player);
@@ -139,8 +141,8 @@ export function TableView() {
         <div
             className="absolute left-0 right-0 flex items-center justify-center overflow-hidden pointer-events-none"
             style={{
-                top: '130px',
-                bottom: '140px',
+                top: `${topOffset}px`,
+                bottom: `${bottomOffset}px`,
                 // Debug background to verify area if needed: backgroundColor: 'rgba(255,0,0,0.1)' 
             }}
         >

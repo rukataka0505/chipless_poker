@@ -96,7 +96,7 @@ export function ShowdownPanel() {
     const totalPotAmount = isShowdownResolved ? (useGameStore.getState().lastTotalPot || 0) : useGameStore.getState().getTotalPot();
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 p-4 z-50 flex justify-center pointer-events-none">
+        <div data-panel="showdown" className="fixed bottom-0 left-0 right-0 p-4 z-50 flex justify-center pointer-events-none">
             <Card variant="default" className="w-full max-w-2xl pointer-events-auto bg-black border-t border-gold/20 shadow-2xl">
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
