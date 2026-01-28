@@ -267,9 +267,9 @@ export function startHand(state: GameState): GameState {
     newState.currentPlayerIndex = utgIndex;
     newState.communityCardCount = 0;
     newState.handNumber += 1;
-    // Calculate initial pot from all players (some might have posted blind and then left? Unlikely in this synchronous flow)
-    const initialPotAmount = newState.players.reduce((sum, p) => sum + (p.currentBet || 0), 0);
-    newState.pots = [{ amount: initialPotAmount, eligiblePlayerIds: newState.players.filter(p => !p.folded).map(p => p.id) }];
+    // プリフロップ開始時はポットを0で初期化。ブラインドはプレイヤーのcurrentBetとして保持され、
+    // フェーズ遷移時（advancePhase）にポットに集約される。
+    newState.pots = [{ amount: 0, eligiblePlayerIds: newState.players.filter(p => !p.folded).map(p => p.id) }];
     newState.actionHistory = [];
     newState.isShowdownResolved = false;  // 新ハンド開始時にリセット
 

@@ -266,7 +266,7 @@ export function TableView() {
                                 betType={betType}
                                 isShowdown={phase === 'SHOWDOWN'}
                                 isContestingPot={!player.folded}
-                                isWinner={isShowdownResolved && Array.from(selectedWinners.values()).flat().includes(player.id)}
+                                isWinner={(isShowdownResolved && Array.from(selectedWinners.values()).flat().includes(player.id)) || (phase === 'SHOWDOWN' && players.filter(p => !p.folded).length === 1 && !player.folded)}
                                 isPortrait={dimensions.isPortrait}
                             />
                             {/* Status Badges for Sit Out / Next Hand */}
