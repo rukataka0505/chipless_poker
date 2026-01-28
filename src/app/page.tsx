@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Users, Plus, Minus, Spade, Trophy, PlayCircle } from 'lucide-react';
+import { Users, Plus, Minus, Spade, Trophy, PlayCircle, Trash2 } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 import { GAME_CONSTANTS } from '@/lib/poker/types';
 import { Card } from '@/components/ui/Card';
@@ -12,16 +12,23 @@ export default function SetupPage() {
     const router = useRouter();
     const { initializeGame, startNewHand } = useGameStore();
 
-    const [playerCount, setPlayerCount] = useState(3);
-    const [playerNames, setPlayerNames] = useState<string[]>(Array(9).fill(''));
+    const [playerNames, setPlayerNames] = useState<string[]>(Array(3).fill(''));
     const [initialStack, setInitialStack] = useState<string>(GAME_CONSTANTS.INITIAL_STACK.toString());
     const [smallBlind, setSmallBlind] = useState<string>(GAME_CONSTANTS.SMALL_BLIND.toString());
     const [bigBlind, setBigBlind] = useState<string>(GAME_CONSTANTS.BIG_BLIND.toString());
     const [error, setError] = useState<string | null>(null);
 
-    const handlePlayerCountChange = (delta: number) => {
-        const newCount = Math.max(GAME_CONSTANTS.MIN_PLAYERS, Math.min(GAME_CONSTANTS.MAX_PLAYERS, playerCount + delta));
-        setPlayerCount(newCount);
+    const handleAddPlayer = () => {
+        if (playerNames.length < GAME_CONSTANTS.MAX_PLAYERS) {
+            setPlayerNames([...playerNames, '']);
+        }
+    };
+
+    const handleRemovePlayer = (index: number) => {
+        if (playerNames.length > GAME_CONSTANTS.MIN_PLAYERS) {
+            const newNames = playerNames.filter((_, i) => i !== index);
+            setPlayerNames(newNames);
+        }
     };
 
     const handleNameChange = (index: number, name: string) => {
@@ -32,10 +39,8 @@ export default function SetupPage() {
     };
 
     const handleStart = () => {
-        const activeNames = playerNames.slice(0, playerCount);
-
         // Validation: Check for empty names
-        if (activeNames.some(name => !name.trim())) {
+        if (playerNames.some(name => !name.trim())) {
             setError('名前が入力されていません');
             return;
         }
@@ -59,7 +64,7 @@ export default function SetupPage() {
             return;
         }
 
-        initializeGame(activeNames, stack, sb, bb);
+        initializeGame(playerNames, stack, sb, bb);
         startNewHand();
         router.push('/game');
     };
@@ -79,7 +84,7 @@ export default function SetupPage() {
                 <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-electric/5 rounded-full" />
             </div>
 
-            <div className="w-full max-w-md md:max-w-5xl space-y-8 z-10">
+            <div className="w-full max-w-md md:max-w-5xl space-y-8 z-10 relative">
                 {/* Header (Mobile) */}
                 <div className="text-center space-y-2 md:hidden">
                     <div className="inline-flex items-center justify-center p-4 rounded-full bg-gradient-to-br from-white/10 to-transparent border border-white/5 mb-4 shadow-[0_0_30px_rgba(255,215,0,0.1)]">
@@ -112,30 +117,9 @@ export default function SetupPage() {
                             <div className="space-y-4">
                                 <label className="flex items-center gap-2 text-text-secondary text-sm font-medium uppercase tracking-wider">
                                     <Users className="w-4 h-4 text-electric" />
-                                    プレイヤー数
+                                    プレイヤー ({playerNames.length}人)
                                 </label>
-
-                                <div className="flex items-center justify-between bg-black/20 rounded-2xl p-2 border border-white/5">
-                                    <button
-                                        onClick={() => handlePlayerCountChange(-1)}
-                                        disabled={playerCount <= GAME_CONSTANTS.MIN_PLAYERS}
-                                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-                                    >
-                                        <Minus className="w-5 h-5" />
-                                    </button>
-
-                                    <span className="text-4xl font-display font-bold text-electric glow-text-electric">
-                                        {playerCount}
-                                    </span>
-
-                                    <button
-                                        onClick={() => handlePlayerCountChange(1)}
-                                        disabled={playerCount >= GAME_CONSTANTS.MAX_PLAYERS}
-                                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-                                    >
-                                        <Plus className="w-5 h-5" />
-                                    </button>
-                                </div>
+                                {/* Player Count Control Removed */}
                             </div>
 
                             <div className="space-y-4">
@@ -181,22 +165,43 @@ export default function SetupPage() {
 
                             {/* Player Names */}
                             <div className="space-y-2">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[240px] sm:max-h-none overflow-y-auto pr-1 sm:pr-0 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                                    {Array.from({ length: playerCount }).map((_, index) => (
-                                        <div key={index} className="relative group">
-                                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                                <div className="w-2 h-2 rounded-full bg-gold/50 group-focus-within:bg-gold group-focus-within:shadow-[0_0_8px_var(--accent-gold)] transition-all" />
+                                <div className="grid grid-cols-1 gap-3 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                                    {playerNames.map((name, index) => (
+                                        <div key={index} className="flex gap-2 items-center relative z-10">
+                                            <div className="relative group flex-1">
+                                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                    <div className="w-2 h-2 rounded-full bg-gold/50 group-focus-within:bg-gold group-focus-within:shadow-[0_0_8px_var(--accent-gold)] transition-all" />
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    value={name}
+                                                    onChange={(e) => handleNameChange(index, e.target.value)}
+                                                    placeholder={`プレイヤー${index + 1}`}
+                                                    className={`w-full bg-white/5 border ${error && !name.trim() ? 'border-red-500/50' : 'border-white/10'
+                                                        } rounded-xl py-3 pl-8 pr-4 text-white placeholder-gray-600 focus:outline-none focus:bg-white/10 focus:border-gold/50 transition-all font-medium text-sm`}
+                                                />
                                             </div>
-                                            <input
-                                                type="text"
-                                                value={playerNames[index]}
-                                                onChange={(e) => handleNameChange(index, e.target.value)}
-                                                placeholder="プレイヤー名を入力..."
-                                                className={`w-full bg-white/5 border ${error && !playerNames[index].trim() ? 'border-red-500/50' : 'border-white/10'
-                                                    } rounded-xl py-3 pl-8 pr-4 text-white placeholder-gray-600 focus:outline-none focus:bg-white/10 focus:border-gold/50 transition-all font-medium text-sm`}
-                                            />
+                                            {playerNames.length > GAME_CONSTANTS.MIN_PLAYERS && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemovePlayer(index)}
+                                                    className="relative z-20 p-2 text-text-tertiary hover:text-red-400 transition-colors cursor-pointer"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
+                                    {playerNames.length < GAME_CONSTANTS.MAX_PLAYERS && (
+                                        <button
+                                            type="button"
+                                            onClick={handleAddPlayer}
+                                            className="relative z-20 w-full py-2 text-text-secondary hover:text-gold transition-colors flex items-center justify-center gap-2 group cursor-pointer"
+                                        >
+                                            <Plus className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                            <span className="font-medium text-sm">プレイヤーを追加</span>
+                                        </button>
+                                    )}
                                 </div>
                                 {error && (
                                     <p className="text-red-400 text-sm text-center animate-pulse">
@@ -207,9 +212,10 @@ export default function SetupPage() {
 
 
                             <Button
+                                type="button"
                                 variant="gold"
                                 size="xl"
-                                className="w-full"
+                                className="w-full relative z-20 cursor-pointer"
                                 onClick={handleStart}
                                 icon={<Trophy className="w-5 h-5" />}
                             >
