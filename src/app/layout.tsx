@@ -18,7 +18,10 @@ export const metadata: Metadata = {
     description: 'チップがなくても、トランプ1組でいつでもポーカー',
     manifest: '/manifest.json',
     icons: {
-        icon: '/favicon.png',
+        icon: [
+            { url: '/favicon.png', type: 'image/png' },
+        ],
+        shortcut: '/favicon.png',
         apple: '/icon-192x192.png',
     },
     appleWebApp: {

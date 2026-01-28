@@ -35,16 +35,7 @@ const customStorage: StateStorage = {
     getItem: (name) => {
         const str = localStorage.getItem(name);
         if (!str) return null;
-        try {
-            const parsed = JSON.parse(str);
-            // Convert selectedWinners array back to Map
-            if (parsed.state?.selectedWinners && Array.isArray(parsed.state.selectedWinners)) {
-                parsed.state.selectedWinners = new Map(parsed.state.selectedWinners);
-            }
-            return JSON.stringify(parsed);
-        } catch {
-            return null;
-        }
+        return str; // Return as-is, conversion will happen in onRehydrateStorage
     },
     setItem: (name, value) => {
         try {
@@ -798,6 +789,12 @@ export const useGameStore = create<GameStore>()(
             onRehydrateStorage: () => (state) => {
                 if (state) {
                     state._hasHydrated = true;
+                    // Convert selectedWinners from array back to Map after rehydration
+                    if (state.selectedWinners && Array.isArray(state.selectedWinners)) {
+                        state.selectedWinners = new Map(state.selectedWinners);
+                    } else if (!(state.selectedWinners instanceof Map)) {
+                        state.selectedWinners = new Map();
+                    }
                 }
             },
         }
