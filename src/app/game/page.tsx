@@ -15,6 +15,7 @@ export default function GamePage() {
     // 動的オフセット計算用のref
     const headerRef = useRef<HTMLDivElement>(null);
     const [offsets, setOffsets] = useState({ top: 130, bottom: 140 });
+    const lastStableBottomOffset = useRef<number>(20); // 初期値は最小値(20)としておく
 
     // SSRとCSRの違いを吸収するためuseEffectを使用
     useEffect(() => {
@@ -27,15 +28,30 @@ export default function GamePage() {
             const actionPanelElement = document.querySelector('[data-panel="action"]');
             const showdownPanelElement = document.querySelector('[data-panel="showdown"]');
 
-            // 両方のパネルの高さを取得し、表示されている方を使用
-            const actionPanelHeight = actionPanelElement?.getBoundingClientRect().height || 0;
-            const showdownPanelHeight = showdownPanelElement?.getBoundingClientRect().height || 0;
-            const bottomPanelHeight = Math.max(actionPanelHeight, showdownPanelHeight);
+            // 入力モード（拡大中）かどうかをチェック
+            const isActionExpanded = actionPanelElement?.getAttribute('data-expanded') === 'true';
+
+            let bottomOffset = 20;
+
+            if (isActionExpanded) {
+                // 拡大中は、直前の安定した高さを使用（レイアウト崩れ防止）
+                bottomOffset = lastStableBottomOffset.current;
+            } else {
+                // 両方のパネルの高さを取得し、表示されている方を使用
+                const actionPanelHeight = actionPanelElement?.getBoundingClientRect().height || 0;
+                const showdownPanelHeight = showdownPanelElement?.getBoundingClientRect().height || 0;
+                const bottomPanelHeight = Math.max(actionPanelHeight, showdownPanelHeight);
+
+                // 通常時は高さを計算して適用
+                bottomOffset = bottomPanelHeight > 0 ? bottomPanelHeight + 2 : 20;
+
+                // 安定状態の高さを保存
+                lastStableBottomOffset.current = bottomOffset;
+            }
 
             // パディング (p-4 = 16px) を考慮せず、直接配置
             // さらに攻めて余白を最小限(2px)に設定。デフォルトボトムオフセットも大幅削減。
             const topOffset = headerHeight + 2;
-            const bottomOffset = bottomPanelHeight > 0 ? bottomPanelHeight + 2 : 20;
 
             setOffsets({
                 top: topOffset > 0 ? topOffset : 130,

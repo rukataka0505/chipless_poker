@@ -129,7 +129,7 @@ export function ActionPanel() {
     };
 
     return (
-        <div data-panel="action" className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-50 flex justify-center pointer-events-none">
+        <div data-panel="action" data-expanded={showInput} className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] z-50 flex justify-center pointer-events-none">
             <Card variant="default" className="w-full max-w-2xl pointer-events-auto bg-black border-t border-white/10 shadow-2xl">
                 <div className="p-2 space-y-2">
                     {/* Header: Player Info and Undo */}
