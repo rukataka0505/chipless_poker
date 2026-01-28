@@ -1,10 +1,27 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Settings, Save, X, Bell, BellOff, Users, Coins } from 'lucide-react';
+import { Settings, Save, X, Bell, BellOff, Users, Coins, ArrowRightLeft, GripVertical, RotateCcw } from 'lucide-react';
 import { useGameStore } from '@/store/gameStore';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -19,18 +36,60 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         players,
         removedPlayers,
         showPhaseNotifications,
-        togglePhaseNotifications
+        togglePhaseNotifications,
+        pendingSeatOrder,
+        setSeatOrder,
+        clearSeatOrder
     } = useGameStore();
 
     const [sbValue, setSbValue] = useState('');
     const [bbValue, setBbValue] = useState('');
+    const [seatOrderItems, setSeatOrderItems] = useState<string[]>([]);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     useEffect(() => {
         if (isOpen) {
             setSbValue(smallBlind.toString());
             setBbValue(bigBlind.toString());
+            // Initialize seat order items based on pendingSeatOrder or current players
+            if (pendingSeatOrder) {
+                // Should verify all pending IDs still exist in players, or fallback
+                // For simplicity, we trust pendingSeatOrder but ensuring length match could be good
+                setSeatOrderItems(pendingSeatOrder);
+            } else {
+                setSeatOrderItems(players.map(p => p.id));
+            }
         }
-    }, [isOpen, smallBlind, bigBlind]);
+    }, [isOpen, smallBlind, bigBlind, pendingSeatOrder, players]);
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            setSeatOrderItems((items) => {
+                const oldIndex = items.indexOf(active.id.toString());
+                const newIndex = items.indexOf(over.id.toString());
+                const newOrder = arrayMove(items, oldIndex, newIndex);
+
+                // Update pending order immediately
+                setSeatOrder(newOrder);
+
+                return newOrder;
+            });
+        }
+    };
+
+    const handleResetSeatOrder = () => {
+        const defaultOrder = players.map(p => p.id);
+        setSeatOrderItems(defaultOrder);
+        clearSeatOrder();
+    };
 
     if (!isOpen) return null;
 
@@ -44,22 +103,39 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         }
     };
 
+    const getPlayerName = (playerId: string) => {
+        const player = players.find(p => p.id === playerId);
+        return player?.name || '???';
+    };
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm">
             <div className="absolute inset-0" onClick={onClose} />
             <Card variant="default" className="w-full max-w-lg mx-6 p-6 relative z-10 border-white/10 max-h-[85vh] overflow-y-auto">
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 text-text-tertiary hover:text-white transition-colors"
-                >
-                    <X className="w-5 h-5" />
-                </button>
-
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 rounded-lg bg-white/5 border border-white/10">
-                        <Settings className="w-5 h-5 text-gold" />
+                <div className="flex items-center justify-between gap-4 mb-6">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-white/5 border border-white/10">
+                            <Settings className="w-5 h-5 text-gold" />
+                        </div>
+                        <h2 className="text-xl font-display font-bold text-white whitespace-nowrap">ゲーム設定</h2>
                     </div>
-                    <h2 className="text-xl font-display font-bold text-white">ゲーム設定</h2>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="gold"
+                            onClick={handleSave}
+                            className="py-0.5 px-1.5 text-sm flex-shrink-0"
+                            icon={<Save className="w-4 h-4" />}
+                        >
+                            <span>保存</span>
+                        </Button>
+                        <button
+                            onClick={onClose}
+                            className="p-2 text-text-tertiary hover:text-white transition-colors flex-shrink-0"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="space-y-8">
@@ -192,16 +268,91 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         </div>
                     </div>
 
-                    <Button
-                        variant="gold"
-                        className="w-full"
-                        onClick={handleSave}
-                        icon={<Save className="w-4 h-4" />}
-                    >
-                        設定を保存して閉じる
-                    </Button>
+                    {/* Section 4: Seat Swap (Drag & Drop) */}
+                    {players.length >= 2 && (
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm font-medium text-text-secondary uppercase tracking-wider flex items-center gap-2">
+                                    <ArrowRightLeft className="w-4 h-4" /> 席替え
+                                </label>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-xs text-text-tertiary">
+                                        次のハンドから適用
+                                    </span>
+                                    {pendingSeatOrder && (
+                                        <button
+                                            onClick={handleResetSeatOrder}
+                                            className="text-xs text-gold flex items-center gap-1 hover:underline"
+                                        >
+                                            <RotateCcw className="w-3 h-3" /> リセット
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="bg-black/20 rounded-xl border border-white/5 p-4 space-y-3">
+                                <div className="text-xs text-text-tertiary mb-2">
+                                    ドラッグして座席順（時計回り）を変更できます
+                                </div>
+
+                                <DndContext
+                                    sensors={sensors}
+                                    collisionDetection={closestCenter}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <SortableContext
+                                        items={seatOrderItems}
+                                        strategy={verticalListSortingStrategy}
+                                    >
+                                        <div className="space-y-2">
+                                            {seatOrderItems.map((id, index) => (
+                                                <SortableItem key={id} id={id} name={getPlayerName(id)} index={index} />
+                                            ))}
+                                        </div>
+                                    </SortableContext>
+                                </DndContext>
+                            </div>
+                        </div>
+                    )}
+
+
                 </div>
             </Card>
+        </div>
+    );
+}
+
+function SortableItem({ id, name, index }: { id: string; name: string, index: number }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+    } = useSortable({ id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-lg p-3 touch-none group hover:bg-white/10 transition-colors"
+        >
+            <div className="text-text-tertiary cursor-grab active:cursor-grabbing p-1 hover:text-white transition-colors">
+                <GripVertical className="w-5 h-5" />
+            </div>
+            <div className="flex-1 font-medium text-white flex items-center justify-between">
+                <span>{name}</span>
+                <span className="text-xs text-text-tertiary bg-black/30 px-2 py-0.5 rounded-full">
+                    席 {index + 1}
+                </span>
+            </div>
         </div>
     );
 }

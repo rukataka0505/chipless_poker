@@ -88,9 +88,9 @@ export const GAME_CONSTANTS = {
 export const DEALER_INSTRUCTIONS: Record<GamePhase, string> = {
     SETUP: 'プレイヤー情報を入力してください',
     PREFLOP: '各プレイヤーに2枚ずつ配ってください',
-    FLOP: '1枚バーンして、3枚のフロップを開いてください',
-    TURN: '1枚バーンして、ターンを1枚開いてください',
-    RIVER: '1枚バーンして、リバーを1枚開いてください',
+    FLOP: '3枚のフロップを開いてください',
+    TURN: 'ターンを1枚開いてください',
+    RIVER: 'リバーを1枚開いてください',
     SHOWDOWN: '残っているプレイヤーはハンドをオープンしてください',
     PAUSED: 'プレイヤーの参加を待っています',
 };

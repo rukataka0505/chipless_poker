@@ -109,6 +109,11 @@ interface GameStore extends GameState {
 
     // Archived/Left players for balance history
     removedPlayers: Player[];
+
+    // Seat Swap
+    pendingSeatOrder: string[] | null; // Player IDs in new order, null means no change
+    setSeatOrder: (playerIds: string[]) => void;
+    clearSeatOrder: () => void;
 }
 
 export const useGameStore = create<GameStore>()(
@@ -138,6 +143,8 @@ export const useGameStore = create<GameStore>()(
             lastTotalPot: 0,
             smallBlind: GAME_CONSTANTS.SMALL_BLIND,
             bigBlind: GAME_CONSTANTS.BIG_BLIND,
+
+            pendingSeatOrder: null,
             // Setup actions
             initializeGame: (playerNames: string[], initialStack?: number, smallBlind?: number, bigBlind?: number) => {
                 const initialState = createInitialState(playerNames, initialStack, smallBlind, bigBlind);
@@ -510,6 +517,25 @@ export const useGameStore = create<GameStore>()(
                     return;
                 }
 
+                // Apply pending seat order
+                const { pendingSeatOrder } = state;
+                if (pendingSeatOrder) {
+                    // Sort activePlayers based on pendingSeatOrder
+                    activePlayers.sort((a, b) => {
+                        const idxA = pendingSeatOrder.indexOf(a.id);
+                        const idxB = pendingSeatOrder.indexOf(b.id);
+                        // If not found, put at end
+                        const valA = idxA === -1 ? 9999 : idxA;
+                        const valB = idxB === -1 ? 9999 : idxB;
+                        return valA - valB;
+                    });
+
+                    // Re-assign seat indices based on new order
+                    activePlayers.forEach((p, index) => {
+                        p.seatIndex = index;
+                    });
+                }
+
                 // Construct a temporary state with processed players to pass to nextHand logic
                 const stateForNextHand = {
                     ...state,
@@ -536,6 +562,7 @@ export const useGameStore = create<GameStore>()(
                     selectedWinners: new Map(),
                     undoStack: [],  // 新ハンド開始時にUndoスタックをクリア
                     handHistories: newHandHistories,
+                    pendingSeatOrder: null, // Clear seat order after applying
                 });
             },
 
@@ -728,6 +755,16 @@ export const useGameStore = create<GameStore>()(
                 }));
             },
 
+            // Seat Swap functionality
+            setSeatOrder: (playerIds: string[]) => {
+                set({ pendingSeatOrder: playerIds });
+            },
+
+
+            clearSeatOrder: () => {
+                set({ pendingSeatOrder: null });
+            },
+
             // Undo functionality
             canUndo: () => {
                 const state = get();
@@ -785,6 +822,7 @@ export const useGameStore = create<GameStore>()(
                 handHistories: state.handHistories,
                 pendingPhase: state.pendingPhase,
                 removedPlayers: state.removedPlayers,
+                pendingSeatOrder: state.pendingSeatOrder,
             }),
             onRehydrateStorage: () => (state) => {
                 if (state) {

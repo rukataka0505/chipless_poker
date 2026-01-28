@@ -10,9 +10,9 @@ import { Button } from './ui/Button';
 const PHASE_MESSAGES: Record<GamePhase, string> = {
     SETUP: '',
     PREFLOP: '各プレイヤーに2枚ずつ配ってください',
-    FLOP: '1枚バーンして3枚のフロップを開いてください',
-    TURN: '1枚バーンしてターンを1枚開いてください',
-    RIVER: '1枚バーンしてリバーを1枚開いてください',
+    FLOP: '3枚のフロップを開いてください',
+    TURN: 'ターンを1枚開いてください',
+    RIVER: 'リバーを1枚開いてください',
     SHOWDOWN: '',
     PAUSED: '',
 };
