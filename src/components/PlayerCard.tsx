@@ -134,11 +134,12 @@ export function PlayerCard({
                 variant={(isActive || (isShowdown && isContestingPot)) ? 'highlight' : 'default'}
                 className={`
             ${isPortrait ? 'w-[204px]' : 'w-28 sm:w-36 lg:w-44'} transition-all duration-300 overflow-visible relative z-10
+            /* Gradient Backgrounds */
             ${(isActive || (isShowdown && isContestingPot))
-                        ? '!bg-slate-700 !opacity-100 shadow-xl'
-                        : '!bg-slate-800/95'
+                        ? '!bg-gradient-to-br !from-purple-500 !to-purple-700 !opacity-100 shadow-[0_8px_20px_rgba(147,51,234,0.4)] border border-purple-400/30'
+                        : '!bg-gradient-to-br !from-purple-600/90 !to-slate-900/95 border border-white/10'
                     }
-            ${isFolded ? '!bg-slate-900/60 !border-white/5' : ''}
+            ${isFolded ? '!bg-gradient-to-br !from-slate-800/80 !to-slate-900/80 !border-white/5 grayscale opacity-80' : ''}
         `}
             >
                 {/* --- Position Badges (Inside Top Right) --- */}
@@ -146,7 +147,7 @@ export function PlayerCard({
                     {/* Dealer Button */}
                     {
                         isDealer && (
-                            <div className="w-6 h-6 rounded-full bg-white text-black font-bold text-[10px] flex items-center justify-center shadow-lg border border-gray-300">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-white to-gray-200 text-black font-bold text-[10px] flex items-center justify-center shadow-lg border border-gray-300">
                                 BTN
                             </div>
                         )
@@ -157,7 +158,7 @@ export function PlayerCard({
                         position && (
                             <div className={`
                             w-6 h-6 rounded-full font-bold text-[10px] flex items-center justify-center shadow-lg border border-white/20
-                            ${position === 'SB' ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white'}
+                            ${position === 'SB' ? 'bg-gradient-to-br from-blue-500 to-blue-700 text-white' : 'bg-gradient-to-br from-purple-500 to-purple-700 text-white'}
                         `}>
                                 {position}
                             </div>
@@ -168,7 +169,7 @@ export function PlayerCard({
                 <div className={`${isPortrait ? 'py-[26px] px-4' : 'p-4'} flex flex-col items-center gap-1 mt-2`}>
                     {/* Name */}
                     <div className={`
-                    font-bold truncate w-full text-center text-shadow-outline
+                    font-bold truncate w-full text-center text-shadow-sm
                     ${isActive
                             ? (isPortrait ? 'text-2xl text-white' : 'text-base sm:text-lg text-white')
                             : (isPortrait ? 'text-xl text-gray-200' : 'text-xs sm:text-base text-gray-200')
@@ -180,12 +181,12 @@ export function PlayerCard({
 
                     {/* Stack */}
                     <div className={`
-                        font-display font-bold ${isPortrait ? 'tracking-tighter' : 'tracking-wide'} transition-all text-shadow-outline
+                        font-display font-bold ${isPortrait ? 'tracking-tighter' : 'tracking-wide'} transition-all
                         ${isActive
-                            ? (isPortrait ? 'text-6xl text-white' : 'text-2xl text-white')
-                            : (isPortrait ? 'text-5xl text-white' : 'text-xl text-white')
+                            ? (isPortrait ? 'text-6xl text-yellow-100 glow-text-gold-heavy' : 'text-2xl text-yellow-100 glow-text-gold-heavy')
+                            : (isPortrait ? 'text-5xl text-yellow-100 glow-text-gold-heavy' : 'text-xl text-yellow-100 glow-text-gold-heavy')
                         }
-                        ${isAllIn ? 'text-gold glow-text-gold animate-pulse' : ''}
+                        ${isAllIn ? 'text-red-600 glow-text-gold animate-pulse' : ''}
                         ${isFolded ? 'opacity-50' : ''}
                     `}>
                         {player.stack.toLocaleString()}
@@ -193,7 +194,7 @@ export function PlayerCard({
 
                     {/* All In Label */}
                     {isAllIn && (
-                        <span className="text-[10px] font-bold text-gold uppercase tracking-[0.2em] border border-gold/30 px-2 py-0.5 rounded-full mt-1">
+                        <span className="text-[10px] font-bold text-red-600 uppercase tracking-[0.2em] border border-red-600/30 px-2 py-0.5 rounded-full mt-1">
                             ALL IN
                         </span>
                     )}
@@ -202,7 +203,7 @@ export function PlayerCard({
                 {
                     isFolded && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <span className="text-red-500/80 font-bold uppercase tracking-[0.3em] text-sm border-y border-red-500/30 py-1 bg-black/40 backdrop-blur-[1px] px-4 rounded-full z-40">Fold</span>
+                            <span className="text-gray-600/80 font-bold uppercase tracking-[0.3em] text-sm border-y border-gray-500/30 py-1 bg-white/40 backdrop-blur-[1px] px-4 rounded-full z-40">Fold</span>
                         </div>
                     )
                 }
