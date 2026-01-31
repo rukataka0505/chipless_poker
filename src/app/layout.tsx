@@ -14,8 +14,18 @@ const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
     metadataBase: new URL('https://chipless-poker.web.app'),
-    title: 'どこでもポーカー | 手持ちのトランプでポーカー',
+    title: 'どこでもポーカー | チップ計算アプリ',
     description: 'チップがなくても、トランプ1組でいつでもポーカー',
+    keywords: [
+        'ポーカー チップ 代用',
+        'ポーカー チップ 計算 アプリ',
+        'トランプだけ ポーカー',
+        'テキサスホールデム チップ管理',
+        'ポーカー アプリ 無料',
+        'チップなし ポーカー',
+        'ポーカー 1デバイス',
+        'PWA ポーカー',
+    ],
     manifest: '/manifest.json',
     icons: {
         icon: [
@@ -30,7 +40,7 @@ export const metadata: Metadata = {
         title: 'どこでもポーカー',
     },
     openGraph: {
-        title: 'どこでもポーカー | 手持ちのトランプでポーカー',
+        title: 'どこでもポーカー | チップ計算アプリ',
         description: 'チップがなくても、トランプ1組でいつでもポーカー',
         siteName: 'どこでもポーカー',
         locale: 'ja_JP',
@@ -46,7 +56,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'どこでもポーカー | 手持ちのトランプでポーカー',
+        title: 'どこでもポーカー | チップ計算アプリ',
         description: 'チップがなくても、トランプ1組でいつでもポーカー',
         images: [
             {
